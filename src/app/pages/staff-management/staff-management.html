@@ -1,0 +1,873 @@
+  <!-- table data.....-->
+<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showTableData">
+
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-2 bg-blue-200">
+    <h2 class="text-xl font-semibold">Employee List</h2>
+<div class="">   <strong style="margin-right:8px;">Status: </strong>   <mat-slide-toggle [(ngModel)]="isChecked" (ngModelChange)="changeStatus($event)" color]="isChecked ? 'primary' : 'warn'">
+  <strong class="" style="margin-left: 12px;">{{ isChecked ? 'Active' : 'Inactive' }}</strong>
+</mat-slide-toggle></div>
+    <div class="flex flex-wrap items-center gap-4 ml-auto">
+
+     <div
+  class="flex items-center rounded-full overflow-hidden border border-gray-300 bg-white shadow-sm focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-red-100 transition"
+>
+  <input
+    matInput
+    class="px-4 py-2 border-0 outline-none focus:outline-none focus:ring-0 text-sm w-58"
+    placeholder="Search..."
+    (keyup)="applyFilter($event)"/>
+  <button
+    mat-icon-button
+    class="h-full flex items-center justify-center px-3 hover:bg-gray-100">
+    <mat-icon class="text-gray-500 text-base">search</mat-icon>
+  </button>
+</div>
+
+<!-- Device select -->
+<div class="flex items-center gap-2 mt-2">
+
+<mat-form-field appearance="fill" class="w-56 !m-0 custom-field">
+  <mat-select placeholder="Select Device" multiple>
+
+    <!-- Trigger Text -->
+    <mat-select-trigger>
+      <ng-container *ngIf="selectedDeviceIds.length === 0">
+        Select Device
+      </ng-container>
+
+      <ng-container *ngIf="selectedDeviceIds.length === 1">
+        {{ getDeviceName(selectedDeviceIds[0]) }}
+      </ng-container>
+
+      <ng-container *ngIf="selectedDeviceIds.length === 2">
+        {{ getDeviceName(selectedDeviceIds[0]) }},
+        {{ getDeviceName(selectedDeviceIds[1]) }}
+      </ng-container>
+
+      <ng-container *ngIf="selectedDeviceIds.length > 2">
+        {{ getDeviceName(selectedDeviceIds[0]) }},
+        {{ getDeviceName(selectedDeviceIds[1]) }}
+        +{{ selectedDeviceIds.length - 2 }} more
+      </ng-container>
+    </mat-select-trigger>
+
+    <!-- Select All -->
+    <mat-option (click)="$event.stopPropagation()">
+      <mat-checkbox
+        [checked]="isAllSelected"
+        (click)="$event.stopPropagation()"
+        (change)="toggleSelectAll($event)"
+      >
+        Select All
+      </mat-checkbox>
+    </mat-option>
+
+    <!-- List -->
+    <mat-option *ngFor="let device of devicesList" (click)="$event.stopPropagation()">
+      <mat-checkbox
+        [checked]="isSelected(device.serialNum)"
+        (click)="$event.stopPropagation()"
+        (change)="toggleDevice(device.serialNum, $event)"
+      >
+        {{ device.deviceName }}
+      </mat-checkbox>
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+
+</div>
+
+
+        <button
+        mat-raised-button
+        class="bg-blue-500 hover:bg-blue-600 text-white normal-case export-btn"
+        (click)="addnew()"  
+      >
+    <span class="flex items-center gap-1"> <img src="/assets/images/add-btnn.png" alt="">
+        Add New</span>
+      </button>
+    </div>
+  </div>
+  <div class="">
+
+
+  <!-- Top controls: column toggles + buttons -->
+  <div class=" mb-4">
+    <!-- Column toggles -->
+    <div class="flex justify-between items-center gap-2 text-sm">
+<div class="select-wrapper border-blue-500" #dropdown>
+  <div class="select-box font-medium " (click)="openDropdown($event)">
+    Select Columns
+    <span class="arrow">▼</span>
+  </div>
+
+  <div class="options" *ngIf="isDropdownOpen">
+    <label *ngFor="let col of columns">
+      <input
+        type="checkbox"
+        [(ngModel)]="col.checked"
+        (change)="updateColumns()"
+      />
+    <span class="font-medium">  {{ col.label }}</span>
+    </label>
+  </div>
+</div>
+
+<div class=" flex gap-3 items-center ">
+        <!-- Action buttons -->
+
+
+
+
+
+    <button
+  (click)="OpenUploadSelectedUserModal()"
+  class="inline-flex items-center gap-2 rounded-md bg-sky-800 px-5 py-2 text-sm font-semibold text-white
+         shadow-md transition-all duration-200
+         hover:bg-sky-600 hover:shadow-lg
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2"
+>
+ 
+  Upload to Device
+</button>
+
+    
+
+     
+     
+
+
+<div class="relative inline-block delete-menu-wrapper">
+
+<button
+  type="button"
+  (click)="toggleDeleteMenu()"
+  class="inline-flex items-center gap-2 h-9 px-5
+         rounded-md bg-sky-800 text-sm font-semibold text-white
+         shadow-md transition-all duration-200
+         hover:bg-sky-600 hover:shadow-lg
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
+  Delete
+  <mat-icon class="text-[20px]">arrow_drop_down</mat-icon>
+</button>
+
+
+  <!-- Dropdown Menu -->
+  <div
+    *ngIf="showDeleteMenu"
+    class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+  >
+    <ul class="py-1 text-sm text-gray-700">
+      <!-- Option 1: Delete All -->
+      <li>
+        <button
+          class="w-full text-left text-blue-600 px-4 py-2 cursor-pointer  hover:bg-red-50 hover:text-red-600 flex items-center gap-2"
+          type="button"
+          (click)="emponDeleteDevices()"
+        >
+          <i class="bi bi-trash-fill"></i>
+          Delete form Devices
+        </button>
+      </li>
+
+      <!-- Option 2: Delete Emp-wise -->
+      <li>
+        <button
+          class="w-full text-left px-4 py-2 text-blue-600 cursor-pointer hover:bg-red-50 hover:text-red-600  flex items-center gap-2"
+          type="button"
+          (click)="emponDeleteSoftware()"
+        >
+          <i class="bi bi-people-fill"></i>
+          Delete form Software
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
+
+ <button
+  (click)="ExportTOExcel()"
+  class="inline-flex items-center gap-2 rounded-md px-5 border py-2 text-sm font-semibold text-blue-600 border-blue-800
+         shadow-md transition-all duration-200
+         hover:bg-sky-200 hover:shadow-md cursor-pointer"
+       
+>
+ 
+<span class="flex items-center gap-2"> Export <img src="assets/images/excel.png" alt="" class="h-5"> </span>
+ 
+</button>
+
+    </div>
+
+  
+  </div>
+  </div>
+
+<!-- Table -->
+<div class="border border-gray-200 rounded-md overflow-hidden">
+
+  <div class="max-h-80 overflow-y-auto" #TABLE>
+  <table
+  mat-table #table
+  [dataSource]="dataSource"
+  class="w-full text-sm">
+
+  <!-- Sr No Column -->
+  <ng-container matColumnDef="Srno">
+    <th mat-header-cell *matHeaderCellDef class="w-18 sticky top-0 bg-white z-10">Sr No.</th>
+    <td mat-cell *matCellDef="let element; let i = index">
+    {{ (pageIndex * pageSize) + i + 1 }}
+    </td>
+  </ng-container>
+
+
+  <!-- Select checkbox -->
+  <ng-container matColumnDef="select">
+    <th
+      mat-header-cell
+      *matHeaderCellDef
+      class="w-10 sticky top-0 bg-white z-10"
+    >
+      <!-- Select All -->
+      <mat-checkbox
+        [(ngModel)]="isAllSelectedemp"
+        (change)="toggleSelectAllemp($event)"
+      >
+      </mat-checkbox>
+    </th>
+
+    <td mat-cell *matCellDef="let row">
+      <mat-checkbox
+        [(ngModel)]="row.select"
+        (change)="onRowSelectionChange(row)"
+      >
+      </mat-checkbox>
+    </td>
+  </ng-container>
+
+  <!-- Biometric ID -->
+  <ng-container matColumnDef="biometricId" *ngIf="showBiometricId">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+      Biometric ID
+    </th>
+    <td mat-cell *matCellDef="let row">{{ row.enrollId }}</td>
+  </ng-container>
+
+  <!-- Name -->
+  <ng-container matColumnDef="name" *ngIf="showName">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+      Name
+    </th>
+    <td mat-cell *matCellDef="let row" class="">
+      {{ row.name }}
+    </td>
+  </ng-container>
+
+  <!-- Employee ID -->
+  <ng-container matColumnDef="employeeId" *ngIf="showEmployeeId">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+      Employee ID
+    </th>
+    <td mat-cell *matCellDef="let row">
+      {{ row.userId }}
+    </td>
+  </ng-container>
+
+  <!-- Level -->
+  <ng-container matColumnDef="level" *ngIf="showLevel">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+      Level
+    </th>
+    <td mat-cell *matCellDef="let row" class="uppercase">
+      {{ row.rollId == 1 ? "Manager" : "User" }}
+    </td>
+  </ng-container>
+
+    <!-- Status... -->
+  <ng-container matColumnDef="empStatus" *ngIf="showstatus">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+      Status
+    </th>
+    <td mat-cell *matCellDef="let row" class="">
+      {{row.empStatus}}
+    </td>
+  </ng-container>
+
+<!-- Photo -->
+<ng-container matColumnDef="photo" *ngIf="showPhoto">
+  <th mat-header-cell *matHeaderCellDef
+      class="font-semibold sticky top-0 bg-white z-10">
+    Photo
+  </th>
+
+  <td mat-cell *matCellDef="let row">
+ <img
+  [src]="row.img || 'assets/images/182-1828676_person-icons-person-icon.png'"
+  alt="photo"
+  class="h-14 w-14 rounded-sm object-cover border border-gray-300"
+/>
+
+  </td>
+</ng-container>
+
+
+  <!-- Edit -->
+  <ng-container matColumnDef="edit" *ngIf="showEdit">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+      Edit
+    </th>
+    <td mat-cell *matCellDef="let row">
+      <button
+        mat-icon-button
+        class="edit-btn"
+        (click)="editData(row.enrollId)"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <!-- Header & Row -->
+  <tr mat-header-row *matHeaderRowDef="visibleColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: visibleColumns;"></tr>
+</table>
+
+  </div>
+
+  <!-- Paginator-style bottom -->
+     <div class="flex items-center justify-end px-4 py-2 text-xs text-gray-600">
+        <mat-paginator
+  [pageSize]="pageSize"
+  [pageSizeOptions]="[10, 20, 30, 40, 50]"
+  (page)="onPageChange($event)">
+</mat-paginator>
+    </div>
+</div>
+
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- form Code........... -->
+
+
+
+
+<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showFormData">
+
+ <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
+    <h2 class="text-xl font-semibold">Add Employee</h2>
+
+    <div class="flex flex-wrap items-center gap-4 ml-auto">
+      <!-- Search box -->
+    
+        <button
+        mat-raised-button
+        class="bg-blue-500 hover:bg-blue-600 text-white normal-case"
+        (click)="backtoList()"
+      >
+<span class="flex items-center gap-1 cursor-pointer">
+  <img src="/assets/images/arrow.png" alt="Back" class="h-8" />
+  Go Back to List
+</span>
+      </button>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="p-4 md:p-6 bg-white rounded-lg shadow-sm border border-gray-100 max-w-6xl mx-auto">
+ 
+
+ 
+
+  <!-- Form -->
+  <form [formGroup]="form"  class="space-y-6">
+
+    <!-- Row 1: Biometric ID & Name -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+   <mat-form-field 
+  appearance="fill"
+  class="w-full custom-field"
+>
+  <mat-label>Biometric ID <span class="text-red-500"></span></mat-label>
+  <input
+    matInput
+    type="number"
+    formControlName="enrollId"
+    placeholder="Enter biometric ID"
+  />
+  <mat-error *ngIf="form.get('biometricId')?.hasError('required')">
+    Biometric ID is required
+  </mat-error>
+</mat-form-field>
+
+
+
+    <!-- Row 2: Employee ID & Backup Num -->
+      <!-- Employee ID -->
+      <mat-form-field  class="w-full custom-field">
+        <mat-label>Employee ID <span class="text-red-500"></span></mat-label>
+        <input
+          matInput
+          type="text"
+         class=""
+          formControlName="userId"
+          placeholder="Enter employee Id"
+        />
+        <mat-error *ngIf="form.get('employeeId')?.hasError('required')">
+          Employee ID is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="w-full custom-field">
+  <mat-label>Name</mat-label>
+  <input
+    matInput
+    type="text"
+    formControlName="name"
+    placeholder="Enter full name"
+  />
+  <mat-error *ngIf="form.get('name')?.hasError('required')">
+    Name is required
+  </mat-error>
+</mat-form-field>
+
+
+
+
+
+
+
+
+      <mat-form-field appearance="fill" class="w-full custom-field">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          type="text"
+          formControlName="password"
+          placeholder="Enter Password"
+        />
+      </mat-form-field>
+   <mat-form-field appearance="fill" class="w-full custom-field">
+        <mat-label>Card Number</mat-label>
+        <input
+          matInput
+          type="text"
+          formControlName="cardNum"
+          placeholder="Enter card number"
+        />
+      </mat-form-field>
+<mat-form-field appearance="fill" class="w-full custom-field">
+  <mat-label>
+    Select Location <span class="text-red-500"></span>
+  </mat-label>
+  <mat-select formControlName="locationId">
+    @for (item of getAllListlocation; track $index) {
+      <mat-option [value]="item.locationId">
+        {{ item.locationName }}
+      </mat-option>
+    }
+  </mat-select>
+
+  <mat-error *ngIf="form.get('locationId')?.hasError('required') && form.get('locationId')?.touched">
+    Location is required
+  </mat-error>
+</mat-form-field>
+
+         <mat-form-field appearance="fill" class="w-full custom-field">
+        <mat-label>Select Department <span class="text-red-500"></span></mat-label>
+        <mat-select formControlName="deptId">
+          @for (item of getAllListdepartment; track $index){
+          <mat-option [value]="item.deptId"> {{item.deptName}} </mat-option>
+          }
+        </mat-select>
+        <mat-error *ngIf="form.get('deptId')?.hasError('required')">
+          Department is required
+        </mat-error>
+      </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-full custom-field">
+        <mat-label>Select Group <span class="text-red-500"></span></mat-label>
+        <mat-select formControlName="groupId">
+          @for(item of getAllListgroup; track $index){
+          <mat-option [value]="item.groupId"> {{item.groupName}} </mat-option>
+          }
+        </mat-select>
+        <mat-error *ngIf="form.get('groupId')?.hasError('required')">
+          Group is required
+        </mat-error>
+      </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-full custom-field">
+        <mat-label>Select Category <span class="text-red-500"></span></mat-label>
+        <mat-select formControlName="categoryId">
+          @for(item of getAllListcategory; track $index){
+          <mat-option [value]="item.categoryId"> {{item.categoryName}} </mat-option>
+        }
+        </mat-select>
+        <mat-error *ngIf="form.get('categoryId')?.hasError('required')">
+          Category is required
+        </mat-error>
+      </mat-form-field>
+
+
+  
+  <mat-radio-group
+    class="flex gap-4 mb-3"
+    [(ngModel)]="empType"
+    [ngModelOptions]="{ standalone: true }">
+    <mat-radio-button value="staff">Staff</mat-radio-button>
+    <mat-radio-button value="contractor">Contractor</mat-radio-button>
+  </mat-radio-group>
+
+
+  <mat-form-field
+    appearance="fill"
+    class="w-full custom-field"
+    *ngIf="empType === 'contractor'"
+  >
+    <mat-label>
+      Select Contractor <span class="text-red-500">*</span>
+    </mat-label>
+
+    <mat-select formControlName="conId">
+      <mat-option
+        *ngFor="let item of getAllListcontractor"
+        [value]="item.conId">
+        {{ item.contractorName }}
+      </mat-option>
+    </mat-select>
+
+    <mat-error *ngIf="form.get('conId')?.hasError('required')">
+      Contractor is required
+    </mat-error>
+  </mat-form-field>
+
+
+         <mat-form-field appearance="fill" class="w-full custom-field">
+        <mat-label>Select Company <span class="text-red-500"></span></mat-label>
+        <mat-select formControlName="companyName">
+@for (item of getAllListcompany; track $index) {
+                 <mat-option [value]="item.companyName"> {{item.companyName}} </mat-option>
+}
+        </mat-select>
+        <mat-error *ngIf="form.get('conId')?.hasError('required')">
+          Contractor is required
+        </mat-error>
+      </mat-form-field>
+      <!-- Level -->
+     
+  <mat-form-field appearance="fill" class="w-full custom-field">
+  <mat-label>Privilege</mat-label>
+  <mat-select formControlName="rollId">
+    <mat-option [value]="0">User</mat-option>
+    <mat-option [value]="1">Manager</mat-option>
+  </mat-select>
+</mat-form-field>
+
+ 
+
+  <mat-form-field appearance="fill" class="w-full custom-field">
+  <mat-label>Status</mat-label>
+  <mat-select formControlName="empStatus">
+    <mat-option value="Active">Active</mat-option>
+    <mat-option value="Inactive">Inactive</mat-option>
+  </mat-select>
+</mat-form-field> 
+
+
+  <mat-form-field appearance="fill" class="w-full custom-field">
+  <mat-label>Select Role</mat-label>
+  <mat-select formControlName="empStatus">
+    <mat-option value="BRANCH_ADMIN">Branch Admin</mat-option>
+    <mat-option value="ADMIN">Admin</mat-option>
+  </mat-select>
+</mat-form-field> 
+
+
+    
+
+
+
+ <!-- <mat-form-field
+    appearance="fill" class="w-full custom-field"
+  >
+    <mat-label>Joining Date</mat-label>
+    <input
+      matInput
+      [matDatepicker]="toPicker"
+      formControlName="joining_date"
+    />
+    <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+    <mat-datepicker #toPicker></mat-datepicker>
+  </mat-form-field> -->
+
+      </div>
+
+    <!-- Photo field -->
+<div class="mt-4 space-y-3">
+
+  <!-- Label -->
+  <label class="block text-sm font-medium text-gray-700">
+   Add Photo <span class="text-red-500"></span>
+  </label>
+
+  <!-- Option buttons -->
+  <div class="flex flex-wrap gap-3">
+    <!-- Choose from files -->
+    <button
+     class="btn-select-photo"
+      mat-stroked-button
+      type="button"
+      (click)="fileInput.click()"
+    >
+      Choose from files
+    </button>
+
+    <!-- Hidden file input -->
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      class="hidden"
+      (change)="onFileSelected($event)"
+    />
+
+    <div *ngIf="photoPreview" class="">
+    <p class="text-xs text-gray-500 mb-1">
+      Selected photo:
+    </p>
+    <img
+      [src]="photoPreview"
+      alt="Selected photo"
+      class="w-24 h-24 rounded-md object-cover border border-gray-300"
+    />
+  </div>
+
+    <!-- <button
+      mat-raised-button
+      color="accent"
+      type="button"
+      (click)="openCamera()"
+    >
+      Open Camera
+    </button>
+
+    <button
+      *ngIf="isCameraOn"
+      mat-stroked-button
+      type="button"
+      (click)="closeCamera()"
+    >
+      Close Camera
+    </button>
+  </div> -->
+
+  <!-- Camera preview + Capture button -->
+  <!-- <div *ngIf="isCameraOn" class="mt-3">
+    <video
+      #video
+      autoplay
+      playsinline
+      class="w-60 h-60 bg-black rounded-md object-cover border border-gray-300"
+    ></video>
+
+    <div class="mt-2">
+      <button
+        mat-raised-button
+        color="warn"
+        type="button"
+        (click)="capturePhoto()"
+      >
+        Capture Photo
+      </button>
+    </div> -->
+  </div>
+
+  <!-- Captured / Selected image preview -->
+  
+
+  <p class="text-red-500 text-xs mt-1" *ngIf="photoRequiredError">
+    Photo is required (choose file or capture from camera)
+  </p>
+</div>
+
+
+   
+
+
+      <!-- Photo URL -->
+      <!-- <mat-form-field appearance="fill" class="w-full custom-field">
+        <mat-label>Photo URL</mat-label>
+        <input
+          matInput
+          type="text"
+          formControlName="photoUrl"
+          placeholder=""
+        />
+      </mat-form-field> -->
+
+    <!-- Actions -->
+
+
+    <div class="flex items-center justify-start gap-3 pt-4 border-t border-gray-100">
+  <button
+    mat-raised-button
+    type="button"
+    class="btn-cancel px-6 py-2 rounded-md"
+    (click)="onCancel()"
+  >
+    Cancel
+  </button>
+
+  @if (!isEditMode) {
+    <button
+      mat-stroked-button
+      type="submit"
+      (click)="onSubmit()"
+      class="btn-save px-6 py-2 rounded-md font-semibold"
+    >
+      Save
+    </button>
+  }
+
+  @if (isEditMode) {
+    <button
+      mat-stroked-button
+      type="submit"
+      (click)="onUpdate()"
+      class="btn-save px-6 py-2 rounded-md font-semibold"
+    >
+      Update
+    </button>
+  }
+</div>
+
+  </form>
+</div>
+
+</div>
+
+
+
+
+<ng-template #callAPIDialog>
+  <form class="form-horizontal p-6" id="form5 "> 
+    <h5 class="py-3 text-lg font-semibold ">Add  BackupNum </h5> 
+    <div class="form-group" >
+       <h5 class="">Add  BackupNum </h5> 
+    </div>
+<mat-form-field appearance="fill" style="margin-top: -20px;">
+  <mat-label>BackupNum</mat-label>
+
+  <mat-select
+    id="uploaddata"
+    multiple
+    [(value)]="selectedIds"
+    (selectionChange)="onSelectionChangeBackupNum($event)"
+  >
+    <!-- Select All row -->
+    <mat-option>
+      <mat-checkbox
+        [checked]="isAllSelectedBackupNum"
+        (click)="$event.stopPropagation()"
+        (change)="toggleSelectAllBackupNum()"
+      >
+        Select All
+      </mat-checkbox>
+    </mat-option>
+
+    <!-- Items with checkbox -->
+    <mat-option
+      *ngFor="let item of MyArrayType"
+      [value]="item.id"
+      
+    >
+      <mat-checkbox
+        [checked]="selectedIds.includes(item.id)"
+        (change)="toggleSingleBackupNum(item.id, $event.checked)"
+        (click)="$event.stopPropagation()"
+      >
+        {{ item.text }}
+      </mat-checkbox>
+    </mat-option>
+
+  </mat-select>
+</mat-form-field>
+
+
+ </form>
+
+ <mat-dialog-actions align="center">
+	<button mat-raised-button class="btn-save" mat-dialog-close (click)="uploadSelctedUserToDevice()">Save</button>
+	<button mat-raised-button mat-dialog-close class="btn-cancle" tabindex="-1">Cancel</button>
+</mat-dialog-actions>
+</ng-template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ngx-spinner
+  bdColor="rgba(51,51,51,0.8)" class="bg-blue-500"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple">
+  <p class="text-white text-lg mt-4">Please wait sometime...</p>
+</ngx-spinner>
+
+

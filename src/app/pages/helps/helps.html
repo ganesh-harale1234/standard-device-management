@@ -1,0 +1,14 @@
+<div class="text-align:left">  
+    <button class="" style="cursor: pointer; padding: 7px 14px; background-color: rgb(57, 57, 177); color: white;">
+        <a [href]="pdfSrc" target="_blank" download="Device-Management-System-Manual.pdf" >Download here</a></button>
+</div>
+'
+    <section class="mt-2" id="content-wrapper">        
+<pdf-viewer
+  [src]="pdfSrc"
+  [render-text]="true"
+  style="display: block; height: 80vh; width: 100%;"
+></pdf-viewer>
+
+
+    </section>  

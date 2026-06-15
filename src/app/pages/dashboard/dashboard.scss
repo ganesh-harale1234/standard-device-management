@@ -1,0 +1,44 @@
+.mat-table-full-width .mat-header-cell,
+.mat-table-full-width .mat-cell {
+  white-space: nowrap;
+}
+
+.mat-column-serialNum,
+.mat-column-IoStatus,
+.mat-column-fingerPrintCount,
+.mat-column-faceCount,
+.mat-column-transectionCount,
+.mat-column-userCount,
+.mat-column-deviceName,
+.mat-column-offlineSince,
+.mat-column-id,
+.mat-column-ipAddress,
+.mat-column-area,
+.mat-column-srNo,
+.mat-column-lastActivity {
+  white-space: nowrap;
+}
+
+.mat-column-serialNum,
+.mat-column-fingerPrintCount {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.border-sky-5000{
+  border: 1px solid rgb(19, 22, 190) !important;
+}
+
+.online{
+  color: green !important;
+}
+.offline{
+  color: rgb(250, 22, 22) !important;
+}
+
+.in{
+  color: green !important;
+}
+.input{
+  color: blue($color: #fd0a0a);
+}

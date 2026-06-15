@@ -1,0 +1,33 @@
+ ::ng-deep .mat-internal-form-field>label {
+    margin-left: 0;
+    margin-right: auto;
+    padding-left: 0px !important;
+    padding-right: 0;
+    order: 0;
+    font-weight: 600 !important;
+}
+
+::ng-deep .mat-mdc-option .mat-pseudo-checkbox {
+  display: none !important;
+}
+
+/* Select All checkbox purple color */
+::ng-deep .select-all-purple .mdc-checkbox__background {
+  border-color: #7c3aed !important;      /* purple */
+}
+
+::ng-deep .select-all-purple.mat-mdc-checkbox-checked .mdc-checkbox__background,
+::ng-deep .select-all-purple.mat-mdc-checkbox-indeterminate .mdc-checkbox__background {
+  background-color: #7c3aed !important;
+  border-color: #7c3aed !important;
+}
+
+
+ ::ng-deep .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
+    margin-bottom: -12px !important;
+}
+
+
+
+
+

@@ -1,0 +1,187 @@
+<div class="p-0 bg-[#cfe8ff]">
+  <!-- TOP FILTER BAR -->
+  <div
+  class="flex flex-wrap items-center justify-center gap-5 px-3 py-3 bg-[#cfe8ff] border-b border-gray-400"
+>
+
+
+  <!-- Name or ID -->
+    <div class="relative w-52">   
+
+  <!-- Name or ID -->
+  <mat-form-field appearance="fill" class="w-full custom-field rounded-none">
+    <mat-label>Emp Name or Id</mat-label>
+    <input
+      matInput placeholder="Enter employeeId"
+      (input)="onSearchEmp($event)"
+      [(ngModel)]="searchTextemp"
+    />
+  </mat-form-field>
+
+<!-- Search Dropdown -->
+<div
+  *ngIf="showDropdown && employeeList.length > 0"
+  class="absolute left-0 right-0 bg-white border rounded shadow-md max-h-60 overflow-auto z-50"
+  style="top: 100%; margin-top: 2px;">
+  <div
+    *ngFor="let emp of employeeList"
+    (click)="onSelectEmployee(emp)"
+    class="p-2 hover:bg-gray-200 cursor-pointer"
+  >
+    {{ emp.name }} ({{ emp.userId }})
+  </div>
+</div>
+
+<div
+  *ngIf="showDropdown && searchDone && employeeList.length === 0 && searchTextemp"
+  class="absolute left-0 right-0 text-sm text-gray-500 mt-1 bg-white p-2 z-40 border rounded"
+  style="top: 100%; margin-top: 2px;"
+>
+  No employee found.
+</div>
+
+</div>
+
+
+  <!-- From date -->
+  <mat-form-field
+    appearance="fill"
+    class="w-44 !m-0  rounded-none custom-field"
+  >
+    <mat-label>From</mat-label>
+    <input
+      matInput
+      [matDatepicker]="fromPicker"
+      [(ngModel)]="fromDate"
+    />
+    <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+    <mat-datepicker #fromPicker></mat-datepicker>
+  </mat-form-field>
+
+  <!-- To date -->
+  <mat-form-field
+    appearance="fill"
+    class="w-44 !m-0  rounded-none custom-field"
+  >
+    <mat-label>To</mat-label>
+    <input
+      matInput
+      [matDatepicker]="toPicker"
+      [(ngModel)]="toDate"
+    />
+    <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+    <mat-datepicker #toPicker></mat-datepicker>
+  </mat-form-field>
+
+  <!-- Buttons (right aligned) -->
+  <div class="flex items-center gap-2 ">
+    <button style="cursor: pointer;"
+     
+      color="primary"
+      class="bg-blue-600 text-white px-2 py-2 !text-sm mb-4"
+      (click)="accessGrantedReport()">
+      View Report
+    </button>
+
+    <button
+      color="primary"style="cursor: pointer;"
+      class="bg-blue-700 text-white px-2 py-2 !text-sm flex items-center mb-4"
+      (click)="onExportPdf()">
+      <mat-icon class="!text-base">download</mat-icon>
+      Export to pdf
+    </button>
+  </div>
+</div>
+
+
+  <!-- REPORT HEADER AREA -->
+
+   <div id="contentToConvert">
+  <div class="border border-black border-t-0">
+    <!-- Title row -->
+    <div class="border-b border-black bg-[#cfe8ff] text-center py-2">
+      <span class="font-semibold text-lg">Access Granted Report</span>
+    </div>
+
+    <!-- Date / Time row -->
+    <div class="border-b border-black bg-[#cfe8ff] text-center py-3 text-sm">
+      <div>
+        From Date:
+        <span class="font-semibol ">
+          {{ fromDate | date: 'MMM d, y' }}
+          to
+          {{ toDate | date: 'MMM d, y' }}
+        </span>
+      </div>
+      <div>
+        Report Time:
+        <span class="font-semibol">
+          {{ now | date: 'MMM d, y, h:mm:ss a' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- TABLE HEADER ROW -->
+    <div class="" style="background-color: white !important;">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr>
+            <th class="border border-black px-2 py-3 text-sm">Sr No.</th> 
+            <th class="border border-black px-2 py-3 text-sm">Employee Id</th>
+            <th class="border border-black px-2 py-3 text-sm">Employee Name</th>
+                        <th class="border border-black px-2 py-3 text-sm">  Device Name </th>
+            <th class="border border-black px-2 py-3 text-sm">Record Date </th>
+            <th class="border border-black px-2 py-3 text-sm">IO Status</th>
+                        <!-- <th class="border border-black px-2 py-3 text-sm">Zone</th> -->
+                        <!-- <th class="border border-black px-2 py-3 text-sm">Discription</th> -->
+
+          </tr>
+        </thead>
+   <tbody>
+   
+
+
+          <tr *ngFor="let row of reportData; index as i">
+            <td class="border border-black px-2 py-2 text-sm text-center">
+              {{ i + 1 }}
+            </td>
+            <td class="border border-black px-2 py-2 text-sm">
+              {{ row.employeeId }}
+            </td>
+            <td class="border border-black px-2 py-2 text-sm">
+              {{ row.employeeName }}
+            </td>
+            <td class="border border-black px-2 py-2 text-sm text-center">
+              {{ row.deviceName  }}
+            </td>
+            <td class="border border-black px-2 py-2 text-sm text-center">
+              {{ row.recordDate | date: 'dd-MM-yyyy' }}
+            </td>
+ <td class="border border-black px-2 py-1 text-xs text-center">
+                {{formatIoStatus(row?.ioStatus)}}
+            </td>
+
+              <!-- <td class="border border-black px-2 py-1 text-xs text-center">
+              {{ row.zone }}
+            </td> -->
+          
+<!--           
+              <td class="border border-black px-2 py-2 text-sm text-center">
+              {{ row.description }}
+            </td> -->
+          </tr>
+
+          <!-- <tr *ngIf="reportData.length === 0">
+            <td
+              colspan="6"
+              class="border border-black px-2 py-4 text-center text-sm"
+            >
+              No records found
+            </td>
+          </tr> -->
+        </tbody> 
+      </table>
+    </div>
+  </div>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+.heading{
+    font-weight: 500;
+    font-size: 14px;
+   white-space: nowrap !important;
+}
+
+.data{
+    white-space: nowrap !important;
+ width: 440px;
+}
+
+
+
+/* ========================= */
+/* Chrome, Edge, Safari */
+/* ========================= */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;      /* Y-axis scrollbar width */
+  height: 6px;     /* X-axis scrollbar height */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #e5e7eb;   /* light gray */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #0284c7;   /* sky-600 */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #0369a1;   /* darker on hover */
+}
+
+/* ========================= */
+/* Firefox */
+/* ========================= */
+.custom-scrollbar {
+  scrollbar-width: thin;                 /* thin */
+  scrollbar-color: #0284c7 #e5e7eb;       /* thumb track */
+}

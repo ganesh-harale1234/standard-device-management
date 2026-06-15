@@ -1,0 +1,218 @@
+<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showTableData">
+
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-1 bg-blue-200">
+    <h2 class="text-xl font-semibold">Get Personal Details</h2>
+
+
+    <div class="flex flex-wrap items-center gap-4 ml-auto">
+        <!-- Search box -->
+      <div
+        class="flex items-center rounded-full overflow-hidden border border-gray-300 bg-white shadow-sm focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-red-100 transition">
+        <input
+          matInput
+          class="px-4 py-2 border-0 outline-none focus:outline-none focus:ring-0 text-sm w-54"
+          placeholder="Search..." placeholder="Search here..."
+          (keyup)="applyFilter($event)"/>
+
+        
+        <button
+          mat-icon-button
+          class="h-full flex items-center justify-center px-3 hover:bg-gray-100">
+          <mat-icon class="text-gray-500 text-base">search</mat-icon>
+        </button>
+      </div>
+        <div class="font-semibold">Total Count : <span> {{totalCount}} </span> </div>
+            <div class=""> <button class="export-btn" mat-raised-button (click)="ExportTOExcel()"> Export to Excel</button> </div>
+
+
+     
+
+      <!-- Device select -->
+<div class="flex items-center gap-2 mt-2">
+
+  <mat-form-field appearance="fill" class="w-56 !m-0 custom-field">
+    <mat-select
+      placeholder="Select Device"
+      multiple
+    >
+      <mat-select-trigger>
+        <ng-container *ngIf="selectedDeviceIds.length === 0">
+          Select Device
+        </ng-container>
+
+        <!-- 1 item -->
+        <ng-container *ngIf="selectedDeviceIds.length === 1">
+          {{ getDeviceName(selectedDeviceIds[0]) }}
+        </ng-container>
+
+        <ng-container *ngIf="selectedDeviceIds.length === 2">
+          {{ getDeviceName(selectedDeviceIds[0]) }},
+          {{ getDeviceName(selectedDeviceIds[1]) }}
+        </ng-container>
+
+        <ng-container *ngIf="selectedDeviceIds.length > 2">
+          {{ getDeviceName(selectedDeviceIds[0]) }},
+          {{ getDeviceName(selectedDeviceIds[1]) }}
+          +{{ selectedDeviceIds.length - 2 }} more
+        </ng-container>
+      </mat-select-trigger>
+
+      <!-- Select All Row -->
+      <mat-option (click)="$event.stopPropagation()">
+        <mat-checkbox
+          class="select-all-purple"
+          [checked]="isAllSelected"
+          (click)="$event.stopPropagation()"
+          (change)="toggleSelectAll($event)"
+        >
+          Select All
+        </mat-checkbox>
+      </mat-option>
+
+      <!-- Devices -->
+      <mat-option
+        *ngFor="let device of devicesList"
+        (click)="$event.stopPropagation()"
+      >
+        <mat-checkbox
+          [checked]="isSelected(device.id)"
+          (click)="$event.stopPropagation()"
+          (change)="toggleDevice(device.id, $event)"
+        >
+          {{ device.deviceName }}
+        </mat-checkbox>
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+
+     <div class=""></div>
+    </div>
+  </div>
+
+
+
+
+
+  <div class="overflow-x-auto" #TABLE>
+      <!-- <div class="max-h-80 overflow-y-auto" #TABLE></div> -->
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      class="min-w-full w-full mat-elevation-z1 mat-table-full-width"
+    >
+ <ng-container matColumnDef="id">
+  <th mat-header-cell *matHeaderCellDef class="font-semibold">Sr No.</th>
+  <td mat-cell *matCellDef="let element; let i = index">
+    {{ (paginator.pageIndex * paginator.pageSize) + i + 1 }}
+  </td>
+</ng-container>
+
+      <ng-container matColumnDef="serialNum">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+          Employee ID
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.employeeId }}
+        </td>
+      </ng-container>
+  
+      <ng-container matColumnDef="area">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+         Employee Name
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.employeeName }}
+        </td>
+      </ng-container>
+
+      <!-- Device Name -->
+      <ng-container matColumnDef="deviceName">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+          Device Name
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.deviceName }}
+        </td>
+      </ng-container>
+
+      <!-- Device IP -->
+      <ng-container matColumnDef="fingerprint">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+         Fingerprint
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.fingerprint==1 ? 'Y' :'N' }}
+        </td>
+      </ng-container>
+
+        <ng-container matColumnDef="face">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+         Face
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.face==1 ? 'Y' :'N' }}
+        </td>
+      </ng-container>
+
+        <ng-container matColumnDef="card">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+         Card
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.card==1 ? 'Y' :'N' }}
+        </td>
+      </ng-container>
+        <ng-container matColumnDef="password">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+         Password
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.password==1 ? 'Y' :'N' }}
+        </td>
+      </ng-container>
+      <!-- Header & Row -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="hover:bg-gray-50"
+      ></tr>
+    </table>
+  </div>
+
+  <!-- Paginator -->
+<mat-paginator
+  [pageSize]="10"
+  [pageSizeOptions]="[10, 20, 30, 40, 50]"
+  showFirstLastButtons>
+</mat-paginator>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

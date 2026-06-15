@@ -1,0 +1,90 @@
+<div class="">
+<div class="flex items-center justify-between">
+  <h1 class="text-xl font-semibold mb-4">Track Person</h1>
+
+
+  <div class="flex justify-end mb-4">
+       <div
+        class="flex items-center rounded-full overflow-hidden border border-gray-900 bg-white shadow-sm focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-red-900 transition">
+        <input
+          matInput #searchInput
+          class="px-4 py-2 border-0  focus:outline-none focus:ring-0 text-sm w-64"
+           placeholder="Search Enroll ID" (keyup)="getempId($event)"/>
+        <button
+          mat-icon-button
+          class="h-full flex items-center justify-center px-3 hover:bg-gray-100">
+          <mat-icon class="text-gray-500 text-base">search</mat-icon>
+        </button>
+      </div>
+  </div>
+  </div>
+
+<div class="relative bg-white shadow rounded-lg p-10 overflow-x-auto">
+  <div class="flex items-center gap-15 w-max">
+
+    <img src="assets/images/walking-man.png" alt="" class="w-25 h-30" />
+
+    <ng-container *ngFor="let item of timeEvents; let i = index">
+
+      <div class="relative flex flex-col items-center">
+<div
+  class="relative w-28 h-28 rounded-full flex flex-col 
+         items-center justify-center text-center text-sm shadow"
+  [ngClass]="{
+    'bg-green-500 text-white': item.status,
+    'bg-gray-200': !item.status
+  }">
+
+  <!-- <span class="font-medium text-xs">{{ item.deviceSerial }}</span> -->
+  <span>{{ item.deviceName }}</span>
+  <span class="text-xs">{{ item.punchTime }}</span>
+  <span class="text-xs">{{ item.punchDate }}</span>
+</div>
+      </div>
+
+      <img
+        *ngIf="i !== timeEvents.length - 1"
+        src="assets/images/arrow-right.png"
+        class="w-7 h-7 mx-5"
+      />
+
+    </ng-container>
+
+  </div>
+</div>
+
+  <div class="mt-6">
+    <div class="bg-blue-900 text-white px-4 py-2 text-lg font-medium">
+      Tracking Details
+    </div>
+
+    <div class=" text-sm grid grid-cols-1 md:grid-cols-4 gap-y-3 bg-gray-300">
+        <div class="">
+ <div class="bg-gray-200 p-4">
+      <div class="font-semibold emptitle">Employee Name</div>
+      <!-- <div class="font-semibold emptitle">Zone Number</div> -->
+         <div class="font-semibold emptitle">Enroll ID</div>
+  <div class="font-semibold emptitle">IN/OUT Status</div>
+  <div class="font-semibold emptitle">Device Name</div>
+
+ </div>
+ </div>
+
+ <div class="bg-gray-300 p-4">
+
+       
+  <div class="empinfo">{{ trackingDetails?.EmployeeName }}</div>
+  <div class="empinfo">{{ trackingDetails?.EnrollID }}</div>
+  <div class="empinfo">{{ trackingDetails?.InOutStatus }}</div>
+  <div class="empinfo">{{trackingDetails?.DeviceName }}</div>
+
+ </div>
+
+</div>
+<div class="">
+</div>
+    </div>
+  </div>
+
+
+

@@ -1,0 +1,283 @@
+<div class="flex items-center justify-between gap-4">
+<div class="">  <h2 class="font-semibold text-lg"> {{ dataService.title$ | async }} </h2></div>
+
+  <div class=" flex items-center gap-4">
+  <span class="font-semibold text-gray-700">Analytics Dashboard</span>
+  <!-- TOGGLE -->
+  <div
+    class="w-14 h-7 rounded-full flex items-center p-1 cursor-pointer transition-all"
+    [class.bg-sky-600]="isRealtime"
+    [class.bg-sky-900]="!isRealtime"
+    (click)="toggleDashboard()">
+    <div
+      class="w-5 h-5 bg-white rounded-full shadow-md transform transition-all"
+      [class.translate-x-7]="isRealtime"></div>
+  </div>
+
+  <span class="font-semibold text-gray-700">Real time  Dashboard</span>
+</div>
+</div>
+
+<!-- DASHBOARD VIEW -->
+<div class="mt-6">
+    <app-dashboard *ngIf="!isRealtime">  </app-dashboard> 
+    
+</div>
+
+
+
+
+
+
+<!-- togggel code end here.................. -->
+
+
+
+
+
+
+
+
+
+<!-- Realtime Dashboard code start.................................................................... -->
+
+
+
+
+<div *ngIf="isRealtime"> 
+
+<div class="">
+  <!-- ==== TOP SUMMARY CARDS ==== -->
+<div class=" items-center justify-between mb-4">
+<div class="row grid grid-cols-1 md:grid-cols-2"  >
+    <div class="items-center gap-4  flex w-full col-span-2 md:col-span-1">
+    <!-- Today’s in Premises -->
+    <div class="  rounded-lg shadow border-blue-200 border">
+      <div class="text-sm bg-blue-800 text-white p-1">Today’s In Premises</div>
+      <div class="flex justify-center ">
+        <!-- <mat-progress-spinner
+          diameter="40"
+          mode="indeterminate"
+          color="accent">
+        </mat-progress-spinner> -->
+         <div class="text-center text-xl mt-2  py-2 font-bold">{{totalCountLog}}</div>
+      </div>
+    </div>
+
+    <!-- Today's Alarm Response -->
+        <div class="  rounded-lg shadow border-blue-200 border">
+      <div class="text-sm bg-blue-800 p-1 text-white">Today’s Alarm Response</div>
+      <div class="text-center text-xl mt-2 py-2 font-bold"> {{totalCountAlarm}} </div>
+    </div>
+    </div>
+
+ 
+
+  <!-- LEGENDS -->
+<div class="w-full col-span-2 md:col-span-1 flex flex-col items-end ">
+      <div class="w-full flex flex-col items-end gap-2">
+<div class="flex items-center gap-2 ">
+   <div class="flex items-center gap-2">
+  <div class="flex items-center justify-center w-8 h-8 bg-green-600 text-white rounded-full">
+    IN
+  </div>
+  <span>Valid Punch IN</span>
+</div>
+
+
+    <div class="flex items-center gap-2">
+      <div class="flex items-center justify-center w-8 h-8 bg-blue-800 text-white rounded-full">OUT</div>
+      Valid Punch OUT
+    </div>
+
+    <div class="flex items-center gap-1">
+      <div class="flex items-center justify-center w-8 h-8 bg-red-600 text-white rounded-full"><mat-icon color="warn">block</mat-icon>
+</div>
+      Invalid Response
+    </div>
+    </div>
+
+<!--    
+<div class="flex items-center gap-2">
+ <div class="flex items-center gap-1">
+      <div class="flex items-center justify-center w-4 h-4 bg-yellow-500 text-white rounded-full"></div>
+      APB No
+    </div>
+    <div class="flex items-center gap-1">
+      <div class="flex items-center justify-center w-4 h-4 bg-green-200 text-white rounded-full"></div>
+      APB Hard
+    </div>
+
+    <div class="flex items-center gap-1">
+      <div class="flex items-center justify-center w-4 h-4 bg-yellow-900 text-white rounded-full"></div>
+      APB Soft
+    </div>
+
+    <div class="flex items-center gap-1">
+      <div class="flex items-center justify-center w-4 h-4 bg-pink-600 text-white rounded-full"></div>
+      Stranger
+    </div>
+
+    <div class="flex items-center gap-1">
+      <div class="flex items-center justify-center w-4 h-4 bg-yellow-800 text-white rounded-full"></div>
+      Non-Permitted
+    </div>
+    </div> -->
+
+  </div>
+
+  </div>
+  </div>
+
+  </div>
+
+
+  <div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+
+      <!-- HEADER -->
+<div class="flex items-center justify-between bg-blue-900 text-white p-1 ">
+
+      <div class=" text-white table_title p-1">
+        Today’s Punching Logs
+      </div>
+
+      <!-- SEARCH -->
+      <div class="p-1">
+      <div
+        class="flex items-center rounded-full overflow-hidden border border-gray-300 bg-white shadow-sm focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-red-100 transition" style="height: 35px !important;">
+        <input
+          class="px-4 py-1 border-0 outline-none text-gray-800 focus:outline-none focus:ring-0 text-sm w-44"
+           placeholder="Search here..." (input)="filterDatapunchingLog($event)" />
+        <button
+          mat-icon-button
+          class="h-full flex items-center justify-center px-3 hover:bg-gray-100">
+          <mat-icon class="text-gray-500 text-base">search</mat-icon>
+        </button>
+      </div>
+      </div>
+
+      </div>
+
+   <!-- TABLE -->
+<div class="h-80 overflow-y-auto custom-scrollbar"> 
+  <table class="w-full text-sm">
+    <thead class="bg-gray-100 text-gray-800 sticky top-0 z-10">
+      <tr>
+        <th class="py-3 px-2 text-left heading">ID</th>
+        <th class="py-3 px-2 text-left heading">Name</th>
+        <th class="py-3 px-2 text-left heading">Date & Time</th>
+        <th class="py-3 px-2 text-left heading">Device Name</th>
+        <th class="py-3 px-2 text-center heading">IN/OUT</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let row of filterPunchingLog" class="border-b">
+
+        <td class="py-3 px-2">{{ row.empId }}</td>
+        <td class="py-3 px-2 data">{{ row.name }}</td>
+
+        <td class="py-3 px-2 data"> {{ row.punchTime | date:'yyyy-MM-dd HH:mm:ss' }}
+</td>
+<!-- dd-MM-yyyy -->
+        <td class="py-3 px-2 data">{{ row.deviceName }}</td>
+
+        <td class="py-3 px-2 text-center">
+          <!-- <span
+            class="flex items-center justify-center w-7 h-7 bg-blue-800 text-white rounded-full text-xs "
+            [ngClass]="{
+              'bg-green-500 text-white': row.ioStatus=='IN',
+              'bg-blue-500 text-white': row.ioStatus=='OUT',
+               'bg-yellow-500': row.ioStatus === 'IO' }">
+            {{ row.status }}
+          </span> -->
+<span
+  class="flex items-center justify-center w-7 h-7 rounded-full text-xs !text-white"
+  [ngClass]="{
+    'bg-green-600': row.ioStatus === 'I',
+    'bg-blue-800': row.ioStatus === 'O',
+    'bg-yellow-500': row.ioStatus === 'IN OUT'
+  }">
+
+  {{ row.ioStatus === 'I' ? 'IN' : row.ioStatus === 'O' ? 'OUT' : 'I/O' }}
+</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+    </div>
+
+
+    <!-- ==== RIGHT BOX ==== -->
+    <div class=" rounded-lg shadow overflow-hidden mt-4">
+<div class="flex items-center justify-between bg-blue-900 text-white p-1 ">
+
+      <!-- HEADER -->
+      <div class="text-white p-1 table_title">
+        Today’s Alarm Logs
+      </div>
+
+     <!-- SEARCH -->
+      <div class="p-1">
+      <div
+        class="flex items-center rounded-full overflow-hidden border border-gray-300 bg-white shadow-sm focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-red-100 transition" style="height: 35px !important;">
+        <input
+          class="px-4 py-1 border-0 outline-none text-gray-800 focus:outline-none focus:ring-0 text-sm w-44"
+           placeholder="Search here..."  (input)="filterDatAlaram($event)"/>
+        <button
+          mat-icon-button
+          class="h-full flex items-center justify-center px-3 hover:bg-gray-100">
+          <mat-icon class="text-gray-500 text-base">search</mat-icon>
+        </button>
+      </div>
+      </div>
+      </div>
+
+  <!-- TABLE -->
+<div class="h-83 overflow-auto custom-scrollbar bg-white">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-100 text-gray-800 font-medium sticky top-0 z-10">
+      <tr>
+        <th class="py-3 px-2 text-left heading  font-semibold ">ID</th>
+        <th class="py-3 px-2 text-left heading font-semibold">Name</th>
+        <th class="py-3 px-2 text-left heading font-semibold">Device Name</th>
+        <!-- <th class="py-3 px-2 text-center heading">Actions</th> -->
+      </tr>
+    </thead>
+
+    <tbody class="">
+      <tr *ngFor="let log of filteralarmLogs"
+          class="border-b"
+          [ngClass]="log.color">
+        <td class="py-3 px-2 ">{{ log.id }}</td>
+        <td class="py-3 px-2 ">{{ log.name }}</td>
+        <td class="py-3 px-2 ">{{ log.deviceName }}</td>
+
+        <!-- <td class="px-1 text-center">
+          <button   class="" color="warn">
+           <mat-icon class="!w-6 !h-6 !text-white !bg-red-600 rounded-full flex items-center justify-center">
+  block
+</mat-icon>
+
+
+          </button>
+          <button mat-icon-button>
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </button>
+        </td> -->
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+    </div>
+
+  </div>
+
+</div>
+

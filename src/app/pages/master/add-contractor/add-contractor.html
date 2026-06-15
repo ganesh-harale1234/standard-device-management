@@ -1,0 +1,182 @@
+<!-- TABLE SECTION -->
+<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showTableData">
+
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
+    <h2 class="text-xl font-semibold">Contractor List</h2>
+
+    <div class="flex flex-wrap items-center gap-4 ml-auto">
+      <!-- Search box -->
+      <div
+        class="flex items-center rounded-full overflow-hidden border border-gray-300 bg-white shadow-sm focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-red-100 transition">
+        <input
+          matInput
+          class="px-4 py-2 border-0 outline-none focus:outline-none focus:ring-0 text-sm w-64"
+          placeholder="Search..."
+          (keyup)="applyFilter($event)"/>
+        <button
+          mat-icon-button
+          class="h-full flex items-center justify-center px-3 hover:bg-gray-100">
+          <mat-icon class="text-gray-500 text-base">search</mat-icon>
+        </button>
+      </div>
+
+      <button
+        mat-raised-button
+        class="bg-blue-500 hover:bg-blue-600 text-white normal-case export-btn"
+        (click)="addnew()">
+        Add New
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="border border-gray-200 rounded-md overflow-hidden">
+    <div class="max-h-80 overflow-y-auto">
+      <table mat-table [dataSource]="dataSource" class="w-full text-sm">
+    <!-- Sr No Column -->
+  <ng-container matColumnDef="Srno">
+    <th mat-header-cell *matHeaderCellDef class="font-semibold sticky top-0 bg-white z-10">Sr No.</th>
+    <td mat-cell *matCellDef="let element; let i = index">
+      <!-- {{ ((paginator?.pageIndex || 0) * (paginator?.pageSize || 10)) + i + 1 }} -->
+      {{ (pageIndex * pageSize) + i + 1 }}
+    </td>
+  </ng-container>
+        <!-- Email ID -->
+        <ng-container matColumnDef="contractor-name">
+          <th mat-header-cell *matHeaderCellDef class="font-semibold sticky top-0 bg-white z-10">
+           Contractor Name
+          </th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.contractorName }}
+          </td>
+        </ng-container>
+
+     
+<!-- Action Column -->
+<ng-container matColumnDef="action">
+  <th
+    mat-header-cell
+    *matHeaderCellDef
+    class="font-semibold sticky top-0 bg-white z-10 action-header"
+  >
+    Action
+  </th>
+
+  <td mat-cell *matCellDef="let row" class="action-cell">
+    <div class="action-buttons">
+      <button mat-icon-button class="edit-btn" (click)="editData(row.conId)">
+        <mat-icon>edit</mat-icon>
+      </button>
+
+      <button mat-icon-button class="delete-btn" (click)="delete(row.conId)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </td>
+</ng-container>
+
+        <!-- Header & Row -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+
+    <!-- Paginator-style bottom -->
+     <div class="flex items-center justify-end px-4 py-2 text-xs text-gray-600">
+        <mat-paginator
+  [pageSize]="pageSize"
+  [pageSizeOptions]="[10,20,30]"
+  (page)="onPageChange($event)">
+</mat-paginator>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- FORM SECTION -->
+<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showFormData">
+
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
+    <h2 class="text-xl font-semibold">Add  Contractor </h2>
+
+    <div class="flex flex-wrap items-center gap-4 ml-auto">
+      <button
+        mat-raised-button
+        class="bg-blue-500 hover:bg-blue-600 text-white normal-case"
+        (click)="backtoList()">
+        Go Back to List
+      </button>
+    </div>
+  </div>
+
+  <div class="p-4 md:p-6 bg-white rounded-lg shadow-sm border border-gray-100 max-w-6xl mx-auto">
+    <form [formGroup]="form" class="space-y-6">
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <!-- Email ID -->
+        <mat-form-field appearance="fill" class="w-full custom-field">
+          <mat-label>Contractor Name <span class="text-red-500"></span></mat-label>
+          <input
+            matInput
+            formControlName="contractorName"
+            placeholder="Enter here..." />
+          <mat-error *ngIf="form.get('contractorName')?.hasError('required')">
+            Contractor Name is required
+          </mat-error>
+        
+        </mat-form-field>
+
+      </div>
+
+<div class="flex items-center justify-start gap-3 pt-4 border-t border-gray-100">
+
+  @if (!isEditMode) {
+    <button
+      mat-stroked-button
+      type="submit"
+      (click)="onSubmit()"
+      class="btn-save px-6 py-2 rounded-md font-semibold"
+    >
+      Save
+    </button>
+  }
+
+  @if (isEditMode) {
+    <button
+      mat-stroked-button
+      type="submit"
+      (click)="onUpdate()"
+      class="btn-save px-6 py-2 rounded-md font-semibold"
+    >
+      Update
+    </button>
+  }
+
+    <button
+    mat-raised-button
+    type="button"
+    class="btn-cancel px-6 py-2 rounded-md"
+    (click)="onCancel()"
+  >
+    Cancel
+  </button>
+</div>
+
+
+
+    </form>
+  </div>
+</div>

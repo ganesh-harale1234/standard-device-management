@@ -1,0 +1,291 @@
+<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showTableData">
+
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
+    <h2 class="text-xl font-semibold">Device List</h2>
+
+    <div class="flex flex-wrap items-center gap-4 ml-auto">
+      <!-- Search box -->
+      <!-- <div
+        class="flex items-center rounded-full overflow-hidden border border-gray-300 bg-white shadow-sm focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-red-100 transition">
+        <input
+          matInput
+          class="px-4 py-2 border-0 outline-none focus:outline-none focus:ring-0 text-sm w-64"
+          placeholder="Search..."
+        />
+        <button
+          mat-icon-button
+          class="h-full flex items-center justify-center px-3 hover:bg-gray-100">
+          <mat-icon class="text-gray-500 text-base">search</mat-icon>
+        </button>
+      </div> -->
+
+     <div class=""></div>
+    </div>
+  </div>
+
+
+
+
+
+  <div class="overflow-x-auto">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      class="min-w-full w-full  mat-elevation-z1 mat-table-full-width"
+    >
+
+      <ng-container matColumnDef="sr-No">
+  <th mat-header-cell *matHeaderCellDef class="font-semibold">Sr No.</th>
+  <td mat-cell *matCellDef="let element; let i = index">
+   {{ (pageIndex * pageSize) + i + 1 }}
+  </td>
+</ng-container>
+
+      <!-- ID -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">ID</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.id }}
+        </td>
+      </ng-container>
+
+      <!-- Serial No -->
+      <ng-container matColumnDef="serialNum">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+          Serial No
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.serialNum }}
+        </td>
+      </ng-container>
+  <!-- Device IP -->
+      <ng-container matColumnDef="ipAddress">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+        IP Address
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.ipAddress }}
+        </td>
+      </ng-container>
+
+      <!-- Device Name -->
+      <ng-container matColumnDef="deviceName">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+          Device Name
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.deviceName }}
+        </td>
+      </ng-container>
+
+    
+
+      <!-- I/O Status -->
+      <ng-container matColumnDef="IoStatus">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+          I/O Status
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <span
+            class="px-2 py-1 text-xs rounded-full">
+            {{ element.ioStatus=="I" ? "IN" : element.ioStatus=="O" ? "OUT" : element.ioStatus=="IN OUT" ? "IN OUT" :"-" }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Status -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+          Status
+        </th>
+        <!-- <td mat-cell *matCellDef="let element">
+         <span
+  class="px-2 py-1 text-sm rounded-md"
+  [ngClass]="{
+    'bg-green-100 text-green-900': element.status === 1 || element.status === '1',
+    'bg-red-100 text-red': element.status === 0 || element.status === '0' || element.status === null
+  }"
+>
+  {{ element.status === 1 || element.status === '1' ? 'Online' : 'Offline' }}
+</span>
+        </td> -->
+
+         <td mat-cell *matCellDef="let element"
+    [ngClass]="{
+      'online': element.status == 1 || element.status == '1',
+      'offline': element.status == 0 || element.status == '0' || element.status == null
+    }">
+
+  {{ (element.status == 1 || element.status == '1') ? 'Online' : 'Offline' }}
+
+</td>
+      </ng-container>
+
+     
+
+      <!-- Edit -->
+        <ng-container matColumnDef="edit">
+          <th mat-header-cell *matHeaderCellDef class="font-semibold sticky top-0 bg-white z-10 action-header">
+            Edit
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <!-- <button
+              mat-icon-button
+              class="text-sky-500">
+              <mat-icon  (click)="editRow()" >edit</mat-icon>
+            </button> -->
+               <div class="action-buttons">
+      <button mat-icon-button class="edit-btn" (click)="editData(row.id)">
+        <mat-icon>edit</mat-icon>
+      </button>
+      </div>
+
+          </td>
+        </ng-container>
+
+      <!-- Header & Row -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="hover:bg-gray-50"
+      ></tr>
+    </table>
+  </div>
+
+  <!-- Paginator -->
+ <mat-paginator
+  [pageSize]="10"
+  [pageSizeOptions]="[10, 20,30,40,50]"
+  showFirstLastButtons>
+</mat-paginator>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<!-- FORM SECTION -->
+<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showFormData">
+
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
+    <h2 class="text-xl font-semibold"> Add Device</h2>
+
+    <div class="flex flex-wrap items-center gap-4 ml-auto">
+      <button
+        mat-raised-button
+        class="bg-blue-500 hover:bg-blue-600 text-white normal-case"
+        (click)="backtoList()">
+        Go Back to List
+      </button>
+    </div>
+  </div>
+
+  <div class="p-4 md:p-6 bg-white rounded-lg shadow-sm border border-gray-100 max-w-6xl mx-auto">
+    <form [formGroup]="form" class="space-y-6">
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <mat-form-field appearance="fill" class="w-full custom-field">
+          <mat-label>Device Name <span class="text-red-500"></span></mat-label>
+          <input
+            matInput
+            placeholder="" formControlName="deviceName"/>
+        </mat-form-field>
+              <mat-error *ngIf="form.get('deviceName')?.hasError('required')">
+         Device Name is required
+        </mat-error>
+        
+        <mat-form-field appearance="fill" class="w-full custom-field custom-field">
+        <mat-label>I/O Status <span class="text-red-500"></span></mat-label>
+        <mat-select formControlName="ioStatus">
+          <mat-option value="I">In</mat-option>
+          <mat-option value="O">Out</mat-option>
+          <mat-option value="IO">In Out</mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('ioStatus')?.hasError('required')">
+          I/O Status is required
+        </mat-error>
+      </mat-form-field>
+
+       <mat-form-field appearance="fill" class="w-full custom-field custom-field">
+        <mat-label>Location <span class="text-red-500"></span></mat-label>
+        <mat-select formControlName="locationId">
+        
+          <mat-option *ngFor="let item of getAllListLocation" [value]="item.locationId"> {{item.locationName}}</mat-option>
+    
+        </mat-select>
+        <mat-error *ngIf="form.get('locationId')?.hasError('required')">
+          Level is required
+        </mat-error>
+      </mat-form-field>
+
+<div class="w-full custom-field">
+  <label class="block mb-2 text-sm font-medium text-gray-700">
+    Authorized Device
+  </label>
+
+  <mat-checkbox formControlName="authorizedDevice">
+    Allow this device
+  </mat-checkbox>
+</div>
+
+
+              <!-- <mat-error *ngIf="form.get('deviceName')?.hasError('required')">
+         Device Name is required
+        </mat-error> -->
+
+      </div>
+
+<div class="flex items-center justify-start gap-3 pt-4 border-t border-gray-100">
+
+
+  @if (!isEditMode) {
+    <button
+      mat-stroked-button
+      type="submit"
+      (click)="onUpdate()"
+      class="btn-save px-6 py-2 rounded-md font-semibold"
+    >
+      Update
+    </button>
+  }
+
+  @if (isEditMode) {
+    <button
+      mat-stroked-button
+      type="submit"
+      (click)="onUpdate()"
+      class="btn-save px-6 py-2 rounded-md font-semibold"
+    >
+      Update
+    </button>
+  }
+    <button
+    mat-raised-button
+    type="button"
+    class="btn-cancel px-6 py-2 rounded-md"
+    (click)="onCancel()"
+  >
+    Cancel
+  </button>
+</div>
+
+
+    </form>
+  </div>
+</div>
+
+
+
+
+
+
+

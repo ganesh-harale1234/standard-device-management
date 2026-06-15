@@ -1,0 +1,60 @@
+<div class="w-full h-screen flex bg-gray-50 ">
+  <!-- Image SECTION -->
+<div class="grid grid-cols-1 md:grid-cols-2">
+
+  <div class=" justify-center bg-white  p-6">
+    
+    <!-- Logo -->
+    <img src="assets/images/logo.png" alt="Logo" class="h-16 mb-4 mt-4 text-center mx-auto">
+
+    <h1 class="text-xl md:text-2xl font-semibold text-gray-800 mb-2 text-center mx-auto">
+      Device Management System
+    </h1>
+
+    <!-- img-main -->
+    <img src="assets/office-env2.jpg"
+         alt="People working together"
+         class="">
+
+  </div>
+
+  <!-- Form SECTION -->
+  <div class=" flex-col items-center mt-4  p-6">
+    <h2 class="text-xl md:text-xl font-semibold text-gray-800 mb-2 text-center mx-auto">
+      Welcome to the Device Management System
+    </h2>
+    <p class="text-gray-900  text-lg mb-16 text-center mx-auto">Please Login in below</p>
+
+    <!-- Login Card -->
+    <div class="md:w-96 bg-white shadow-md rounded-lg p-8  text-center mx-auto">
+<form [formGroup]="loginForm">
+      <mat-form-field appearance="fill" class="w-full mb-4 custom-field">
+        <mat-label>Username</mat-label>
+        <input matInput placeholder="Enter your user name" formControlName="username">
+         <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
+            User name is required !
+          </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="w-full mb-6 custom-field">
+        <mat-label>Password</mat-label>
+        <input matInput [type]="showpassword ? 'password' : 'text' " formControlName="password" placeholder="Enter your password">
+        <button mat-icon-button matSuffix>
+          <mat-icon (click)="showPassword()" >visibility</mat-icon>
+        </button>
+         <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+            Password is required !
+          </mat-error>
+      </mat-form-field>
+
+      <div class="flex gap-3">
+        <button class="signUpbtn" mat-raised-button (click)="gotoSignUp()">Sign Up</button>
+        <button class="loginBtn" mat-raised-button  (click)="login()">Login</button>
+      </div>
+</form>
+    </div>
+  </div>
+
+  </div>
+</div>
+

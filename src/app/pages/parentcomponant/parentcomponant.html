@@ -1,0 +1,163 @@
+<div class="p-4">
+<h3> Add Form Data</h3>
+
+<div class="p-6 border-1 bg-gray-100">
+<form [formGroup]="myForm">
+<div class="mb-2">
+<label for="">Add Title </label>
+<input type="text" placeholder="Enter your title" minlength="6" maxlength="60" formControlName="title" class="px-2 py-2 border-blue-200 border-1">
+<div class="">
+      <span *ngIf="myForm.get('title')?.invalid && myForm.get('title')?.touched" minlength="6" maxlength="60" class="text-red-500"> <small> Title is required... ! </small> </span>
+
+</div>
+</div>
+
+<div class="mb-2">
+<label for="">Add Title </label>
+<input type="text" placeholder="Enter your title" formControlName="discription" class="px-2 py-2 border-blue-200 border-1">
+<div class="">
+      <span *ngIf="myForm.get('discription')?.invalid && myForm.get('discription')?.touched" class="text-red-500"> <small> Discription is required... ! </small> </span>
+
+</div>
+</div>
+
+<div class="mb-2">
+<label for="">Add Contact Number </label>
+<input type="text" placeholder="Enter your title" maxlength="10" minlength="10"  formControlName="conNumber" class="px-2 py-2 border-blue-200 border-1">
+<div class="">
+      <!-- <span *ngIf="myForm.get('conNumber')?.invalid && myForm.get('conNumber')?.touched" class="text-red-500"> <small> ConNumber is required... ! </small> </span> -->
+
+      <span
+  *ngIf="myForm.get('conNumber')?.errors?.['pattern']
+         && myForm.get('conNumber')?.touched"
+  class="text-red-500"
+>
+  <small> Contact number must be 10 digits </small>
+</span>
+
+</div>
+</div>
+
+</form>
+
+<button class="bg-blue-600 px-2 py-2 text-white" (click)="submit()">Submit</button>
+
+</div>
+</div>
+
+
+
+
+
+
+<div class="p-20">
+      <form [formGroup]="studentForm" >
+<div class="grid  sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+ <div class="">
+            <label for="" class="block">Name</label>
+            <input type="text" class="px-2 py-2 border-1 w-full border border-blue-200" formControlName="name" placeholder="Enter your name">
+            <div class="" *ngIf="studentForm.get('name')?.invalid && studentForm.get('name')?.touched">
+                  <small>name is required !....</small>
+            </div>
+      </div>
+
+      <div class="">
+            <label for="" class="block">Address</label>
+            <input type="text" class="px-2 py-2 border-1 border w-full border-blue-200" formControlName="address" placeholder="Enter your name">
+            <div class="" *ngIf="studentForm.get('address')?.invalid && studentForm.get('address')?.touched">
+                  <small>Address is required !....</small>
+            </div>
+      </div>
+
+           <div class="">
+            <label for="" class="block">Contact Number</label>
+            <input type="text" class="px-2 py-2 border-1 border w-full border-blue-200" formControlName="co_number" placeholder="Enter your name">
+            <div class="" *ngIf="studentForm.get('co_number')?.invalid && studentForm.get('co_number')?.touched">
+                  <small>ph_number is required !....</small>
+            </div>
+      </div>
+           <div class=" w-full">
+            <label for="" class="block">Gender</label>
+             <div class="flex gap-2 items-center">
+                  <label for="Male">Male</label>
+          <input type="radio" formControlName="gender" value="male" name="gender">
+                            <label for="Male">Female</label>
+
+          <input type="radio" formControlName="gender" value="female" name="gender">
+           <div class="" *ngIf="studentForm.get('gender')?.invalid && studentForm.get('gender')?.touched">
+                  <small>gender is required !....</small>
+            </div>
+             </div>
+      </div>
+         <div class="">
+            <label for="" class="block">Birth Date </label>
+            <input type="date" class="px-2 py-2 border-1 w-full border border-blue-200" formControlName="birth_date" placeholder="Enter your name">
+            <div class="" *ngIf="studentForm.get('birth_date')?.invalid && studentForm.get('birth_date')?.touched">
+                  <small>ph_number is required !....</small>
+            </div>
+      </div>
+      
+
+         <div class="">
+            <label for="" class="block">Department</label>
+            <select formControlName="department" class="px-2 py-2 border-1 w-full border border-blue-200">
+                  <option value="IT">IT</option>
+                    <option value="SALES">Sales</option>
+                  <option value="Purches">Purches</option>
+            </select>
+            <div class="" *ngIf="studentForm.get('department')?.invalid && studentForm.get('department')?.touched">
+                  <small>department is required !....</small>
+            </div>
+      </div>
+</div>
+</form>
+
+<div class="flex items-center gap-2">
+<button *ngIf="!isEdited" mat-stroked-button (click)="save()">Save</button>
+<button *ngIf="isEdited" mat-stroked-button (click)="update()">Update</button>
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- table data show........... -->
+
+
+<div class="p-10">
+      <h3>Table data show Student </h3>
+<div class="">
+      <table cellSpacing="0">
+<thead>
+      <tr>
+            <th>Name</th>
+             <th>Address</th>
+            <th>Contact Number</th>
+            <th>Department</th>
+            <th>Date of Birth</th>
+            <th>Action</th>
+
+      </tr>
+</thead>
+<tbody>
+      <tr *ngFor="let item of studentData">
+            <td> {{item.name}} </td>
+             <td> {{item.address}} </td>
+            <td> {{item.co_number}} </td>
+            <td> {{item.department}} </td>
+            <td> {{item.birth_date}} </td>
+           <td> <span (click)="edit(item.id)">Edit</span> 
+            <span (click)="delete(item.id)">Delete</span> </td>
+      </tr>
+</tbody>
+      </table>
+</div>
+
+</div>
+
