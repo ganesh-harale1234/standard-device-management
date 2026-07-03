@@ -8,7 +8,6 @@ export const environment = {
   HostUrl:'http://192.168.10.241:8889/' //somnath ....
     // HostUrl:'http://192.168.10.135:85/'  // Snehal... 
 
-
 }; 
 
 

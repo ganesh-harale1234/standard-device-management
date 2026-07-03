@@ -1,64 +1,68 @@
-<div class="p-1 space-y-4 p-4 bg-white rounded-xl shadow-md mb-4">
+<div class="p-1 ">
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-    <mat-card class="shadow-sm rounded-xs  border-sky-5000">
-      <div class="flex items-center p-4 gap-4">
-        <div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-6">
 
-          <p class="text-2xl font-semibold "> {{ dashbordCount?.totalEmployees || 0}}  </p>
-          <p class="text-md text-slate-800 font-semibold mt-2">Total Employees</p>
-        </div>
+  <!-- Total Employees -->
+  <mat-card class="dashboard-card">
+    <div class="card-body">
+      <p class="card-title">Total Employees</p>
+
+      <p class="card-count">
+        {{ dashbordCount?.totalEmployees || 0 }}
+      </p>
+    </div>
+  </mat-card>
+
+  <!-- New Joining -->
+  <mat-card class="dashboard-card">
+    <div class="card-body">
+
+      <div>
+       <div class="flex gap-3"> <p class="card-title"> (New Joining) </p>
+        <p class="card-subtitle">Last 7 days</p></div>
       </div>
-    </mat-card>
 
-        <mat-card class="shadow-sm rounded-xs  border-sky-5000">
-      <div class="flex items-center p-4 gap-4">
-        <div>
-          <p class="text-2xl font-semibold "> {{dashbordCount?.newJoineeLast7Days || 0}} </p>
-         <span class="flex items-center gap-2"> <p class="text-md text-slate-800 font-semibold mt-2">New Joinee</p> <span class="text-xs mt-2">(Last 7 Days)</span> </span>
-        </div>
-      </div>
-    </mat-card>
+      <p class="card-count">
+        {{ dashbordCount?.newJoineeLast7Days || 0 }}
+      </p>
 
- <!-- <mat-card class="shadow-sm rounded-xs  border-sky-5000">
-      <div class="flex items-center p-4 gap-4">
-        <div>
-          <p class="text-2xl font-semibold ">440</p>
-          <p class="text-md text-slate-800 font-semibold mt-2">Resign</p>
-        </div>
-      </div>
-    </mat-card> -->
+    </div>
+  </mat-card>
 
- <mat-card class="shadow-sm rounded-xs  border-sky-5000">
-      <div class="flex items-center p-4 gap-4">
-        <div>
-          <p class="text-2xl font-semibold "> {{ dashbordCount?.totalDevices || 0}}  </p>
-          <p class="text-md text-slate-800 font-semibold mt-2">Total Device</p>
-        </div>
-      </div>
-    </mat-card>
-    
-      <mat-card class="shadow-sm rounded-xs  border-sky-5000">
-      <div class="flex items-center p-4 gap-4">
-        <div>
-          <p class="text-2xl font-semibold "> {{ dashbordCount?.presentToday || 0}}  </p>
-          <p class="text-md text-slate-800 font-semibold mt-2">Present</p>
-        </div>
-      </div>
-    </mat-card>
+  <!-- Total Device -->
+  <mat-card class="dashboard-card">
+    <div class="card-body">
+      <p class="card-title">Total Device</p>
 
+      <p class="card-count">
+        {{ dashbordCount?.totalDevices || 0 }}
+      </p>
+    </div>
+  </mat-card>
 
-  <mat-card class="shadow-sm rounded-xs  border-sky-5000">
-      <div class="flex items-center p-4 gap-4">
-        <div>
-          <p class="text-2xl font-semibold "> {{dashbordCount?.onLeaveToday || 0 }} </p>
-          <p class="text-md text-slate-800 font-semibold mt-2">On Leave</p>
-        </div>
-      </div>
-    </mat-card>
+  <!-- Present -->
+  <mat-card class="dashboard-card">
+    <div class="card-body">
+      <p class="card-title">Present</p>
 
+      <p class="card-count">
+        {{ dashbordCount?.presentToday || 0 }}
+      </p>
+    </div>
+  </mat-card>
 
-  </div>
+  <!-- On Leave -->
+  <mat-card class="dashboard-card">
+    <div class="card-body">
+      <p class="card-title">On Leave</p>
+
+      <p class="card-count">
+        {{ dashbordCount?.onLeaveToday || 0 }}
+      </p>
+    </div>
+  </mat-card>
+
+</div>
 
   <!-- BOTTOM SECTION -->
   <!-- <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">

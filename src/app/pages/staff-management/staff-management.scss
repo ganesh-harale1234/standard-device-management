@@ -226,9 +226,8 @@ ngx-spinner .spinner {
 }
 
 .show-all-btn {
-  border-radius: 20px;
-  padding: 0 18px;
-  font-weight: 600;
+    padding: 3px 18px;
+    font-weight: 600;
 }
 
 .status-toggle {
@@ -329,3 +328,24 @@ ngx-spinner {
 }
 
 
+::ng-deep .access-group-panel {
+  background: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+::ng-deep .access-group-panel .mat-mdc-option {
+  background: #fff !important;
+}
+
+::ng-deep .access-group-panel .mat-mdc-option:hover {
+  background: #f5f7fa !important;
+}
+
+::ng-deep .access-group-panel .mat-mdc-option.mdc-list-item--selected {
+  background: #eef5ff !important;
+}
+
+::ng-deep .read-only-panel .mat-mdc-option {
+  pointer-events: none;
+}

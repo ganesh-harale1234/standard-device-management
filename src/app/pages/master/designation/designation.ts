@@ -153,41 +153,41 @@ this.deptId = id;
   
 }
 
-onUpdate(){
-  if(this.form.valid){
-    const fromData = {
-     desigId:this.deptId,
-        desigName:this.form.value.desigName,
+onUpdate() {
+  if (this.form.valid) {
+    const formData = {
+      desigId: this.deptId,
+      desigName: this.form.value.desigName
+    };
 
-    }
-    this.dataService.updateData('updateDesignation',fromData).subscribe((res:any)=>{
-      if(res.code == 200){
-        this.toaster.success(res.msg || 'Department Data Update Sucessfully !')
-        this.getallData();
-        this.form.reset();
-        this.backtoList()
-        this.isEditMode = false;
+    this.dataService.updateData('updateDesignation', formData).subscribe(
+      (res: any) => {
+        if (res.code === 100) {
+          this.toaster.success(res.msg || 'Designation updated successfully!');
 
-      }else{
-        this.toaster.error('Something went wrong !')
+          this.getallData();
+          this.form.reset();
+          this.backtoList();
+          this.isEditMode = false;
+        } else {
+          this.toaster.error(res.msg || 'Something went wrong!');
+        }
+      },
+      (err: any) => {
+        this.toaster.error(
+          err?.error?.msg || 'Server side error!'
+        );
       }
-    },((err:any)=>{
-      if(err?.error?.msg){
-            this.toaster.error( err.error.msg,'error!')
-      }else{
-                    this.toaster.error('Server side error !')
-      }
-    })
-  )
-  }else{
+    );
+  } else {
     this.form.markAllAsTouched();
-    this.toaster.error('Please fill all required fields!')
+    this.toaster.error('Please fill all required fields!');
   }
 }
 
 delete(id:any){
   this.deptId = id;
-this.dataService.deleteData(`deleteDesignationById?desigId${id}`+this.deptId).subscribe((res:any)=>{
+this.dataService.deleteData(`deleteDesignationById?desigId=${id}`).subscribe((res:any)=>{
   if(res.code === 100){
  this.toaster.success(res.msg || 'Data deleted successfully !')
   this.getallData();
@@ -255,7 +255,7 @@ this.dataService.deleteData(`deleteDesignationById?desigId${id}`+this.deptId).su
     const value = (event.target.value || '').trim().toLowerCase();
 
     const filtered = this.getAllList.filter((item:any) =>
-      item.collegeName.toLowerCase().includes(value)
+      item.desigName.toLowerCase().includes(value)
     );
 
     this.filterallData = filtered;

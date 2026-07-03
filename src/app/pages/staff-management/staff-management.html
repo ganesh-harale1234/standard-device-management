@@ -6,9 +6,12 @@
 <div class="status-section">
 
   <button
-    mat-raised-button
-    color="primary"
-    class="show-all-btn"
+  class="inline-flex items-center gap-2 rounded-md bg-sky-800 px-5 py-4 text-sm font-semibold text-white
+         shadow-md transition-all duration-200
+        
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2  show-all-btn"
+ 
     (click)="allEmpShow()">
     <mat-icon>groups</mat-icon>
     Show All
@@ -92,18 +95,7 @@
 </mat-form-field> -->
 
 </div>
-<!-- <a
-  (click)="openUploadExcelDialog()"
-  class="inline-flex items-center gap-2 rounded-md bg-sky-800 px-5 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-sky-600 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 cursor-pointer"
->
-  <img
-    src="assets/images/excel.png"
-    alt="Upload"
-    title="Upload Excel"
-    class="h-5 w-5"
-  />
-  Upload Excel
-</a> -->
+
 
         <button
         mat-raised-button
@@ -154,52 +146,61 @@
 <div class="flex flex-wrap items-center gap-3 mb-4">
 
 <!-- Search Type -->
-<div class="w-full md:w-50">
+<div class="w-full md:w-55">
+  <!-- <span> Search By  </span> -->
   <select
     class="w-full h-10 px-3 border border-gray-300 rounded-md"
     [(ngModel)]="searchType"
     (change)="onSearchTypeChange()">
 
-    <option value="name">Search By Employee Name</option>
+    <option value="name">Employee Name</option>
     <option value="deptName">Department Wise</option>
     <option value="accessGroupName">Access Group Wise</option>
     <option value="categoryName">Category Wise</option>
-    <option value="conName">Contractor Wise</option>
-    <option value="userId">Search By BioID Wise</option>
-    <option value="empStatus">Search By Status Wise</option>
+<option value="contractorName">Contractor Wise</option>
+    <option value="userId"> BioID Wise</option>
+    <option value="empStatus"> Status Wise</option>
 
   </select>
 </div>
 
 <!-- Text Search -->
 <div
-  class="w-full md:w-50"
+  class="w-full md:w-55"
   *ngIf="searchType!='deptName'
       && searchType!='accessGroupName'
       && searchType!='categoryName'
-      && searchType!='conName'">
+      && searchType!='contractorName'">
 
-  <input
+  <!-- <input
     type="text"
     class="w-full h-10 px-3 border border-gray-300 rounded-md"
     placeholder="Search here..."
-    (input)="applyFilter($event)">
+    (input)="applyFilter($event)"> -->
+
+    <input
+  type="text"
+  class="w-full h-10 px-3 border border-gray-300 rounded-md"
+  [placeholder]="getPlaceholder()"
+  (input)="applyFilter($event)">
 </div>
 
 <!-- Common Dropdown -->
 <div
-  class="w-full md:w-50"
+  class="w-full md:w-55"
   *ngIf="searchType=='deptName'
       || searchType=='accessGroupName'
       || searchType=='categoryName'
-      || searchType=='conName'">
+      || searchType=='contractorName'">
 
   <select
     class="w-full h-10 px-3 border border-gray-300 rounded-md"
     [(ngModel)]="selectedValue"
     (change)="filterDropdown()">
 
-    <option value="">Select</option>
+    <option value="">
+  Select {{ getSelectLabel() }}
+</option>
 
     <option
       *ngFor="let item of dropdownList"
@@ -258,15 +259,76 @@
 
 
   <!-- Access Group Dropdown -->
-
- <mat-form-field appearance="outline" class="simple-select w-72">
-
-  <mat-select
-      multiple
-      placeholder="Select Access Group">
+<mat-form-field appearance="outline" class="simple-select w-72">
+  <mat-select multiple placeholder="Select Access Group" panelClass="access-group-panel">
 
     <mat-select-trigger>
+      <ng-container *ngIf="selectedDeviceIds.length === 0">
+        Select Access group
+      </ng-container>
 
+      <ng-container *ngIf="selectedDeviceIds.length === 1">
+        {{ getDeviceName(selectedDeviceIds[0]) }}
+      </ng-container>
+
+      <ng-container *ngIf="selectedDeviceIds.length === 2">
+        {{ getDeviceName(selectedDeviceIds[0]) }},
+        {{ getDeviceName(selectedDeviceIds[1]) }}
+      </ng-container>
+
+      <ng-container *ngIf="selectedDeviceIds.length > 2">
+        {{ getDeviceName(selectedDeviceIds[0]) }},
+        {{ getDeviceName(selectedDeviceIds[1]) }}
+        +{{ selectedDeviceIds.length - 2 }} more
+      </ng-container>
+    </mat-select-trigger>
+
+    <mat-option (click)="$event.stopPropagation()">
+      <mat-checkbox
+        [checked]="isAllSelected"
+        (click)="$event.stopPropagation()"
+        (change)="toggleSelectAll($event)"
+      >
+        Select All
+      </mat-checkbox>
+    </mat-option>
+
+    <mat-option *ngFor="let device of getAllListgroup" (click)="$event.stopPropagation()">
+      <mat-checkbox
+        [checked]="isSelected(device.accessGroupId)"
+        (click)="$event.stopPropagation()"
+        (change)="toggleDevice(device.accessGroupId, $event)"
+      >
+        {{ device.accessGroupName }}
+      </mat-checkbox>
+    </mat-option>
+
+  </mat-select>
+</mat-form-field> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+<mat-form-field appearance="outline" class="simple-select w-72">
+  <mat-select multiple placeholder="Select Access Group">
+
+    <mat-select-trigger>
       <ng-container *ngIf="selectedDeviceIds.length == 0">
         Select Access Group
       </ng-container>
@@ -277,41 +339,53 @@
 
       <ng-container *ngIf="selectedDeviceIds.length > 1">
         {{ getDeviceName(selectedDeviceIds[0]) }}
-        +{{ selectedDeviceIds.length-1 }} more
+        +{{ selectedDeviceIds.length - 1 }} more
       </ng-container>
-
     </mat-select-trigger>
 
-    ...
-  </mat-select>
+       <mat-select-trigger>
+      <ng-container *ngIf="selectedDeviceIds.length === 0">
+        Select Access group
+      </ng-container>
 
-</mat-form-field>
+      <ng-container *ngIf="selectedDeviceIds.length === 1">
+        {{ getDeviceName(selectedDeviceIds[0]) }}
+      </ng-container>
+
+      <ng-container *ngIf="selectedDeviceIds.length === 2">
+        {{ getDeviceName(selectedDeviceIds[0]) }},
+        {{ getDeviceName(selectedDeviceIds[1]) }}
+      </ng-container>
+
+      <ng-container *ngIf="selectedDeviceIds.length > 2">
+        {{ getDeviceName(selectedDeviceIds[0]) }},
+        {{ getDeviceName(selectedDeviceIds[1]) }}
+        +{{ selectedDeviceIds.length - 2 }} more
+      </ng-container>
+    </mat-select-trigger>
+
+    <mat-option (click)="$event.stopPropagation()">
+      <mat-checkbox
+        [checked]="isAllSelected"
+        (click)="$event.stopPropagation()"
+        (change)="toggleSelectAll($event)"
+      >
+        Select All
+      </mat-checkbox>
+    </mat-option>
+    <mat-option *ngFor="let device of getAllListgroup" (click)="$event.stopPropagation()">
+      <mat-checkbox
+        [checked]="isSelected(device.accessGroupId)"
+        (click)="$event.stopPropagation()"
+        (change)="toggleDevice(device.accessGroupId, $event)"
+      >
+        {{ device.accessGroupName }}
+      </mat-checkbox>
+    </mat-option>
+  </mat-select>
+</mat-form-field> -->
   <!-- Action Button -->
 
-  <button
-    *ngIf="actionType=='transfer'"
-    mat-raised-button
-    color="primary"
-    (click)="uploadSelctedUserToDevice()">
-
-    <mat-icon>swap_horiz</mat-icon>
-
-    Emp Transfer
-
-  </button>
-
-
-  <button
-    *ngIf="actionType=='delete'"
-    mat-raised-button
-    color="warn"
-    (click)="empDelete()">
-
-    <mat-icon>delete</mat-icon>
-
-    Emp Delete
-
-  </button>
 
 </div>
  
@@ -371,7 +445,47 @@
 
 <div class="relative inline-block delete-menu-wrapper">
 
-<button
+
+<div class="" style="width:160px" >
+
+  <button      class="inline-flex items-center gap-2 h-9 px-5
+         rounded-md bg-sky-800 text-sm font-semibold text-white
+         shadow-md transition-all duration-200
+         hover:bg-sky-600 hover:shadow-lg
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2"
+    *ngIf="actionType=='transfer'"
+ 
+    (click)="uploadSelctedUserToDevice()">
+
+    <mat-icon>swap_horiz</mat-icon>
+
+    Emp Transfer
+
+  </button>
+
+
+  <button   class="inline-flex items-center gap-2 h-9 px-5
+         rounded-md bg-sky-800 text-sm font-semibold text-white
+         shadow-md transition-all duration-200
+         hover:bg-sky-600 hover:shadow-lg
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2"
+    *ngIf="actionType=='delete'"
+ 
+   
+     (click)="toggleDeleteMenu()">
+
+    <mat-icon>delete</mat-icon>
+
+     Delete
+  <mat-icon class="text-[20px]">arrow_drop_down</mat-icon>
+
+  </button>
+
+</div>
+<!-- 
+<button 
   type="button"
   (click)="toggleDeleteMenu()"
   class="inline-flex items-center gap-2 h-9 px-5
@@ -382,7 +496,7 @@
          focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
   Delete
   <mat-icon class="text-[20px]">arrow_drop_down</mat-icon>
-</button>
+</button> -->
 
 
   <!-- Dropdown Menu -->
@@ -399,7 +513,7 @@
           (click)="emponDeleteDevices()"
         >
           <i class="bi bi-trash-fill"></i>
-          Delete form Devices
+          Delete form  Access Group
         </button>
       </li>
 
@@ -597,7 +711,21 @@
   </div>
 
   <!-- Paginator-style bottom -->
-     <div class="flex items-center justify-end px-4 py-2 text-xs text-gray-600">
+     <div class="flex items-center justify-between px-4 py-2 text-xs text-gray-600">
+      <button
+  (click)="ExportTOExcel()"
+ class="inline-flex items-center gap-2 h-9 px-5
+         rounded-md bg-sky-800 text-sm font-semibold text-white
+         shadow-md transition-all duration-200
+         hover:bg-sky-600 hover:shadow-lg
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-1"
+       
+>
+ 
+<span class="flex items-center gap-2"> Export to Excel <img src="assets/images/excel.png" alt="" class="h-5"> </span>
+ 
+</button> 
         <mat-paginator
   [pageSize]="pageSize"
   [pageSizeOptions]="[10, 20, 30, 40, 50]"
@@ -768,7 +896,7 @@
       </mat-form-field>
 <mat-form-field appearance="fill" class="w-full custom-field">
   <mat-label>
-    Select Location <span class="text-red-500"></span>
+    Select Branch <span class="text-red-500"></span>
   </mat-label>
   <mat-select formControlName="locationId">
     @for (item of getAllListlocation; track $index) {
@@ -797,21 +925,22 @@
 
 
 
-  <mat-form-field appearance="fill" class="w-full custom-field">
+<mat-form-field *ngIf="isEditMode" appearance="fill" class="w-full custom-field">
   <mat-label>Select Access Group</mat-label>
 
   <mat-select
     formControlName="accessGroupId"
-    multiple
-    panelClass="show-checkbox-panel">
+     multiple
+  [panelClass]="isEditMode ? 'read-only-panel' : ''">
 
-    <mat-option *ngFor="let item of getAllListgroup"
-                [value]="item.accessGroupId">
+    <mat-option
+      *ngFor="let item of getAllListgroup"
+      [value]="item.accessGroupId"
+      [disabled]="isEditMode">
       {{ item.accessGroupName }}
     </mat-option>
 
   </mat-select>
-
 
   <mat-error *ngIf="form.get('accessGroupId')?.hasError('required')">
     Group is required
@@ -871,8 +1000,8 @@
                  <mat-option [value]="item.companyName"> {{item.companyName}} </mat-option>
 }
         </mat-select>
-        <mat-error *ngIf="form.get('conId')?.hasError('required')">
-          Contractor is required
+        <mat-error *ngIf="form.get('companyName')?.hasError('required')">
+          Company is required
         </mat-error>
       </mat-form-field>
       <!-- Level -->
@@ -883,6 +1012,9 @@
     <mat-option [value]="0">User</mat-option>
     <mat-option [value]="1">Manager</mat-option>
   </mat-select>
+     <mat-error *ngIf="form.get('rollId')?.hasError('required')">
+          Privilege is required
+        </mat-error>
 </mat-form-field>
 
  
@@ -893,7 +1025,38 @@
     <mat-option value="Active">Active</mat-option>
     <mat-option value="Inactive">Inactive</mat-option>
   </mat-select>
+      <mat-error *ngIf="form.get('empStatus')?.hasError('required')">
+          Status is required
+        </mat-error>
 </mat-form-field> 
+
+
+ <mat-form-field appearance="fill" class="w-full custom-field">
+  <mat-label>Select Role</mat-label>
+  <mat-select formControlName="roleName">
+    <mat-option value="Admin">Admin</mat-option>
+    <mat-option value="Branchadmin">Branch Admin</mat-option>
+        <mat-option value="User">User</mat-option>
+
+  </mat-select>
+     <mat-error *ngIf="form.get('roleName')?.hasError('required')">
+          Role is required
+        </mat-error>
+</mat-form-field> 
+
+   <mat-form-field appearance="fill" class="w-full custom-field">
+        <mat-label>Select Designation <span class="text-red-500"></span></mat-label>
+        <mat-select formControlName="desigId">
+         
+@for (item of getAllListDigination; track $index) {
+                 <mat-option [value]="item.desigId"> {{item.desigName}} </mat-option>
+}
+        </mat-select>
+          <mat-error *ngIf="form.get('desigId')?.hasError('required')">
+          Designation is required
+        </mat-error>
+    
+      </mat-form-field>
 
 
  <!-- <mat-form-field appearance="fill" class="w-full custom-field">

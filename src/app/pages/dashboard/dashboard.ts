@@ -7,6 +7,8 @@ import { ToastrService } from 'ngx-toastr';
 import { NgxSpinner, NgxSpinnerModule } from 'ngx-spinner';
 import { DataService } from '../../services/data-service';
 import { StatustextPipe } from '../../shared/statustext-pipe';
+import { Router } from '@angular/router';
+import { RealTimeDashboard } from "../real-time-dashboard/real-time-dashboard";
 export interface Device {
   id: number;
   serialNum: string;
@@ -30,7 +32,7 @@ const DEVICE_DATA: any = [
 ];
 @Component({
   selector: 'app-dashboard',
-  imports: [SharedModule, CommonModule, NgxSpinnerModule],
+  imports: [SharedModule, CommonModule, NgxSpinnerModule,],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -45,7 +47,7 @@ export class Dashboard {
   dashbordCount:any;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  constructor(private dataService: DataService, private toaster: ToastrService) { }
+  constructor(private dataService: DataService, private toaster: ToastrService, private router :Router) { }
 
   ngOnInit(): void {
       this.dataService.setTitle('Analytics Dashboard');
@@ -68,6 +70,15 @@ export class Dashboard {
    this.dashbordCount = res;
   })
  }
+isRealtime: boolean = true;
 
-
+toggleDashboard() {
+  this.isRealtime = !this.isRealtime;
+  
+  if (this.isRealtime) {
+    this.dataService.setTitle('Real time Dashboard');
+  } else {
+    this.dataService.setTitle('Analytics Dashboard');
+  }
+}
 }

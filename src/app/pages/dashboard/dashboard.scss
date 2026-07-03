@@ -41,4 +41,44 @@
 }
 .input{
   color: blue($color: #fd0a0a);
+}.dashboard-card{
+    background:#fff !important;
+    border:1px solid #E6EEF5 !important;
+    border-radius:12px !important;
+    box-shadow:0 2px 8px rgba(15,23,42,.05) !important;
+    transition:.25s ease;
+}
+
+.dashboard-card:hover{
+    box-shadow:0 8px 20px rgba(15,23,42,.08) !important;
+    transform:translateY(-2px);
+}
+
+.card-body{
+    padding:20px;
+    height:105px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.card-title{
+    font-size:15px;
+    font-weight:600;
+    color:#1E5676;
+    margin:0;
+}
+
+.card-subtitle{
+    font-size:11px;
+    color:#9CA3AF;
+    margin-top:2px;
+}
+
+.card-count{
+    font-size:32px;
+    font-weight:700;
+    color:#154C79;
+    line-height:1;
+    margin:0;
 }

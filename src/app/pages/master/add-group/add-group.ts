@@ -23,6 +23,7 @@ groupId:any;
   displayedColumns: string[] = [
     'Srno',
     'Group-name',
+     'branch-name',
     'action'
   ];
 
@@ -44,15 +45,36 @@ form!: FormGroup;
   constructor(private fb: FormBuilder, private toaster:ToastrService, private dataService:DataService) {
     this.form = this.fb.group({
       accessGroupName: ['', [Validators.required,]],
+      locationId:['', Validators.required]
     });
   }
 
   ngOnInit(): void {
     // this.applyPagination();
-    this.getallData()
+    this.getallData();
+    this.getallDataLocation()
   }
 
+  getAllListLocation:any [] = [];
 
+ getallDataLocation(){
+    this.dataService.getAllData('findAllLocation').subscribe((res:any)=>{
+
+      if(res.code === 100){
+      this.getAllListLocation = res.extend.data;
+
+      }else if(res.code===500){
+                this.toaster.error('Internal server error !')
+      }
+      else{
+        this.toaster.error('Something went wrong !')
+      }
+    }, ((err)=>{
+      const errorMsg = err.error.msg || 'Faild to load Location list !'
+      this.toaster.error(errorMsg)
+    })
+  )
+  }
 
   getallData(){
     this.dataService.getAllData('accessGroup/getAllAccessGroups').subscribe((res:any)=>{
@@ -121,7 +143,8 @@ this.groupId = id;
         const categoryData = res.extend.data;
    
     this.form.patchValue({
-      accessGroupName : categoryData.accessGroupName
+      accessGroupName : categoryData.accessGroupName,
+      locationId:categoryData.locationId,
     })
         }else{
       this.toaster.error('No Data fond api !')

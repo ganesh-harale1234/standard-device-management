@@ -166,11 +166,13 @@ selectedDeviceIds: string[] = [];
       cardNum:['', ],
       locationId:['', Validators.required],
       deptId:['',Validators.required ],
-      accessGroupId:['', Validators.required],
+      accessGroupId:['',],
       categoryId:['', Validators.required],
       companyName:['', Validators.required],
       // joining_date:['' , Validators.required],
       empStatus:['' , Validators.required],
+      roleName:['', Validators.required],
+      desigId:['', Validators.required],
       // pnrNo:['',Validators.required],
       // backupNum: [],,
       // conId:['',],
@@ -288,6 +290,26 @@ this.getallDataRole();
  this.getallDatacompany();
  this.getDeviceallList();
  this.getallCollegeData();
+ this.getallDiginationData()
+  }
+
+
+getAllListDigination:any[] = []
+
+  getallDiginationData(){
+    this.dataService.getAllData('findAllDesignations').subscribe((res:any)=>{
+      if(res.code === 100){
+      this.getAllListDigination = res.extend.allDesignations;
+            
+      }else if(res.code===500){
+                this.toaster.error('Internal server error !')
+      }
+      else{
+        this.toaster.error('Something went wrong !')
+      }
+    }, ((err)=>{
+    })
+  )
   }
 
 collegeList:any  = []
@@ -654,7 +676,7 @@ get photoRequiredError(): any {
     const body = {
       ...this.form.value,
       empType:this.empType,
-       accessGroupId: formValue.accessGroupId.join(','),
+      //  accessGroupId: formValue.accessGroupId.join(','),
       imagePath: this.imagePath,
     };
 
@@ -767,13 +789,16 @@ editData(id: any) {
               cardNum: empData.cardNum,
               //joining_date: empData.groupId,
               empStatus: empData.empStatus,
+              roleName:empData.empStatus,
+                            desigId:empData.desigId,
+
               password: empData.password || '',
 
   accessGroupId: empData.accessGroupId
     ? empData.accessGroupId.split(',').map((id: string) => Number(id))
     : []
 });
-          
+          this.form.get('accessGroupId')?.disable();
 
             if (empData.photo === 'Y' && empData.image) {
               this.photoPreview =
@@ -804,7 +829,7 @@ onUpdate(){
      enrollId:this.empId,
       ...this.form.value,
        empType:this.empType,
-        accessGroupId: formValues.accessGroupId.join(','),
+        // accessGroupId: formValues.accessGroupId.join(','),
       imagePath: this.imagePath, 
     }
     this.dataService.updateData('employee/updateEmployee',fromData).subscribe((res:any)=>{
@@ -987,10 +1012,10 @@ onColumnChange(event: Event) {
 deviceSerialNumList: string[] = [];
 
 // Check if all devices are selected
-get isAllSelected(): boolean {
-  return this.devicesList.length > 0 &&
-         this.selectedDeviceIds.length === this.devicesList.length;
-}
+// get isAllSelected(): boolean {
+//   return this.devicesList.length > 0 &&
+//          this.selectedDeviceIds.length === this.devicesList.length;
+// }
 
 // Check individual device selection
 isSelected(serialNum: string): boolean {
@@ -1012,7 +1037,13 @@ toggleDevice(serialNum: string, event: any): void {
   this.deviceSerialNumList = [...this.selectedDeviceIds];
   console.log("Selected Serial Numbers:", this.selectedDeviceIds);
 }
-
+get isAllSelected(): boolean {
+  return (
+    (this.getAllListgroup?.length ?? 0) > 0 &&
+    (this.selectedDeviceIds?.length ?? 0) ===
+      (this.getAllListgroup?.length ?? 0)
+  );
+}
 // Toggle Select All
 toggleSelectAll(event: any): void {
   const checked = event.checked;
@@ -1428,7 +1459,7 @@ uploadSelctedUserToDevice() {
 
   //  Device serial list check
   if (!this.deviceSerialNumList || this.deviceSerialNumList.length === 0) {
-    this.toastr.error("Device not selected. Please select at least one device.");
+    this.toastr.error("Access Group not selected. Please select at least one Access Group.");
     return;
   }
 
@@ -1585,7 +1616,7 @@ emponDeleteDevices() {
 
   //  Device select
   if (!this.deviceSerialNumList || this.deviceSerialNumList.length === 0) {
-    this.toastr.error("You must select at least 1 device.");
+    this.toastr.error("You must select at least 1 Access group.");
     return;
   }
 
@@ -1897,10 +1928,11 @@ onSearchTypeChange() {
       this.dropdownList = this.getAllListcategory.map((x:any) => x.categoryName);
       break;
 
-    case 'conName':
-      this.dropdownList = this.getAllListcontractor.map((x:any) => x.conName);
-      break;
-
+case 'contractorName':
+  this.dropdownList = this.getAllListcontractor.map(
+    (x: any) => x.contractorName
+  );
+  break;
     default:
       this.dropdownList = [];
       break;
@@ -1932,8 +1964,8 @@ filterDropdown() {
         case 'categoryName':
           return emp.categoryName === this.selectedValue;
 
-        case 'conName':
-          return emp.conName === this.selectedValue;
+    case 'contractorName':
+  return emp.contractorName === this.selectedValue;
 
         case 'accessGroupName':
 
@@ -1966,5 +1998,40 @@ empTransfer() {
 
 empDelete() {
   console.log('Delete');
+}
+
+
+getSelectLabel(): string {
+  switch (this.searchType) {
+    case 'deptName':
+      return 'Department';
+
+    case 'accessGroupName':
+      return 'Access Group';
+
+    case 'categoryName':
+      return 'Category';
+
+    case 'contractorName':
+      return 'Contractor';
+
+    default:
+      return '';
+  }
+}
+
+getPlaceholder(): string {
+  switch (this.searchType) {
+    case 'userId':
+      return 'Search Biometric ID';
+    case 'name':
+      return 'Search Employee Name';
+    case 'empStatus':
+            return 'Search Status';
+
+     
+    default:
+      return 'Search here...';
+  }
 }
 }

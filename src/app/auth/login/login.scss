@@ -1,0 +1,29 @@
+.custom-field .mat-mdc-text-field-wrapper{
+    background:#EAF1F6 !important;
+    border-radius:6px !important;
+    height:42px;
+}
+
+.custom-field .mdc-line-ripple{
+    display:none;
+}
+
+.custom-field .mat-mdc-form-field-subscript-wrapper{
+    display:none;
+}
+
+.custom-field input{
+    font-size:14px;
+}
+
+.loginBtn{
+    width:100%;
+    background:#0A4F73 !important;
+    color:#fff !important;
+    border-radius:6px !important;
+    height:42px;
+}
+
+.loginBtn:hover{
+    background:#083B56 !important;
+}
