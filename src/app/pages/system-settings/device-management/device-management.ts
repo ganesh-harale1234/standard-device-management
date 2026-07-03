@@ -24,7 +24,8 @@ ioStatus:any;
 locationId:any;
 locationList:any = [];
 getAllListLocation:any;
-deviceId:any
+deviceId:any;
+getAllListgroup:any;
 displayedColumns: string[] = [
   'sr-No',
   'id',
@@ -50,7 +51,9 @@ displayedColumns: string[] = [
       deviceName:['', Validators.required],
       ioStatus:['', Validators.required],
       locationId:['', Validators.required],
-      authorizedDevice:['',Validators.required]
+      authorizedDevice:['',Validators.required],
+      accessGroupId:['', Validators.required],
+
 
     }))
    }
@@ -58,6 +61,22 @@ displayedColumns: string[] = [
   ngOnInit(): void {
     this.getDeviceallList();
     this.locationListall();
+    this.getallDatagroup();
+  }
+
+    getallDatagroup(){
+    this.dataService.getAllData('accessGroup/getAllAccessGroups').subscribe((res:any)=>{
+      if(res.code === 100){
+      this.getAllListgroup = res.extend.data;
+  
+      }else if(res.code===500){
+                this.toaster.error('Internal server error !')
+      }
+      else{
+        this.toaster.error('Something went wrong !')
+      }
+    }, 
+  )
   }
 
    locationListall(){
@@ -85,6 +104,7 @@ displayedColumns: string[] = [
        this.dataSource.paginator = this.paginator;
     })
    }
+   
   
     editData(id:any): void {
  this.deviceId = id;
@@ -97,7 +117,10 @@ displayedColumns: string[] = [
        this.form.patchValue({
         deviceName:deviceData.deviceName,
       ioStatus:deviceData.ioStatus,
-      locationId:deviceData.locationId
+      locationId:deviceData.locationId,
+     accessGroupId: Number(deviceData.accessGroupId),
+       authorizedDevice:deviceData.authorizedDevice
+ 
        })
      }
       })
@@ -117,9 +140,14 @@ onCancel(){
 
 onUpdate(){
  if(this.form.valid){
+    var formValue = this.form.value
+
+   
   const formData = {
    id:this.deviceId,
-   ...this.form.value
+   ...this.form.value,
+  accessGroupId: formValue.accessGroupId,
+
   }
   this.dataService.updateData('updateDevice', formData).subscribe((res:any)=>{
 

@@ -19,7 +19,7 @@
         <div *ngIf="!isLoading" class="inline-flex items-center text-md">
             <div class="">
             <span class="text-sm"> Name : {{userName}} </span>
-             <span class="text-sm pb-0 block" > Role :  {{roleName}} </span>
+             <span class="text-sm pb-0 block" > Role :  {{userName}} </span>
                                 </div>
             <button mat-button [matMenuTriggerFor]="menu" style="padding-right:
                 0;">
@@ -36,15 +36,19 @@
             </button>
 
             <mat-menu #menu="matMenu" class="mt-2 w-full" [overlapTrigger]="false" xPosition='before'>
-                <div mat-menu-item class="flex items-center space-x-2 px-3 py-2 hover:bg-gray-300">
-                    <mat-icon>perm_identity</mat-icon>
-                    <span>
-                        <div class="inline-flex flex-col">
-                            <span class="leading-none text-base">Change Password</span>
-                        </div>
-                    </span>
+            <!-- Change Password Button -->
+<!-- Change Password -->
+<div
+  mat-menu-item
+  
+  class="cursor-pointer">
 
-                </div>
+  <mat-icon>lock_reset</mat-icon>
+  <span (click)="openPasswordModal()">Change Password</span>
+
+</div>
+
+
                 <mat-divider></mat-divider>
                 <button mat-menu-item (click)="onSignOut()">
                     <mat-icon>power_settings_new</mat-icon>
@@ -92,15 +96,15 @@
                 <span>Staff Management</span>
             </button>
 
-     <button mat-button class="menu-button nav-link" routerLink="person-tracking" routerLinkActive="active">
+     <!-- <button mat-button class="menu-button nav-link" routerLink="person-tracking" routerLinkActive="active">
                 <mat-icon>person_search</mat-icon>
                 <span>Person Tracking</span>
-            </button>
+            </button> -->
 
-              <button mat-button class="menu-button nav-link" routerLink="get-details" routerLinkActive="active">
+              <!-- <button mat-button class="menu-button nav-link" routerLink="get-details" routerLinkActive="active">
               <mat-icon>info</mat-icon>
                 <span>Get Details </span>
-            </button>
+            </button> -->
 
      <div href="">
   <mat-accordion>
@@ -117,7 +121,7 @@
                 </a>
 
                 <a mat-button class="menu-button nav-link" routerLink="/add-location" routerLinkActive="active">
-                    <span> Add Location </span>
+                    <span> Add Branch </span>
                 </a>
 
                   <a mat-button class="menu-button nav-link" routerLink="/add-department" routerLinkActive="active">
@@ -131,20 +135,27 @@
                     <span> Add Contractor</span>
                 </a>
 
+                     <!-- <a mat-button class="menu-button nav-link" routerLink="/add-college" routerLinkActive="active">
+                    <span> Add College</span>
+                </a> -->
+
+                    <a mat-button class="menu-button nav-link" routerLink="/add-designation" routerLinkActive="active">
+                    <span>Add Designation</span>
+                    </a>
+
                 <a mat-button class="menu-button nav-link" routerLink="/add-group" routerLinkActive="active">
                     <span>Add Access Groups</span>
                 </a>
-
+<!-- 
                   <a mat-button class="menu-button nav-link" routerLink="/role-master" routerLinkActive="active">
                     <span>Role Master</span>
-                </a>
+                </a> -->
                 
-
             </mat-expansion-panel>
         </mat-accordion>
     </div>
 
-            <div href="">
+            <!-- <div href="">
   <mat-accordion>
             <mat-expansion-panel class="mat-elevation-z-0">
                 <mat-expansion-panel-header>
@@ -152,27 +163,26 @@
                     <button mat-button class="menu-button nav-link">
 <mat-icon>event_available</mat-icon>                    <span>Attendance Management</span>
                     </button>
-                </mat-expansion-panel-header>
+                </mat-expansion-panel-header> -->
 
-                <a mat-button class="menu-button nav-link" routerLink="/log-records" routerLinkActive="active">
-                    <span> Log Records </span>
-                </a>
-
+           
+<!-- 
                  <a mat-button class="menu-button nav-link" routerLink="/download-log" routerLinkActive="active">
                     <span> Download Records </span>
-                </a>
+                </a> -->
 
-                   <a mat-button class="menu-button nav-link" routerLink="/organization-unit" routerLinkActive="active">
+                   <!-- <a mat-button class="menu-button nav-link" routerLink="/organization-unit" routerLinkActive="active">
                     <span> Organization Unit</span>
-                </a>
+                </a> -->
 
-            </mat-expansion-panel>
+            <!-- </mat-expansion-panel>
         </mat-accordion>
-    </div>
+    </div> -->
+
 
 
            <div href="">
-  <mat-accordion>
+  <!-- <mat-accordion>
             <mat-expansion-panel class="mat-elevation-z-0">
                 <mat-expansion-panel-header>
 
@@ -180,35 +190,50 @@
                         <mat-icon>settings</mat-icon>
                         <span>System Settings</span>
                     </button>
-                </mat-expansion-panel-header>
+                </mat-expansion-panel-header> -->
 
-                <a mat-button class="menu-button nav-link" routerLink="/device-management" routerLinkActive="active">
+                <!-- <a mat-button class="menu-button nav-link" routerLink="/device-management" routerLinkActive="active">
                     <span> Device Management </span>
                 </a>
 
                    <a mat-button class="menu-button nav-link" routerLink="/emp-transfer-data" routerLinkActive="active">
-                    <span> Employee Transfer Data </span>
-                </a>
+                    <span> Employee Transfer Status </span>
+                </a> -->
 
                    <!-- <a mat-button class="menu-button nav-link" routerLink="/authorized-device" routerLinkActive="active">
                     <span> Authorized Device </span>
                 </a> -->
-                
+<!--                 
                <a mat-button class="menu-button nav-link"
    routerLink="/smtp-credential"
    routerLinkActive="active">
   <span>SMTP Credentials</span>
-</a>
+</a> -->
 
-<a mat-button class="menu-button nav-link"
+<!-- <a mat-button class="menu-button nav-link"
    routerLink="/smtp-emailId"
    routerLinkActive="active">
   <span>SMTP Email ID</span>
-</a>
+</a> -->
 
-
+<!-- 
             </mat-expansion-panel>
-        </mat-accordion>
+        </mat-accordion> -->
+
+
+        
+             <button mat-button class="menu-button nav-link" routerLink="device-management" routerLinkActive="active">
+                <mat-icon>supervisor_account</mat-icon>
+                <span>Device Management</span>
+            </button>
+
+
+                   
+             <button mat-button class="menu-button nav-link" routerLink="emp-transfer-data" routerLinkActive="active">
+                <mat-icon>supervisor_account</mat-icon>
+                <span>Employee Transfer Status</span>
+            </button>
+
     </div>
        <div href="">
   <mat-accordion>
@@ -244,9 +269,13 @@
                    <a mat-button class="menu-button nav-link" routerLink="/audit-report" routerLinkActive="active">
                     <span> Audit Report </span>
                 </a>
-                   <a mat-button class="menu-button nav-link" routerLink="/person-tracking-report" routerLinkActive="active">
-                    <span> Person Tracking Report </span>
+               <a mat-button class="menu-button nav-link" routerLink="/log-records" routerLinkActive="active">
+                    <span> Log Report </span>
                 </a>
+
+                   <!-- <a mat-button class="menu-button nav-link" routerLink="/person-tracking-report" routerLinkActive="active">
+                    <span> Person Tracking Report </span>
+                </a> -->
                 
             </mat-expansion-panel>
         </mat-accordion>
@@ -270,3 +299,99 @@
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
+
+
+<!-- 
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.2)"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple"
+  [fullScreen]="true">
+  <p class="text-white text-lg mt-4">Please wait sometime...</p>
+</ngx-spinner> -->
+
+
+<!-- ================= Modal ================= -->
+<div class="password-modal" *ngIf="showChangePasswordModal">
+<form [formGroup]="changePasswordForm" (ngSubmit)="updatePassword()">
+
+    <div class="password-modal-box">
+
+        <div class="modal-title">
+
+            <h3>Change Password</h3>
+
+            <button type="button" class="close-btn" (click)="closeModal()">
+                ✕
+            </button>
+
+        </div>
+
+        
+
+        <!-- Old Password -->
+        <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Old Password</mat-label>
+        <input matInput [type]="showpassword ? 'password' : 'text' " formControlName="oldPassword" placeholder="Enter old your password">
+        <button mat-icon-button matSuffix>
+          <mat-icon (click)="showPassword()" >visibility</mat-icon>
+        </button>
+            <!-- <input
+                matInput
+                type="password"
+                formControlName="oldPassword"> -->
+
+            <mat-error
+                *ngIf="changePasswordForm.get('oldPassword')?.hasError('required')">
+                Old Password is required
+            </mat-error>
+        </mat-form-field>
+
+        <!-- New Password -->
+        <mat-form-field appearance="fill" class="full-width">
+            <mat-label>New Password</mat-label>
+           
+
+                 <input matInput [type]="showpasswordNeW ? 'password' : 'text' " formControlName="password" placeholder="Enter new your password">
+        <button mat-icon-button matSuffix>
+          <mat-icon (click)="showPasswordNew()" >visibility</mat-icon>
+        </button>
+
+            <mat-error
+                *ngIf="changePasswordForm.get('password')?.hasError('required')">
+                New Password is required
+            </mat-error>
+
+            <!-- <mat-error
+                *ngIf="changePasswordForm.get('password')?.hasError('minlength')">
+                Password must be at least 6 characters
+            </mat-error> -->
+        </mat-form-field>
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                mat-stroked-button
+                color="warn"
+                (click)="closeModal()">
+                Cancel
+            </button>
+
+            <button
+                type="submit"
+                mat-raised-button
+                color="primary">
+
+                Update Password
+
+            </button>
+
+        </div>
+
+    </div>
+
+</form>
+
+</div>

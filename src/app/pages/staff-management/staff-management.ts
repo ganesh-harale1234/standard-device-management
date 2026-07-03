@@ -14,7 +14,7 @@ import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 @Component({
   selector: 'app-staff-management',
-  imports: [SharedModule, CommonModule, FormsModule, ReactiveFormsModule, NgxSpinnerModule],
+  imports: [SharedModule, CommonModule,  FormsModule, ReactiveFormsModule, NgxSpinnerModule],
   templateUrl: './staff-management.html',
   styleUrl: './staff-management.scss',
 })
@@ -43,7 +43,7 @@ getAllListRole:any;
   showEmployeeId = true;
   showLevel = true;
   showstatus=true;
-  showPhoto = true;
+  // showPhoto = true;
   showEdit = true;
   empType: 'staff' | 'contractor' = 'staff';
   // columns
@@ -52,10 +52,11 @@ getAllListRole:any;
     'Srno',
     'biometricId',
     'name',
-    'employeeId',
+    'accessGroup',
+    // 'employeeId',
     'level',
-    'empStatus',
-    'photo',
+    // 'empStatus',
+    // 'photo',
     'edit'
   ];
 
@@ -142,6 +143,8 @@ selectedDeviceIds: string[] = [];
   // dataSource = new MatTableDataSource([this.filterallData]);
   dataSource = new MatTableDataSource([]);
 
+  @ViewChild('excelFileInput') excelFileInput!: ElementRef<HTMLInputElement>;
+
   pageIndex = 0;
   pageSize = 10;                               // 5 per page
   pageStart = 0;
@@ -151,17 +154,19 @@ selectedDeviceIds: string[] = [];
  @ViewChild(MatPaginator) paginator!: MatPaginator;
 @ViewChild('TABLE', { static: false }) table!: ElementRef;
 @ViewChild('callAPIDialog') callAPIDialog!: TemplateRef<any>;
+@ViewChild('uploadExcelDialog') uploadExcelDialog!: TemplateRef<any>;
+
   constructor(
     private fb: FormBuilder, private toaster:ToastrService,private dialog: MatDialog,private elementRef: ElementRef,  private spinner:NgxSpinnerService, private toastr:ToastrService, private dataService:DataService, private sanitizer:DomSanitizer ) {
        this.form = this.fb.group({
-      userId: ['', Validators.required],
+      empId: ['', Validators.required],
       name: ['', Validators.required],
-      enrollId: ['', Validators.required],
+      userId: ['', Validators.required],
       password:['', Validators.required],
       cardNum:['', ],
       locationId:['', Validators.required],
       deptId:['',Validators.required ],
-      groupId:['', Validators.required],
+      accessGroupId:['', Validators.required],
       categoryId:['', Validators.required],
       companyName:['', Validators.required],
       // joining_date:['' , Validators.required],
@@ -196,7 +201,6 @@ selectedDeviceIds: string[] = [];
   }
 
 
-
 addnew(){
  this.isEditMode = false;
   this.showFormData = true
@@ -211,17 +215,40 @@ backtoList(){
 
 
 selectesdStaus!:string
-changeStatus(value:any){
-this.selectesdStaus = value == true ? 'Active' : 'Inactive'
-this.getStatuswiseEmp(this.selectesdStaus)
-console.log(this.selectesdStaus, "staatus....")
+changeStatus(value: any) {
+
+  if (value === 'All') {
+    this.getallData();
+    return;
+  }
+
+  this.selectesdStaus = value ? 'Active' : 'Inactive';
+  this.getStatuswiseEmp(this.selectesdStaus);
 }
 
+allEmpShow(){
+  this.getallData();
+}
+
+
+
+
+
+
+
+
+
+// changeStatus(status: string) {
+//   if (status === 'All') {
+//     this.getallData();
+//   } else {
+//     this.getStatuswiseEmp(status);
+//   }
+// }
 
 getStatuswiseEmp(empStatus:any){
   this.dataService.getAllData(`employeeStatus?empStatus=${empStatus}`).subscribe((res:any)=>{
        if (res.code === 100) {
-
         this.getAllList = (res?.extend?.data || []).map((item: any) => {
 
           if (item.photo === 'Y' && item.image) {
@@ -250,7 +277,7 @@ getStatuswiseEmp(empStatus:any){
 }
 
   ngOnInit(): void {
- this.changeStatus(this.isChecked)
+//  this.changeStatus(this.isChecked)
 this.getallDataRole();
  this.getallData();
  this.getalllocation();
@@ -260,6 +287,26 @@ this.getallDataRole();
  this.getallDatacontactor();
  this.getallDatacompany();
  this.getDeviceallList();
+ this.getallCollegeData();
+  }
+
+collegeList:any  = []
+    getallCollegeData(){
+    this.dataService.getAllData('getAllCollege').subscribe((res:any)=>{
+      if(res.code === 100){
+      this.collegeList = res.extend.allColleges;
+
+      }else if(res.code===500){
+                this.toaster.error('Internal server error !')
+      }
+      else{
+        this.toaster.error('Something went wrong !')
+      }
+    }, ((err)=>{
+      const errorMsg = err.error.msg || 'Faild to load Department list !'
+      this.toaster.error(errorMsg)
+    })
+  )
   }
 
    getDeviceallList(){
@@ -308,9 +355,9 @@ this.getallDataRole();
   }
 
    getallDatagroup(){
-    this.dataService.getAllData('getAllGroups').subscribe((res:any)=>{
+    this.dataService.getAllData('accessGroup/getAllAccessGroups').subscribe((res:any)=>{
       if(res.code === 100){
-      this.getAllListgroup = res.extend.allGroup;
+      this.getAllListgroup = res.extend.data;
   
       }else if(res.code===500){
                 this.toaster.error('Internal server error !')
@@ -367,9 +414,15 @@ this.getallDataRole();
     }, )
   
   }
+
+
 getallData() {
+    // this.spinner.show()
+
   this.dataService.getAllData('employee/findAllEmployees').subscribe(
     (res: any) => {
+        this.spinner.hide()
+
       if (res.code === 100) {
 
         this.getAllList = (res?.extend?.data || []).map((item: any) => {
@@ -399,6 +452,7 @@ getallData() {
     }
   );
 }
+
 
 
 // getallData() {
@@ -595,11 +649,12 @@ get photoRequiredError(): any {
       this.toaster.error('Please fill all required fields!');
       return;
     }
-
+      var formValue = this.form.value
 
     const body = {
       ...this.form.value,
       empType:this.empType,
+       accessGroupId: formValue.accessGroupId.join(','),
       imagePath: this.imagePath,
     };
 
@@ -691,24 +746,34 @@ editData(id: any) {
             const empData = res.extend.data[0];
 
             // Employee type
-            this.empType = empData.empType ;
+            // this.empType = empData.empType ;
+            this.empType =
+  empData.empType?.toLowerCase() === 'contractor'
+    ? 'contractor'
+    : 'staff';
 // "empType": "staff",
             this.form.patchValue({
-              enrollId: empData.enrollId,
+              userId: empData.userId,
               deptId: empData.deptId,
               name: empData.name,
               companyName: empData.companyName,
               rollId: empData.rollId,
               categoryId: empData.categoryId,
               locationId: empData.locationId,
-              userId: empData.userId,
+              empId: empData.empId,
               conId: empData.conId,
-              groupId: empData.groupId,
+              // accessGroupId: empData.accessGroupId,
+                // accessGroupId: Number(empData.accessGroupId),
               cardNum: empData.cardNum,
               //joining_date: empData.groupId,
               empStatus: empData.empStatus,
-              password: empData.password || ''
-            });
+              password: empData.password || '',
+
+  accessGroupId: empData.accessGroupId
+    ? empData.accessGroupId.split(',').map((id: string) => Number(id))
+    : []
+});
+          
 
             if (empData.photo === 'Y' && empData.image) {
               this.photoPreview =
@@ -734,10 +799,12 @@ editData(id: any) {
 
 onUpdate(){
   if(this.form.valid){
+     const formValues = this.form.value
     const fromData = {
      enrollId:this.empId,
       ...this.form.value,
        empType:this.empType,
+        accessGroupId: formValues.accessGroupId.join(','),
       imagePath: this.imagePath, 
     }
     this.dataService.updateData('employee/updateEmployee',fromData).subscribe((res:any)=>{
@@ -814,38 +881,21 @@ onUpdate(){
     }
   }
 
-  // 🔹 search filter (optional: pagination reset)
-applyFilter(event: any) {
-  const value = (event.target.value || '').trim().toLowerCase();
 
-  const filtered = this.getAllList.filter((emp: any) => {
-    const name    = (emp.name    || '').toString().toLowerCase();
-    const enroll  = (emp.enrollId || '').toString().toLowerCase();
-    const pnrNo   = (emp.pnrNo   || '').toString().toLowerCase();
-    return (
-      name.includes(value) ||
-      enroll.includes(value) ||
-      pnrNo.includes(value)
-    );
-  });
 
-  this.filterallData = filtered;
-  this.totalItems = this.filterallData.length;
-  this.pageIndex = 0;
-  this.applyPagination();
-}
   isDropdownOpen = false;
 
   @ViewChild('dropdown') dropdown!: ElementRef;
 
   ngAfterViewInit() {
     // ViewChild initialized here
+      this.dataSource.paginator = this.paginator;
   }
 
   columns = [
     { key: 'biometricId', label: 'Biometric ID', checked: true },
     { key: 'name', label: 'Name', checked: true },
-    { key: 'employeeId', label: 'Employee ID', checked: true },
+    // { key: 'employeeId', label: 'Employee ID', checked: true },
     { key: 'level', label: 'Level', checked: true },
     { key: 'photo', label: 'Photo', checked: true },
     { key: 'edit', label: 'Edit', checked: true }
@@ -871,9 +921,9 @@ applyFilter(event: any) {
   updateColumns() {
     this.showBiometricId = this.columns.find(c => c.key === 'biometricId')?.checked ?? false;
     this.showName = this.columns.find(c => c.key === 'name')?.checked ?? false;
-    this.showEmployeeId = this.columns.find(c => c.key === 'employeeId')?.checked ?? false;
+    // this.showEmployeeId = this.columns.find(c => c.key === 'employeeId')?.checked ?? false;
     this.showLevel = this.columns.find(c => c.key === 'level')?.checked ?? false;
-    this.showPhoto = this.columns.find(c => c.key === 'photo')?.checked ?? false;
+    // this.showPhoto = this.columns.find(c => c.key === 'photo')?.checked ?? false;
     this.showEdit = this.columns.find(c => c.key === 'edit')?.checked ?? false;
   }
 
@@ -884,9 +934,9 @@ onColumnChange(event: Event) {
 
   this.showBiometricId = selected.includes('biometricId');
   this.showName = selected.includes('name');
-  this.showEmployeeId = selected.includes('employeeId');
+  // this.showEmployeeId = selected.includes('employeeId');
   this.showLevel = selected.includes('level');
-  this.showPhoto = selected.includes('photo');
+  // this.showPhoto = selected.includes('photo');
   this.showEdit = selected.includes('edit');
 }
 
@@ -896,15 +946,15 @@ onColumnChange(event: Event) {
     if (this.showSrNo) cols.push('Srno');
     if (this.showBiometricId) cols.push('biometricId');
     if (this.showName) cols.push('name');
-    if (this.showEmployeeId) cols.push('employeeId');
+    // if (this.showEmployeeId) cols.push('employeeId');
 
     // cols.push('backupNum');
 
     if (this.showLevel) cols.push('level');
-        if (this.showstatus) cols.push('empStatus');
+        // if (this.showstatus) cols.push('empStatus');
 
     
-    if (this.showPhoto) cols.push('photo');
+    // if (this.showPhoto) cols.push('photo');
     if (this.showEdit) cols.push('edit');
 
     return cols;
@@ -968,7 +1018,7 @@ toggleSelectAll(event: any): void {
   const checked = event.checked;
 
   if (checked) {
-    this.selectedDeviceIds = this.devicesList.map((d: any) => d.serialNum);
+    this.selectedDeviceIds = this.getAllListgroup.map((d: any) => d.accessGroupId);
   } else {
     this.selectedDeviceIds = [];
   }
@@ -979,10 +1029,9 @@ toggleSelectAll(event: any): void {
 
 // Get device name from serial number
 getDeviceName(serialNum: string): string {
-  const dev = this.devicesList.find((d: any) => d.serialNum === serialNum);
-  return dev ? dev.deviceName : serialNum;
+  const dev = this.getAllListgroup.find((d: any) => d.accessGroupId === serialNum);
+  return dev ? dev.accessGroupName : serialNum;
 }
-
 
 
   @HostListener('document:click', ['$event'])
@@ -1036,6 +1085,12 @@ OpenUploadSelectedUserModal(){
     // this.  .open(this.callAPIDialog, { height: '30%', width: '40%'})
     }
  
+    openUploadExcelDialog(): void {
+  this.dialog.open(this.uploadExcelDialog, {
+    width: '50%',
+    height: '55%'
+  });
+}
 
   onCancel(): void {
         this.isEditMode = false;
@@ -1080,42 +1135,145 @@ bacUpNumbersList:any
 
 
 
-// ✅ Select All
+// // ✅ Select All
+// toggleSelectAllemp(event: any): void {
+//   this.isAllSelectedemp = event.checked;
+
+//   const rows = Array.isArray(this.dataSource)
+//     ? this.dataSource
+//     : this.dataSource.data;
+
+//   this.selectedEnrollIds = [];       
+
+//   const roles: string[] = [];
+
+//   rows.forEach((row: any) => {
+//     row.select = this.isAllSelectedemp;
+
+//     if (this.isAllSelectedemp) {
+//       // 
+//       if (row.enrollId != null && row.enrollId !== undefined) {
+//         this.selectedEnrollIds.push(row.enrollId);
+//       }
+
+//       if (row.rollId === 1) {
+//         roles.push('Admin');
+//       } else if (row.rollId === 0) {
+//         roles.push('User');
+//       }
+//     }
+//   });
+
+//   this.selectedRolesText = roles.join(',');
+
+//   console.log('Selected enrollIds (ALL):', this.selectedEnrollIds);
+//   this.enrollIdList = this.selectedEnrollIds
+//   console.log('Selected roles text (ALL):', this.selectedRolesText);
+// }
+
 toggleSelectAllemp(event: any): void {
   this.isAllSelectedemp = event.checked;
 
-  const rows = Array.isArray(this.dataSource)
-    ? this.dataSource
-    : this.dataSource.data;
+  const allRows = this.dataSource.data;
 
-  this.selectedEnrollIds = [];       // इथे clear
+  // Current page records
+  const startIndex = this.pageIndex * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
 
+  const currentPageRows = allRows.slice(startIndex, endIndex);
+
+  this.selectedEnrollIds = [];
   const roles: string[] = [];
 
-  rows.forEach((row: any) => {
+  currentPageRows.forEach((row: any) => {
     row.select = this.isAllSelectedemp;
 
     if (this.isAllSelectedemp) {
-      // 
-      if (row.enrollId != null && row.enrollId !== undefined) {
-        this.selectedEnrollIds.push(row.enrollId);
-      }
+
+      this.selectedEnrollIds.push(row.enrollId);
 
       if (row.rollId === 1) {
         roles.push('Admin');
-      } else if (row.rollId === 0) {
+      } else {
         roles.push('User');
       }
     }
   });
 
+  this.enrollIdList = [...this.selectedEnrollIds];
   this.selectedRolesText = roles.join(',');
 
-  console.log('Selected enrollIds (ALL):', this.selectedEnrollIds);
-  this.enrollIdList = this.selectedEnrollIds
-  console.log('Selected roles text (ALL):', this.selectedRolesText);
+  console.log(this.enrollIdList);
 }
 
+// onPageChange(event: PageEvent) {
+//   this.pageIndex = event.pageIndex;
+//   this.pageSize = event.pageSize;
+
+//   this.isAllSelectedemp = false;
+// }
+
+// onPageChange(event: PageEvent) {
+
+//   const pageSizeChanged = this.pageSize !== event.pageSize;
+
+//   this.pageIndex = event.pageIndex;
+//   this.pageSize = event.pageSize;
+
+//   if (pageSizeChanged) {
+
+//     this.isAllSelectedemp = false;
+
+//     this.selectedEnrollIds = [];
+//     this.enrollIdList = [];
+//     this.selectedRolesText = '';
+
+//     this.dataSource.data.forEach((row: any) => {
+//       row.select = false;
+//     });
+//   }
+// }
+
+
+
+onPageChange(event: PageEvent) {
+
+  const pageChanged = this.pageIndex !== event.pageIndex;
+  const pageSizeChanged = this.pageSize !== event.pageSize;
+
+  this.pageIndex = event.pageIndex;
+  this.pageSize = event.pageSize;
+
+  if (pageChanged || pageSizeChanged) {
+
+    this.isAllSelectedemp = false;
+
+    this.selectedEnrollIds = [];
+    this.enrollIdList = [];
+    this.selectedRolesText = '';
+
+    this.dataSource.data.forEach((row: any) => {
+      row.select = false;
+    });
+  }
+
+  // Pagination data load असेल तर
+  // this.loadEmployees();
+}
+
+// onPageChange(event: PageEvent): void {
+//  this.currentPage = event.pageIndex;
+//  this.pageSize = event.pageSize;
+  
+//   this.isAllSelectedemp = false;
+//   this.selectedEnrollIds = [];
+//   this.enrollIdList = [];
+//   this.selectedRolesText = '';
+
+//   const rows = this.dataSource.data;
+
+//   rows.forEach((row: any) => row.select = false);
+// }
 
 // ✅ Individual row
 onRowSelectionChange(row: any): void {
@@ -1160,6 +1318,95 @@ onRowSelectionChange(row: any): void {
 
 // Uploade to Device select user divice...
 
+// uploadSelctedUserToDevice() {
+//   // 1 Employee  (selectedEnrollIds)
+//   if (!this.selectedEnrollIds || this.selectedEnrollIds.length === 0) {
+//     alert("You must select at least 1 employee to upload.");
+//     return;
+//   }
+
+//   //  enrollIdList check
+//   if (!this.enrollIdList || this.enrollIdList.length === 0) {
+//     this.toastr.error("Enroll ID list is empty. Please select at least 1 employee.");
+//     return;
+//   }
+
+//   //  Backup numbers list check
+//   // if (!this.bacUpNumbersList || this.bacUpNumbersList.length === 0) {
+//   //   this.toastr.error("Backup number not selected. Please select at least 1 backup number.");
+//   //   return;
+//   // }
+
+//   //  Device serial list check
+//   if (!this.deviceSerialNumList || this.deviceSerialNumList.length === 0) {
+//     this.toastr.error("Device not selected. Please select at least one device.");
+//     return;
+//   }
+
+//   //  UserName / Roles check
+//   if (!this.selectedRolesText || this.selectedRolesText.length === 0) {
+//     this.toastr.error("Role / user type not selected.");
+//     return;
+//   }
+
+//   //  Confirm
+//   const ok = confirm("Are you sure you want to upload selected employee(s) to device?");
+//   if (!ok) {
+//     return;
+//   }
+
+//   const enrollIdListParam = Array.isArray(this.enrollIdList)
+//     ? [...this.enrollIdList]
+//     : this.enrollIdList;
+
+//   const backupNumbersParam = Array.isArray(this.bacUpNumbersList)
+//     ? [...this.bacUpNumbersList]
+//     : this.bacUpNumbersList;
+
+//   const deviceSerialParam = Array.isArray(this.deviceSerialNumList)
+//     ? [...this.deviceSerialNumList]
+//     : this.deviceSerialNumList;
+
+//   const userNameParam = Array.isArray(this.selectedRolesText)
+//     ? this.selectedRolesText.join(',')
+//     : this.selectedRolesText;
+
+//   const form: any = {
+//     enrollIdList: enrollIdListParam,
+//     // bacUpNumbersList: backupNumbersParam,
+//     deviceSerialNumList: deviceSerialParam,
+//     userName: userNameParam,
+//   };
+
+//   //  API call
+//   this.spinner.show()
+//   this.dataService.addData('setOneUser', form).subscribe({
+//     next: (response: any) => {
+//        this.spinner.hide()
+//       if (response.code === 100) {
+//          this.spinner.hide()
+//         this.toastr.success(response.msgs || 'Employees uploaded to device successfully.');
+//         this.getallData();
+//       }else if(response.code===500){
+//          this.spinner.hide()
+//         this.toaster.error(response.msg || 'Internal Server Error !')
+//       } else {
+//          this.spinner.hide()
+//         this.toastr.error(response.msg || 'Failed to upload employees to device.');
+//       }
+//     },
+//     error: (err: any) => {
+//        this.spinner.hide()
+//       console.error(err);
+//       this.toastr.error('Server error while uploading employees to device.');
+//     },
+//   });
+// }
+
+
+ 
+
+
 uploadSelctedUserToDevice() {
   // 1 Employee  (selectedEnrollIds)
   if (!this.selectedEnrollIds || this.selectedEnrollIds.length === 0) {
@@ -1174,10 +1421,10 @@ uploadSelctedUserToDevice() {
   }
 
   //  Backup numbers list check
-  if (!this.bacUpNumbersList || this.bacUpNumbersList.length === 0) {
-    this.toastr.error("Backup number not selected. Please select at least 1 backup number.");
-    return;
-  }
+  // if (!this.bacUpNumbersList || this.bacUpNumbersList.length === 0) {
+  //   this.toastr.error("Backup number not selected. Please select at least 1 backup number.");
+  //   return;
+  // }
 
   //  Device serial list check
   if (!this.deviceSerialNumList || this.deviceSerialNumList.length === 0) {
@@ -1215,30 +1462,38 @@ uploadSelctedUserToDevice() {
 
   const form: any = {
     enrollIdList: enrollIdListParam,
-    bacUpNumbersList: backupNumbersParam,
-    deviceSerialNumList: deviceSerialParam,
-    userName: userNameParam,
+    // bacUpNumbersList: backupNumbersParam,
+    accessGroupId: deviceSerialParam,
+    // userName: userNameParam,
+  //     "accessGroupId": [1, 2],
+  // "enrollIdList": [1,2]
   };
 
   //  API call
-  this.dataService.addData('setOneUser', form).subscribe({
+  this.spinner.show()
+  this.dataService.addData('command/setUserToDevice', form).subscribe({
     next: (response: any) => {
+       this.spinner.hide()
       if (response.code === 100) {
+         this.spinner.hide()
         this.toastr.success(response.msgs || 'Employees uploaded to device successfully.');
+        this.enrollIdList = []
         this.getallData();
       }else if(response.code===500){
+         this.spinner.hide()
         this.toaster.error(response.msg || 'Internal Server Error !')
       } else {
+         this.spinner.hide()
         this.toastr.error(response.msg || 'Failed to upload employees to device.');
       }
     },
     error: (err: any) => {
+       this.spinner.hide()
       console.error(err);
       this.toastr.error('Server error while uploading employees to device.');
     },
   });
 }
-
 
 //   Delete Employee software wise....
 
@@ -1362,7 +1617,8 @@ emponDeleteDevices() {
   //  API call
   this.dataService
     .getAllData(
-      `deletePersonFromDevice?enrollId=${enrollIdParam}&deviceSn=${deviceSnParam}&userName=${userNameParam}`
+
+      `deletePersonFromAccessGroup?enrollIds=${enrollIdParam}&accessGroupIds=${deviceSnParam}&userNames=${userNameParam}`
     )
     .subscribe({
       next: (response: any) => {
@@ -1386,10 +1642,10 @@ emponDeleteDevices() {
 
 
 
-    onPageChange(event: PageEvent) {
-  this.pageIndex = event.pageIndex;
-  this.pageSize = event.pageSize;
-}
+//     onPageChange(event: PageEvent) {
+//   this.pageIndex = event.pageIndex;
+//   this.pageSize = event.pageSize;
+// }
 
 
 
@@ -1404,6 +1660,311 @@ ExportTOExcel()
  
 }
 
+
+
+
+  // Upload button click
+  openFilePicker(): void {
+    this.excelFileInput.nativeElement.value = ''; 
+    this.excelFileInput.nativeElement.click();
+  }
+
+selectedExcelFile: File | null = null;
+
+onExcelFileSelected(event: any): void {
+  const file = event.target.files[0];
+
+  if (file) {
+    this.selectedExcelFile = file;
+  }
+}
+
+uploadExcelFile(): void {
+
+  if (!this.selectedExcelFile) {
+    this.toastr.warning('Please select an Excel file.');
+    return;
+  }
+
+  // Existing API Method Call
+  this.uploadExcelToDevice(this.selectedExcelFile);
 }
 
 
+// uploadExcelToDevice(file: File): void {
+//   console.log('Excel upload function call...');
+
+//   const formData = new FormData();
+//   formData.append('file', file);
+
+//   this.dataService.addData('employee/uploadExcel', formData).subscribe({
+//     next: (response: any) => {
+
+//       // Check if validation messages are returned
+//       if (response.extend?.messages?.length > 0) {
+//         response.extend.messages.forEach((msg: string) => {
+//           this.toastr.error(msg);
+//         });
+//         return;
+//       }
+
+//       // Success
+//       if (response.code === 100) {
+//         this.toastr.success(response.msg || 'Excel uploaded successfully.');
+//         this.getallData();
+//       }
+//       // Server Error
+//       else if (response.code === 500) {
+//         this.toastr.error(response.msg || 'Internal Server Error!');
+//       }
+//       // Other Error
+//       else {
+//         this.toastr.error(response.msg || 'Failed to upload Excel.');
+//       }
+//     },
+
+//     error: (err: any) => {
+//       console.error(err);
+//       this.toastr.error('Server error while uploading Excel file.');
+//     }
+//   });
+// }
+
+
+
+
+
+
+
+
+
+
+uploadExcelToDevice(file: File): void {
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  this.spinner.show();
+
+  this.dataService.addData('employee/importExcel', formData).subscribe({
+    next: (response: any) => {
+
+      this.spinner.hide();
+
+      if (response.extend?.messages?.length > 0) {
+
+        response.extend.messages.forEach((msg: string) => {
+
+          if (
+            msg.toLowerCase().includes('required') ||
+            msg.toLowerCase().includes('invalid') ||
+            msg.toLowerCase().includes('already') ||
+            msg.toLowerCase().includes('failed')
+          ) {
+            this.toastr.error(msg);
+          } else {
+            this.toastr.success(msg);
+          }
+
+        });
+
+        if (response.code === 100) {
+          this.getallData();
+          this.selectedExcelFile = null;
+        }
+
+        return;
+      }
+
+      if (response.code === 100) {
+        this.toastr.success(response.msg || 'Excel uploaded successfully.');
+        this.getallData();
+        this.selectedExcelFile = null;
+      } else {
+        this.toastr.error(response.msg || 'Upload failed.');
+      }
+
+    },
+
+    error: (err: any) => {
+
+      this.spinner.hide();
+      console.error(err);
+      this.toastr.error('Server error while uploading Excel file.');
+
+    }
+
+  });
+
+}
+
+
+
+
+
+
+
+
+
+
+
+// searchType: string = 'name';
+
+applyFilter(event: any) {
+
+  const value = (event.target.value || '').trim().toLowerCase();
+
+  this.filterallData = this.getAllList.filter((emp: any) => {
+
+    let searchValue = '';
+
+    switch (this.searchType) {
+      case 'accessGroupName':
+        searchValue = (emp.accessGroupName || '').toString().toLowerCase();
+        break;
+
+   case 'name':
+        searchValue = (emp.name || '').toString().toLowerCase();
+        break;
+
+      case 'deptName':
+        searchValue = (emp.deptName || '').toString().toLowerCase();
+        break;
+
+            case 'conName':
+        searchValue = (emp.conName || '').toString().toLowerCase();
+        break;
+
+             case 'categoryName':
+        searchValue = (emp.categoryName || '').toString().toLowerCase();
+        break;
+
+       
+
+    
+
+      // case 'empType':
+      //   searchValue = (emp.empType || '').toString().toLowerCase();
+      //   break;
+
+
+      case 'userId':
+        searchValue = (emp.userId || '').toString().toLowerCase();
+        break;
+
+      case 'empStatus':
+        searchValue = (emp.empStatus || '').toString().toLowerCase();
+        break;
+
+      default:
+        searchValue = (emp.name || '').toString().toLowerCase();
+        break;
+    }
+
+    return searchValue.includes(value);
+
+  });
+
+  this.totalItems = this.filterallData.length;
+  this.pageIndex = 0;
+  this.applyPagination();
+}
+
+
+
+searchType: string = 'name';
+
+selectedValue: string = '';
+
+dropdownList: any[] = [];
+
+
+onSearchTypeChange() {
+
+  this.selectedValue = '';
+
+  switch (this.searchType) {
+
+    case 'deptName':
+      this.dropdownList = this.getAllListdepartment.map((x:any) => x.deptName);
+      break;
+
+    case 'accessGroupName':
+      this.dropdownList = this.getAllListgroup.map((x:any) => x.accessGroupName);
+      break;
+
+    case 'categoryName':
+      this.dropdownList = this.getAllListcategory.map((x:any) => x.categoryName);
+      break;
+
+    case 'conName':
+      this.dropdownList = this.getAllListcontractor.map((x:any) => x.conName);
+      break;
+
+    default:
+      this.dropdownList = [];
+      break;
+
+  }
+
+  this.filterallData = [...this.getAllList];
+
+  this.totalItems = this.filterallData.length;
+  this.pageIndex = 0;
+  this.applyPagination();
+
+}
+
+
+filterDropdown() {
+
+  if (!this.selectedValue) {
+    this.filterallData = [...this.getAllList];
+  } else {
+
+    this.filterallData = this.getAllList.filter((emp: any) => {
+
+      switch (this.searchType) {
+
+        case 'deptName':
+          return emp.deptName === this.selectedValue;
+
+        case 'categoryName':
+          return emp.categoryName === this.selectedValue;
+
+        case 'conName':
+          return emp.conName === this.selectedValue;
+
+        case 'accessGroupName':
+
+          return (emp.accessGroupName || '')
+            .toLowerCase()
+            .split(',')
+            .map((x: string) => x.trim())
+            .includes(this.selectedValue.toLowerCase());
+
+        default:
+          return true;
+
+      }
+
+    });
+
+  }
+
+  this.totalItems = this.filterallData.length;
+  this.pageIndex = 0;
+  this.applyPagination();
+
+}
+
+
+actionType = 'transfer';
+empTransfer() {
+  console.log('Transfer');
+}
+
+empDelete() {
+  console.log('Delete');
+}
+}

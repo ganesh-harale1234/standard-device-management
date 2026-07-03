@@ -85,12 +85,16 @@
         <th mat-header-cell *matHeaderCellDef class="font-semibold">
           I/O Status
         </th>
-        <td mat-cell *matCellDef="let element">
-          <span
-            class="px-2 py-1 text-xs rounded-full">
-            {{ element.ioStatus=="I" ? "IN" : element.ioStatus=="O" ? "OUT" : element.ioStatus=="IN OUT" ? "IN OUT" :"-" }}
-          </span>
-        </td>
+    <td mat-cell *matCellDef="let element">
+  <span class="px-2 py-1 text-xs rounded-full">
+    <ng-container [ngSwitch]="element.ioStatus">
+      <span *ngSwitchCase="'I'">IN</span>
+      <span *ngSwitchCase="'O'">OUT</span>
+      <span *ngSwitchCase="'IO'">IN OUT</span>
+      <span *ngSwitchDefault>-</span>
+    </ng-container>
+  </span>
+</td>
       </ng-container>
 
       <!-- Status -->
@@ -223,13 +227,34 @@
     
         </mat-select>
         <mat-error *ngIf="form.get('locationId')?.hasError('required')">
-          Level is required
+          Location is required
         </mat-error>
       </mat-form-field>
 
+
+
+            <mat-form-field appearance="fill" class="w-full custom-field">
+  <mat-label>Select Access Group</mat-label>
+
+  <mat-select formControlName="accessGroupId">
+
+    <mat-option *ngFor="let item of getAllListgroup"
+                [value]="item.accessGroupId">
+      {{ item.accessGroupName }}
+    </mat-option>
+
+  </mat-select>
+
+  <mat-error *ngIf="form.get('accessGroupId')?.hasError('required')">
+    Group is required
+  </mat-error>
+
+</mat-form-field>
+
+
 <div class="w-full custom-field">
   <label class="block mb-2 text-sm font-medium text-gray-700">
-    Authorized Device
+    Authorized Device <span style="color: red;" >*</span>
   </label>
 
   <mat-checkbox formControlName="authorizedDevice">

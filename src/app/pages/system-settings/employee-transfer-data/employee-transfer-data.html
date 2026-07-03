@@ -122,7 +122,7 @@
          Employee Name
         </th>
         <td mat-cell *matCellDef="let element">
-          {{ element.name }}
+          {{ element.empName }}
         </td>
       </ng-container>
 
@@ -142,7 +142,7 @@
          Transfer Date
         </th>
         <td mat-cell *matCellDef="let element">
-          {{ element.deviceTransferDate | date:'dd/MM/yyyy HH:mm'  }}
+          {{ element.updatedDate | date:'dd/MM/yyyy HH:mm'  }}
         </td>
       </ng-container>
 
@@ -150,9 +150,12 @@
         <th mat-header-cell *matHeaderCellDef class="font-semibold">
           Status
         </th>
-        <td mat-cell *matCellDef="let element">
-          Success
-        </td>
+<td mat-cell *matCellDef="let element">
+  <span
+    [ngClass]="element.status == 1 ? 'text-success' : 'text-warning'">
+    {{ element.status == 1 ? 'Success' : 'Pending' }}
+  </span>
+</td>
       </ng-container>
 
       <!-- Header & Row -->

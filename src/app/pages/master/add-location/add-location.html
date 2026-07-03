@@ -2,7 +2,7 @@
 <div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showTableData">
 
   <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
-    <h2 class="text-xl font-semibold">Location List</h2>
+    <h2 class="text-xl font-semibold">Branch List</h2>
   
     <div class="flex flex-wrap items-center gap-4 ml-auto">
       <!-- Search box -->
@@ -43,7 +43,7 @@
         <!-- Email ID -->
         <ng-container matColumnDef="Location-name">
           <th mat-header-cell *matHeaderCellDef class="font-semibold sticky top-0 bg-white z-10">
-           Location Name
+           Branch Name
           </th>
           <td mat-cell *matCellDef="let row">
             {{ row.locationName }}
@@ -108,7 +108,7 @@
 <div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showFormData">
 
   <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
-    <h2 class="text-xl font-semibold">Add  Location </h2>
+    <h2 class="text-xl font-semibold">Add  Branch </h2>
 
     <div class="flex flex-wrap items-center gap-4 ml-auto">
       <button
@@ -126,13 +126,13 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         <mat-form-field appearance="fill" class="w-full custom-field">
-          <mat-label>Location Name <span class="text-red-500"></span></mat-label>
+          <mat-label>Branch Name <span class="text-red-500"></span></mat-label>
           <input
             matInput
             formControlName="locationName"
             placeholder="Enter here..." />
           <mat-error *ngIf="form.get('locationName')?.hasError('required')">
-            Location Name is required
+            Branch Name is required
           </mat-error>
         
         </mat-form-field>

@@ -30,6 +30,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatExpansionModule } from '@angular/material/expansion';
 
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatButtonToggle } from '@angular/material/button-toggle';
 
 const MAT_MODULES = [
 
@@ -63,6 +64,7 @@ const MAT_MODULES = [
   MatExpansionModule,
   MatPaginatorModule,
   MatOption,
+  MatButtonToggle,
   MatSelect,
   MatButtonModule,
   FormsModule,

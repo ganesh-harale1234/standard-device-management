@@ -17,8 +17,9 @@ export class Login {
 
   constructor(private fb: FormBuilder, private userService: User, private router: Router, private toaster: ToastrService) {
     this.loginForm = this.fb.group({
-      username: ['', Validators.required],
+      userName: ['', Validators.required],
       password: ['', Validators.required]
+   
     })
   }
 

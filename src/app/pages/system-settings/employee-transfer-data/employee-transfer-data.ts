@@ -59,8 +59,8 @@ filterData: any[] = [];
 
 
      getAllempTransferlList(){
-    this.dataService.getAllData('getAllTransferedDataToDevice').subscribe((res:any)=>{
-        const list = res?.extend?.list || [];
+    this.dataService.getAllData('transferActivityTableData').subscribe((res:any)=>{
+        const list = res?.extend?.data || [];
       this.filterData = list;              
       this.dataSource.data = list;           
       this.dataSource.paginator = this.paginator; 
@@ -154,11 +154,11 @@ getFilterdatDevicewise() {
 
   this.dataService
     .getAllData(
-      'getTransferedDataToDevice?deviceList=' + deviceList
+      'transferActivityTableData?deviceSerialNo=' + deviceList
     )
     .subscribe((res: any) => {
-      
-       const list = res?.extend?.list || [];
+
+       const list = res?.extend?.data || [];
       this.filterData = list;              
       this.dataSource.data = this.filterData;    
                    console.log("Updated data...", this.dataSource.data)
@@ -179,7 +179,7 @@ applyFilter(event: any) {
   }
 
   this.dataSource = this.filterData.filter((item: any) =>
-    item.name?.toLowerCase().includes(search)
+    item.empName?.toLowerCase().includes(search)
   );
 }
 

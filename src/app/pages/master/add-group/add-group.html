@@ -49,7 +49,7 @@
           Access Group Name
           </th>
           <td mat-cell *matCellDef="let row">
-            {{ row.groupName }}
+            {{ row.accessGroupName }}
           </td>
         </ng-container>
 
@@ -66,11 +66,11 @@
 
   <td mat-cell *matCellDef="let row" class="action-cell">
     <div class="action-buttons">
-      <button mat-icon-button class="edit-btn" (click)="editData(row.groupId)">
+      <button mat-icon-button class="edit-btn" (click)="editData(row.accessGroupId)">
         <mat-icon>edit</mat-icon>
       </button>
 
-      <button mat-icon-button class="delete-btn" (click)="delete(row.groupId)">
+      <button mat-icon-button class="delete-btn" (click)="delete(row.accessGroupId)">
         <mat-icon>delete</mat-icon>
       </button>
     </div>
@@ -133,9 +133,9 @@
           <mat-label>Access Group Name <span class="text-red-500"></span></mat-label>
           <input
             matInput
-            formControlName="groupName"
+            formControlName="accessGroupName"
             placeholder="Enter here..." />
-          <mat-error *ngIf="form.get('groupName')?.hasError('required')">
+          <mat-error *ngIf="form.get('accessGroupName')?.hasError('required')">
             Group Name is required
           </mat-error>
         

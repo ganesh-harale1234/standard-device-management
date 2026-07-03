@@ -76,6 +76,16 @@ export const routes: Routes = [
         loadComponent:()=> import('../pages/master/add-location/add-location').then((m)=> m.AddLocation)
         // ,canActivate:[authGuard]
       },
+        {
+        path:'add-college',
+        loadComponent:()=> import('../pages/master/add-college/add-college').then((m)=> m.AddCollege)
+        // ,canActivate:[authGuard]
+      },
+        {
+        path:'add-designation',
+        loadComponent:()=> import('../pages/master/designation/designation').then((m)=> m.Designation)
+        // ,canActivate:[authGuard]
+      },
 
        {
         path:'add-company',

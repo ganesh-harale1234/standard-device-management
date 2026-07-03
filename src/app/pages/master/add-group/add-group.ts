@@ -43,7 +43,7 @@ form!: FormGroup;
 @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(private fb: FormBuilder, private toaster:ToastrService, private dataService:DataService) {
     this.form = this.fb.group({
-      groupName: ['', [Validators.required,]],
+      accessGroupName: ['', [Validators.required,]],
     });
   }
 
@@ -55,9 +55,9 @@ form!: FormGroup;
 
 
   getallData(){
-    this.dataService.getAllData('getAllGroups').subscribe((res:any)=>{
+    this.dataService.getAllData('accessGroup/getAllAccessGroups').subscribe((res:any)=>{
       if(res.code === 100){
-      this.getAllList = res.extend.allGroup;
+      this.getAllList = res.extend.data;
           this.filterallData = this.getAllList;
                    this.dataSource = new MatTableDataSource(this.getAllList);
       this.dataSource.paginator = this.paginator;
@@ -80,7 +80,7 @@ if(this.form.valid){
  const formData = {
   ...this.form.value
  }
- this.dataService.addData('addGroup', formData).subscribe((res:any)=>{
+ this.dataService.addData('accessGroup/saveAccessGroup', formData).subscribe((res:any)=>{
   if(res.code === 100){
     this.toaster.success(res.msg || 'Group add sucessfully !')
     this.form.reset();
@@ -116,11 +116,12 @@ this.groupId = id;
     this.showTableData = false;
     this.isEditMode = true;
     if(id){
-      this.dataService.getById('getGroupById/'+id).subscribe((res:any)=>{
-        if(res.code === 100 && res.extend && res.extend.deviceGroup){
-        const categoryData = res.extend.deviceGroup;
+      this.dataService.getById('accessGroup/getAccessGroup/'+id).subscribe((res:any)=>{
+        if(res.code === 100 && res.extend && res.extend.data){
+        const categoryData = res.extend.data;
+   
     this.form.patchValue({
-      groupName : categoryData.groupName
+      accessGroupName : categoryData.accessGroupName
     })
         }else{
       this.toaster.error('No Data fond api !')
@@ -142,10 +143,10 @@ this.groupId = id;
 onUpdate(){
   if(this.form.valid){
     const fromData = {
-     groupId:this.groupId,
+     accessGroupId:this.groupId,
       ...this.form.value
     }
-    this.dataService.updateData('updateGroup',fromData).subscribe((res:any)=>{
+    this.dataService.updateData('accessGroup/updateAccessGroup',fromData).subscribe((res:any)=>{
       if(res.code === 100){
         this.toaster.success(res.msg || 'Group Data Update Sucessfully !')
         this.getallData();
@@ -175,7 +176,7 @@ onUpdate(){
 
 delete(id:any){
   this.groupId = id;
-this.dataService.deleteData('deleteGroupById/'+this.groupId).subscribe((res:any)=>{
+this.dataService.deleteData('accessGroup/deleteAccessGroup/'+this.groupId).subscribe((res:any)=>{
   if(res.code === 100){
  this.toaster.success(res.msg || 'Data deleted successfully !')
   this.getallData();
@@ -242,7 +243,7 @@ this.dataService.deleteData('deleteGroupById/'+this.groupId).subscribe((res:any)
     const value = (event.target.value || '').trim().toLowerCase();
 
     const filtered = this.getAllList.filter((item:any) =>
-      item.groupName.toLowerCase().includes(value)
+      item.accessGroupName.toLowerCase().includes(value)
     );
 
     this.filterallData = filtered;

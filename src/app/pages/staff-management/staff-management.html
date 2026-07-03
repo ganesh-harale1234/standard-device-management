@@ -1,38 +1,55 @@
   <!-- table data.....-->
 <div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showTableData">
 
-  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-2 bg-blue-200">
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-2 mb-4 px-3 py-2 bg-blue-200">
     <h2 class="text-xl font-semibold">Employee List</h2>
-<div class="">   <strong style="margin-right:8px;">Status: </strong>   <mat-slide-toggle [(ngModel)]="isChecked" (ngModelChange)="changeStatus($event)" color]="isChecked ? 'primary' : 'warn'">
-  <strong class="" style="margin-left: 12px;">{{ isChecked ? 'Active' : 'Inactive' }}</strong>
-</mat-slide-toggle></div>
-    <div class="flex flex-wrap items-center gap-4 ml-auto">
+<div class="status-section">
+
+  <button
+    mat-raised-button
+    color="primary"
+    class="show-all-btn"
+    (click)="allEmpShow()">
+    <mat-icon>groups</mat-icon>
+    Show All
+  </button>
+
+ <div class="status-toggle">
+  <strong>Status:</strong>
+
+  <mat-slide-toggle
+    class="status-switch"
+    [(ngModel)]="isChecked"
+    (ngModelChange)="changeStatus($event)">
+    {{ isChecked ? 'Active' : 'Inactive' }}
+  </mat-slide-toggle>
+</div>
+
+</div>
+    <div class="flex  items-center gap-4 ml-auto">
 
      <div
   class="flex items-center rounded-full overflow-hidden border border-gray-300 bg-white shadow-sm focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-red-100 transition"
 >
-  <input
-    matInput
-    class="px-4 py-2 border-0 outline-none focus:outline-none focus:ring-0 text-sm w-58"
-    placeholder="Search..."
-    (keyup)="applyFilter($event)"/>
+
+
+<!-- 
   <button
     mat-icon-button
     class="h-full flex items-center justify-center px-3 hover:bg-gray-100">
     <mat-icon class="text-gray-500 text-base">search</mat-icon>
-  </button>
+  </button> -->
 </div>
 
 <!-- Device select -->
 <div class="flex items-center gap-2 mt-2">
 
-<mat-form-field appearance="fill" class="w-56 !m-0 custom-field">
-  <mat-select placeholder="Select Device" multiple>
+<!-- <mat-form-field appearance="fill" class="w-56 !m-0 custom-field">
+  <mat-select placeholder="Select Access group" multiple>
 
-    <!-- Trigger Text -->
     <mat-select-trigger>
       <ng-container *ngIf="selectedDeviceIds.length === 0">
-        Select Device
+        Select Access group
       </ng-container>
 
       <ng-container *ngIf="selectedDeviceIds.length === 1">
@@ -51,7 +68,6 @@
       </ng-container>
     </mat-select-trigger>
 
-    <!-- Select All -->
     <mat-option (click)="$event.stopPropagation()">
       <mat-checkbox
         [checked]="isAllSelected"
@@ -62,22 +78,32 @@
       </mat-checkbox>
     </mat-option>
 
-    <!-- List -->
-    <mat-option *ngFor="let device of devicesList" (click)="$event.stopPropagation()">
+    <mat-option *ngFor="let device of getAllListgroup" (click)="$event.stopPropagation()">
       <mat-checkbox
-        [checked]="isSelected(device.serialNum)"
+        [checked]="isSelected(device.accessGroupId)"
         (click)="$event.stopPropagation()"
-        (change)="toggleDevice(device.serialNum, $event)"
+        (change)="toggleDevice(device.accessGroupId, $event)"
       >
-        {{ device.deviceName }}
+        {{ device.accessGroupName }}
       </mat-checkbox>
     </mat-option>
 
   </mat-select>
-</mat-form-field>
+</mat-form-field> -->
 
 </div>
-
+<!-- <a
+  (click)="openUploadExcelDialog()"
+  class="inline-flex items-center gap-2 rounded-md bg-sky-800 px-5 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-sky-600 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 cursor-pointer"
+>
+  <img
+    src="assets/images/excel.png"
+    alt="Upload"
+    title="Upload Excel"
+    class="h-5 w-5"
+  />
+  Upload Excel
+</a> -->
 
         <button
         mat-raised-button
@@ -87,6 +113,20 @@
     <span class="flex items-center gap-1"> <img src="/assets/images/add-btnn.png" alt="">
         Add New</span>
       </button>
+        <button
+        mat-raised-button
+        class="bg-blue-500 hover:bg-blue-600 text-white normal-case export-btn"
+        (click)="openUploadExcelDialog()"  
+      >
+    <span class="flex items-center gap-1">  <img src="/assets/images/add-btnn.png" alt="">
+       <!-- <img
+    src="/assets/images/download.png"
+    alt="Upload"
+    title="Upload Excel"
+    class="h-7 w-7"
+  /> -->
+        Upload Excel</span>
+      </button>
     </div>
   </div>
   <div class="">
@@ -95,12 +135,94 @@
   <!-- Top controls: column toggles + buttons -->
   <div class=" mb-4">
     <!-- Column toggles -->
+
+
     <div class="flex justify-between items-center gap-2 text-sm">
-<div class="select-wrapper border-blue-500" #dropdown>
-  <div class="select-box font-medium " (click)="openDropdown($event)">
+
+
+
+
+
+
+
+<div class=" border-blue-500" #dropdown>
+  <!-- <div class="select-box font-medium " (click)="openDropdown($event)">
     Select Columns
     <span class="arrow">▼</span>
-  </div>
+  </div> -->
+
+<div class="flex flex-wrap items-center gap-3 mb-4">
+
+<!-- Search Type -->
+<div class="w-full md:w-50">
+  <select
+    class="w-full h-10 px-3 border border-gray-300 rounded-md"
+    [(ngModel)]="searchType"
+    (change)="onSearchTypeChange()">
+
+    <option value="name">Search By Employee Name</option>
+    <option value="deptName">Department Wise</option>
+    <option value="accessGroupName">Access Group Wise</option>
+    <option value="categoryName">Category Wise</option>
+    <option value="conName">Contractor Wise</option>
+    <option value="userId">Search By BioID Wise</option>
+    <option value="empStatus">Search By Status Wise</option>
+
+  </select>
+</div>
+
+<!-- Text Search -->
+<div
+  class="w-full md:w-50"
+  *ngIf="searchType!='deptName'
+      && searchType!='accessGroupName'
+      && searchType!='categoryName'
+      && searchType!='conName'">
+
+  <input
+    type="text"
+    class="w-full h-10 px-3 border border-gray-300 rounded-md"
+    placeholder="Search here..."
+    (input)="applyFilter($event)">
+</div>
+
+<!-- Common Dropdown -->
+<div
+  class="w-full md:w-50"
+  *ngIf="searchType=='deptName'
+      || searchType=='accessGroupName'
+      || searchType=='categoryName'
+      || searchType=='conName'">
+
+  <select
+    class="w-full h-10 px-3 border border-gray-300 rounded-md"
+    [(ngModel)]="selectedValue"
+    (change)="filterDropdown()">
+
+    <option value="">Select</option>
+
+    <option
+      *ngFor="let item of dropdownList"
+      [value]="item">
+
+      {{item}}
+
+    </option>
+
+  </select>
+
+</div>
+
+  <!-- Search Input -->
+  <!-- <div class="w-full md:w-72">
+    <input
+      type="text"
+      class="w-full h-10 px-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      placeholder="Search here..."
+      (input)="applyFilter($event)">
+  </div> -->
+
+</div>
 
   <div class="options" *ngIf="isDropdownOpen">
     <label *ngFor="let col of columns">
@@ -115,23 +237,131 @@
 </div>
 
 <div class=" flex gap-3 items-center ">
-        <!-- Action buttons -->
+
+<div class="flex items-center gap-2 flex-wrap">
+
+  <!-- Radio Button -->
+
+  <mat-radio-group
+    [(ngModel)]="actionType"
+    class="flex items-center gap-2">
+
+    <mat-radio-button value="transfer">
+      Transfer
+    </mat-radio-button>
+
+    <mat-radio-button value="delete">
+      Delete
+    </mat-radio-button>
+
+  </mat-radio-group>
 
 
+  <!-- Access Group Dropdown -->
+
+ <mat-form-field appearance="outline" class="simple-select w-72">
+
+  <mat-select
+      multiple
+      placeholder="Select Access Group">
+
+    <mat-select-trigger>
+
+      <ng-container *ngIf="selectedDeviceIds.length == 0">
+        Select Access Group
+      </ng-container>
+
+      <ng-container *ngIf="selectedDeviceIds.length == 1">
+        {{ getDeviceName(selectedDeviceIds[0]) }}
+      </ng-container>
+
+      <ng-container *ngIf="selectedDeviceIds.length > 1">
+        {{ getDeviceName(selectedDeviceIds[0]) }}
+        +{{ selectedDeviceIds.length-1 }} more
+      </ng-container>
+
+    </mat-select-trigger>
+
+    ...
+  </mat-select>
+
+</mat-form-field>
+  <!-- Action Button -->
+
+  <button
+    *ngIf="actionType=='transfer'"
+    mat-raised-button
+    color="primary"
+    (click)="uploadSelctedUserToDevice()">
+
+    <mat-icon>swap_horiz</mat-icon>
+
+    Emp Transfer
+
+  </button>
 
 
+  <button
+    *ngIf="actionType=='delete'"
+    mat-raised-button
+    color="warn"
+    (click)="empDelete()">
 
-    <button
+    <mat-icon>delete</mat-icon>
+
+    Emp Delete
+
+  </button>
+
+</div>
+ 
+<!-- <a
+  (click)="openFilePicker()"
+  class="inline-flex items-center gap-2 rounded-md bg-sky-800 px-5 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-sky-600 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 cursor-pointer"
+>
+  <img
+    src="assets/images/excel.png"
+    alt="Upload"
+    title="Upload Excel"
+    class="h-5 w-5"
+  />
+  Upload Excel
+</a> -->
+
+<!-- Hidden file input -->
+<!-- <input
+  type="file"
+  #excelFileInput
+  accept=".xlsx,.xls"
+  style="display: none"
+  (change)="onExcelSelected($event)"
+/> -->
+
+
+<!-- new method -->
+
+
+    <!-- <button
+ (click)="uploadSelctedUserToDevice()"
+  class="inline-flex items-center gap-2 rounded-md bg-sky-800 px-5 py-2 text-sm font-semibold text-white
+         shadow-md transition-all duration-200
+         hover:bg-sky-600 hover:shadow-lg
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
+  Upload to Device
+</button> -->
+
+
+<!-- old method -->
+    <!-- <button
   (click)="OpenUploadSelectedUserModal()"
   class="inline-flex items-center gap-2 rounded-md bg-sky-800 px-5 py-2 text-sm font-semibold text-white
          shadow-md transition-all duration-200
          hover:bg-sky-600 hover:shadow-lg
          active:scale-95
-         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2"
->
- 
+         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
   Upload to Device
-</button>
+</button> -->
 
     
 
@@ -188,7 +418,7 @@
   </div>
 </div>
 
- <button
+ <!-- <button
   (click)="ExportTOExcel()"
   class="inline-flex items-center gap-2 rounded-md px-5 border py-2 text-sm font-semibold text-blue-600 border-blue-800
          shadow-md transition-all duration-200
@@ -198,12 +428,15 @@
  
 <span class="flex items-center gap-2"> Export <img src="assets/images/excel.png" alt="" class="h-5"> </span>
  
-</button>
+</button> -->
 
     </div>
 
   
   </div>
+
+
+
   </div>
 
 <!-- Table -->
@@ -254,7 +487,7 @@
         class="font-semibold sticky top-0 bg-white z-10">
       Biometric ID
     </th>
-    <td mat-cell *matCellDef="let row">{{ row.enrollId }}</td>
+    <td mat-cell *matCellDef="let row">{{ row.userId }}</td>
   </ng-container>
 
   <!-- Name -->
@@ -268,8 +501,18 @@
     </td>
   </ng-container>
 
+    <!-- <ng-container matColumnDef="accessGroup" *ngIf="showName">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+      Access Group
+    </th>
+    <td mat-cell *matCellDef="let row" class="">
+      {{ row.name }}
+    </td>
+  </ng-container> -->
+
   <!-- Employee ID -->
-  <ng-container matColumnDef="employeeId" *ngIf="showEmployeeId">
+  <!-- <ng-container matColumnDef="employeeId" *ngIf="showEmployeeId">
     <th mat-header-cell *matHeaderCellDef
         class="font-semibold sticky top-0 bg-white z-10">
       Employee ID
@@ -277,21 +520,31 @@
     <td mat-cell *matCellDef="let row">
       {{ row.userId }}
     </td>
-  </ng-container>
+  </ng-container> -->
+
+    <!-- <ng-container matColumnDef="employeeId" *ngIf="showEmployeeId">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+      Employee ID
+    </th>
+    <td mat-cell *matCellDef="let row">
+      {{ row.userId }}
+    </td>
+  </ng-container> -->
 
   <!-- Level -->
   <ng-container matColumnDef="level" *ngIf="showLevel">
     <th mat-header-cell *matHeaderCellDef
         class="font-semibold sticky top-0 bg-white z-10">
-      Level
+            Access Group
     </th>
-    <td mat-cell *matCellDef="let row" class="uppercase">
-      {{ row.rollId == 1 ? "Manager" : "User" }}
-    </td>
+ <td mat-cell *matCellDef="let row">
+  {{ row.accessGroupName ? row.accessGroupName : 'N/A' }}
+</td>
   </ng-container>
 
     <!-- Status... -->
-  <ng-container matColumnDef="empStatus" *ngIf="showstatus">
+  <!-- <ng-container matColumnDef="empStatus" *ngIf="showstatus">
     <th mat-header-cell *matHeaderCellDef
         class="font-semibold sticky top-0 bg-white z-10">
       Status
@@ -299,10 +552,10 @@
     <td mat-cell *matCellDef="let row" class="">
       {{row.empStatus}}
     </td>
-  </ng-container>
+  </ng-container> -->
 
 <!-- Photo -->
-<ng-container matColumnDef="photo" *ngIf="showPhoto">
+<!-- <ng-container matColumnDef="photo" *ngIf="showPhoto">
   <th mat-header-cell *matHeaderCellDef
       class="font-semibold sticky top-0 bg-white z-10">
     Photo
@@ -316,7 +569,7 @@
 />
 
   </td>
-</ng-container>
+</ng-container> -->
 
 
   <!-- Edit -->
@@ -422,6 +675,8 @@
 
     <!-- Row 1: Biometric ID & Name -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+<!--       
    <mat-form-field 
   appearance="fill"
   class="w-full custom-field"
@@ -436,9 +691,26 @@
   <mat-error *ngIf="form.get('biometricId')?.hasError('required')">
     Biometric ID is required
   </mat-error>
+</mat-form-field> -->
+
+      
+   <mat-form-field 
+  appearance="fill"
+  class="w-full custom-field"
+>
+  <mat-label>Biometric ID <span class="text-red-500"></span></mat-label>
+  <input
+    matInput
+    type="number"
+    formControlName="userId"
+    placeholder="Enter biometric ID"
+  />
+  <mat-error *ngIf="form.get('userId')?.hasError('required')">
+    Biometric ID is required
+  </mat-error>
 </mat-form-field>
 
-
+<!-- userId -->
 
     <!-- Row 2: Employee ID & Backup Num -->
       <!-- Employee ID -->
@@ -448,10 +720,10 @@
           matInput
           type="text"
          class=""
-          formControlName="userId"
+          formControlName="empId"
           placeholder="Enter employee Id"
         />
-        <mat-error *ngIf="form.get('employeeId')?.hasError('required')">
+        <mat-error *ngIf="form.get('empId')?.hasError('required')">
           Employee ID is required
         </mat-error>
       </mat-form-field>
@@ -523,17 +795,28 @@
         </mat-error>
       </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-full custom-field">
-        <mat-label>Select Group <span class="text-red-500"></span></mat-label>
-        <mat-select formControlName="groupId">
-          @for(item of getAllListgroup; track $index){
-          <mat-option [value]="item.groupId"> {{item.groupName}} </mat-option>
-          }
-        </mat-select>
-        <mat-error *ngIf="form.get('groupId')?.hasError('required')">
-          Group is required
-        </mat-error>
-      </mat-form-field>
+
+
+  <mat-form-field appearance="fill" class="w-full custom-field">
+  <mat-label>Select Access Group</mat-label>
+
+  <mat-select
+    formControlName="accessGroupId"
+    multiple
+    panelClass="show-checkbox-panel">
+
+    <mat-option *ngFor="let item of getAllListgroup"
+                [value]="item.accessGroupId">
+      {{ item.accessGroupName }}
+    </mat-option>
+
+  </mat-select>
+
+
+  <mat-error *ngIf="form.get('accessGroupId')?.hasError('required')">
+    Group is required
+  </mat-error>
+</mat-form-field>
 
         <mat-form-field appearance="fill" class="w-full custom-field">
         <mat-label>Select Category <span class="text-red-500"></span></mat-label>
@@ -613,13 +896,23 @@
 </mat-form-field> 
 
 
-  <mat-form-field appearance="fill" class="w-full custom-field">
+ <!-- <mat-form-field appearance="fill" class="w-full custom-field">
+  <mat-label>Select College </mat-label>collegeList
+  <mat-select formControlName="collegeName">
+@for (item of getAllListcompany; track $index) {
+                 <mat-option [value]="item.collegeName"> {{item.collegeName}} </mat-option>
+}
+  </mat-select>
+</mat-form-field>  -->
+
+
+  <!-- <mat-form-field appearance="fill" class="w-full custom-field">
   <mat-label>Select Role</mat-label>
   <mat-select formControlName="empStatus">
     <mat-option value="BRANCH_ADMIN">Branch Admin</mat-option>
     <mat-option value="ADMIN">Admin</mat-option>
   </mat-select>
-</mat-form-field> 
+</mat-form-field>  -->
 
 
     
@@ -848,13 +1141,87 @@
 
 
 
+<ng-template #uploadExcelDialog>
+
+  <h2 mat-dialog-title class="text-xl font-semibold">
+    Upload Excel File
+  </h2>
+
+  <mat-dialog-content>
+  <div class="flex justify-end">
+
+      <a
+        href="/employee_bulk_upload.xlsx"
+        download="employee_bulk_upload.xlsx"
+        class="inline-flex items-center gap-2 rounded-md bg-blue-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-200 transition">
+
+        <img
+          src="assets/images/excel.png"
+          alt="Excel"
+          class="h-5 w-5">
+
+        Download Template
+
+      </a>
+
+    </div>
+    <!-- Select File -->
+    <div class="mb-4">
+
+      <label for="excelFile" class="block font-medium mb-2">
+        Select Excel File
+      </label>
+
+      <input
+        id="excelFile"
+        type="file"
+        accept=".xlsx,.xls"
+        (change)="onExcelFileSelected($event)"
+        class="block w-full border border-gray-300 rounded-md p-2" style="width: 270px;">
+
+    </div>
+
+    <!-- Selected File -->
+    <!-- <div
+      *ngIf="selectedExcelFile"
+      class="bg-gray-100 rounded-md p-2 text-sm mb-4">
+
+      <b>Selected File:</b>
+      {{ selectedExcelFile.name }}
+
+    </div> -->
+
+    <!-- Download Template -->
+  
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+
+    <button
+      mat-stroked-button
+      color="warn"
+      mat-dialog-close>
+
+      Cancel
+
+    </button>
 
 
 
+    <button
+     mat-raised-button class="btn-save"
+      (click)="uploadExcelFile()"
+      [disabled]="!selectedExcelFile"
+      mat-dialog-close>
 
+      Upload
 
+    </button>
 
+  </mat-dialog-actions>
 
+</ng-template>
 
 
 
@@ -863,11 +1230,11 @@
 
 
 <ngx-spinner
-  bdColor="rgba(51,51,51,0.8)" class="bg-blue-500"
+  bdColor="rgba(51,51,51,0.8)"
   size="medium"
   color="#fff"
-  type="ball-scale-multiple">
+  type="ball-scale-multiple"
+  [fullScreen]="true">
   <p class="text-white text-lg mt-4">Please wait sometime...</p>
 </ngx-spinner>
-
 

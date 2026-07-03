@@ -30,8 +30,8 @@
 <form [formGroup]="loginForm">
       <mat-form-field appearance="fill" class="w-full mb-4 custom-field">
         <mat-label>Username</mat-label>
-        <input matInput placeholder="Enter your user name" formControlName="username">
-         <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
+        <input matInput placeholder="Enter your user name" formControlName="userName">
+         <mat-error *ngIf="loginForm.get('userName')?.hasError('required')">
             User name is required !
           </mat-error>
       </mat-form-field>
@@ -47,9 +47,9 @@
           </mat-error>
       </mat-form-field>
 
-      <div class="flex gap-3">
+      <div class="flex  gap-3">
         <button class="signUpbtn" mat-raised-button (click)="gotoSignUp()">Sign Up</button>
-        <button class="loginBtn" mat-raised-button  (click)="login()">Login</button>
+        <button  class="loginBtn" mat-raised-button  (click)="login()">Login</button>
       </div>
 </form>
     </div>
