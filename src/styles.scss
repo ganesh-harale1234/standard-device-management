@@ -218,7 +218,7 @@ box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 
 }
 .toast-error {
-  background-color: #df2336 !important;
+  background-color: #be0417 !important;
   color: #fff !important;
    padding: 8px 15px !important;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;     
@@ -284,3 +284,5 @@ box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 // ngx-spinner {
 //   z-index: 9999999 !important;
 // }
+
+@import "@ng-select/ng-select/themes/default.theme.css";

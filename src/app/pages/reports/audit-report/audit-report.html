@@ -1,96 +1,114 @@
-<div class="p-0 bg-[#cfe8ff]">
-  <!-- TOP FILTER BAR -->
-  <div
-  class="flex flex-wrap items-center justify-center gap-5 px-3 py-3 bg-[#cfe8ff] border-b border-gray-400"
+<div class="p-0 ">  <!-- TOP FILTER BAR -->
+ <div
+  
+  class="flex flex-wrap items-center gap-3 px-3 py-3 "
 >
 
 
-  <!-- From date -->
-  <mat-form-field
-    appearance="fill"
-    class="w-44 !m-0  rounded-none custom-field"
-  >
-    <mat-label>From</mat-label>
-    <input
-      matInput
-      [matDatepicker]="fromPicker"
-      [(ngModel)]="fromDate"
-    />
-    <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
-    <mat-datepicker #fromPicker></mat-datepicker>
-  </mat-form-field>
+<mat-form-field
+  appearance="fill"
+  class="w-44 custom-field search-field">
 
-  <!-- To date -->
-  <mat-form-field
-    appearance="fill"
-    class="w-44 !m-0  rounded-none custom-field"
-  >
-    <mat-label>To</mat-label>
-    <input
-      matInput
-      [matDatepicker]="toPicker"
-      [(ngModel)]="toDate"
-    />
-    <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
-    <mat-datepicker #toPicker></mat-datepicker>
-  </mat-form-field>
+  <mat-label>From</mat-label>
+
+  <input
+    matInput
+    [matDatepicker]="fromPicker"
+    [(ngModel)]="fromDate" />
+
+  <mat-datepicker-toggle
+    matSuffix
+    [for]="fromPicker">
+  </mat-datepicker-toggle>
+
+  <mat-datepicker #fromPicker></mat-datepicker>
+
+</mat-form-field>
+
+<!-- ========================= -->
+<!-- To Date -->
+<!-- ========================= -->
+
+<mat-form-field
+  appearance="fill"
+  class="w-44 custom-field search-field">
+
+  <mat-label>To</mat-label>
+
+  <input
+    matInput
+    [matDatepicker]="toPicker"
+    [(ngModel)]="toDate" />
+
+  <mat-datepicker-toggle
+    matSuffix
+    [for]="toPicker">
+  </mat-datepicker-toggle>
+
+  <mat-datepicker #toPicker></mat-datepicker>
+
+</mat-form-field>
+
 
   <!-- Buttons (right aligned) -->
-  <div class="flex items-center gap-2 ">
+  <div class="flex items-center gap-2 m">
     <button style="cursor: pointer;"
-     
-      color="primary"
-      class="bg-blue-600 text-white px-2 py-2 !text-sm mb-4"
-      (click)="AuditReport()">
+      type="button"
+  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+
+      (click)="AuditReport()"
+    >
       View Report
     </button>
 
     <button
-      color="primary"style="cursor: pointer;"
-      class="bg-blue-700 text-white px-2 py-2 !text-sm flex items-center mb-4"
+  type="button"
+  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+
       (click)="onExportPdf()">
       <mat-icon class="!text-base">download</mat-icon>
       Export to pdf
     </button>
   </div>
+  <!-- Buttons (right aligned) -->
+
 </div>
 
 
-   <div id="contentToConvert">
-      <div class="border border-black border-t-0">
+<div id="contentToConvert" class="bg-white rounded-md shadow-sm p-4">
+      <div class="">
     <!-- Title row -->
-    <div class="border-b border-black bg-[#cfe8ff] text-center py-2">
+    <div class="text-center py-2">
       <span class="font-semibold text-lg">Audit Report</span>
     </div>
 
     <!-- Date / Time row -->
-    <div class="border-b border-black bg-[#cfe8ff] text-center py-3 text-sm">
-      <div>
-        From Date:
-        <span class="font-semibol ">
-          {{ fromDate | date: 'MMM d, y' }}
-          to
-          {{ toDate | date: 'MMM d, y' }}
-        </span>
-      </div>
-      <div>
-        Report Time:
-        <span class="font-semibol">
-          {{ now | date: 'MMM d, y, h:mm:ss a' }}
-        </span>
-      </div>
+    <div class="text-xs text-center text-[#004A71] mb-4 leading-5">
+    <div>
+      <span class="">From Date:</span>
+      <span class="font-semibold" >   {{ fromDate | date:'MMM d, y' }}
+      to
+      {{ toDate | date:'MMM d, y' }}</span>
+    
     </div>
+
+    <div>
+      <span class="">Report Time:</span>
+   <span class="font-semibold" >       {{ now | date:'MMM d, y, h:mm:ss a' }}
+ </span>
+    </div>
+  </div>
 
     <!-- TABLE HEADER ROW -->
     <div class="" style="background-color: white !important;">
       <table class="w-full border-collapse">
         <thead>
-          <tr>
-            <th class="border border-black px-2 py-3 text-sm">Sr No.</th> 
-            <th class="border border-black px-2 py-3 text-sm">Modified Date</th>
-            <th class="border border-black px-2 py-3 text-sm"> Description </th>
-            <th class="border border-black px-2 py-3 text-sm">  Action </th>
-            <th class="border border-black px-2 py-3 text-sm">By whom</th>
+          <tr class="bg-sky-600 text-white" >
+            <th class="px-3 py-2 text-left font-medium">Sr No.</th> 
+            <th class="px-3 py-2 text-left font-medium">Modified Date</th>
+            <th class="px-3 py-2 text-left font-medium"> Description </th>
+            <th class="px-3 py-2 text-left font-medium">  Action </th>
+            <th class="px-3 py-2 text-left font-medium">By whom</th>
           </tr>
         </thead>
    <tbody>

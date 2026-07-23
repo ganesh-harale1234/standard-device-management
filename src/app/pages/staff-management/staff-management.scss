@@ -239,7 +239,7 @@ ngx-spinner .spinner {
 .status-toggle {
   display: flex;
   align-items: center;
-  gap: 7px;   
+  gap: 0px;   
 }
 
 .status-switch {
@@ -273,13 +273,37 @@ ngx-spinner {
 }
 
 
+th{
+    background-color: rgba(0, 150, 225, 1) !important;
+    color: white !important;
+}
 
 
 
+.mdc-switch__track {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: var(--mat-slide-toggle-track-height, 29px);
+    border-radius: var(--mat-slide-toggle-track-shape, var(--mat-sys-corner-full));
+}
 
 
+.mdc-switch--selected .mdc-switch__icon {
+    width: var(--mat-slide-toggle-selected-icon-size, 12px);
+    height: var(--mat-slide-toggle-selected-icon-size, 10px);
+    fill: var(--mat-slide-toggle-selected-icon-color, var(--mat-sys-on-primary-container));
+}
 
 
+.status-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 4px 0;
+    flex-wrap: wrap;
+    gap: 33px;
+}
 
 
 
@@ -295,11 +319,22 @@ ngx-spinner {
 ::ng-deep .simple-select .mat-mdc-text-field-wrapper {
   height: 40px;
   background: #fff !important;
-  border: 1px solid #d1d5db;
+  border: 1px solid #adceff;
   border-radius: 6px;
   padding: 0 10px;
   box-shadow: none !important;
 }
+
+
+// ::ng-deep .simple-select .mat-mdc-text-field-wrapper {
+//   height: 40px;
+//   background: #fff !important;
+//   border: 1px solid border border-sky-500 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500
+//   border-radius: 6px;
+//   padding: 0 10px;
+//   box-shadow: none !important;
+// }
+
 
 ::ng-deep .simple-select .mat-mdc-form-field-flex {
   height: 40px;
@@ -348,4 +383,24 @@ ngx-spinner {
 
 ::ng-deep .read-only-panel .mat-mdc-option {
   pointer-events: none;
+}
+.simple-select {
+  width: 260px;
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+.mat-mdc-form-field {
+  margin-bottom: 0 !important;
+}
+
+.mat-mdc-text-field-wrapper {
+  height: 56px;
+  align-items: center;
+}
+
+.mat-mdc-form-field-flex {
+  height: 56px;
 }

@@ -98,13 +98,17 @@ displayedColumns: string[] = [
   )
   }
 
-   getDeviceallList(){
-    this.dataService.getAllData('device').subscribe((res:any)=>{
-      this.dataSource = res;
-       this.dataSource.paginator = this.paginator;
-    })
-   }
-   
+getDeviceallList() {
+  this.dataService.getAllData('device').subscribe((res: any[]) => {
+
+    this.dataSource = new MatTableDataSource(res);
+
+    this.dataSource.paginator = this.paginator;
+
+    this.totalItems = res.length;
+
+  });
+}
   
     editData(id:any): void {
  this.deviceId = id;

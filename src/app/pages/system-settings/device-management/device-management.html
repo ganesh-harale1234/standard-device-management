@@ -1,6 +1,6 @@
-<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showTableData">
+<div class="p-4" *ngIf="showTableData">
 
-  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 ">
     <h2 class="text-xl font-semibold">Device List</h2>
 
     <div class="flex flex-wrap items-center gap-4 ml-auto">
@@ -86,14 +86,22 @@
           I/O Status
         </th>
     <td mat-cell *matCellDef="let element">
+        {{ element.ioStatus }}
   <span class="px-2 py-1 text-xs rounded-full">
-    <ng-container [ngSwitch]="element.ioStatus">
+
+    
+    <!-- <ng-container [ngSwitch]="element.ioStatus">
       <span *ngSwitchCase="'I'">IN</span>
       <span *ngSwitchCase="'O'">OUT</span>
       <span *ngSwitchCase="'IO'">IN OUT</span>
       <span *ngSwitchDefault>-</span>
-    </ng-container>
+    </ng-container> -->
+       <!-- <td mat-cell *matCellDef="let element">
+          {{ element.ioStatus }}
+        </td> -->
   </span>
+   
+  
 </td>
       </ng-container>
 
@@ -158,9 +166,10 @@
   </div>
 
   <!-- Paginator -->
- <mat-paginator
+<mat-paginator
+  [length]="totalItems"
   [pageSize]="10"
-  [pageSizeOptions]="[10, 20,30,40,50]"
+  [pageSizeOptions]="[10,20,30,40,50]"
   showFirstLastButtons>
 </mat-paginator>
 
@@ -177,18 +186,23 @@
 
 
 <!-- FORM SECTION -->
-<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showFormData">
-
-  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
+<div class="p-4" *ngIf="showFormData">
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3">
     <h2 class="text-xl font-semibold"> Add Device</h2>
 
     <div class="flex flex-wrap items-center gap-4 ml-auto">
-      <button
-        mat-raised-button
-        class="bg-blue-500 hover:bg-blue-600 text-white normal-case"
-        (click)="backtoList()">
-        Go Back to List
-      </button>
+       <button
+  type="button"
+  (click)="backtoList()"
+  class="group inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-white px-5 py-2 text-sm font-semibold text-blue-600 shadow-sm transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 hover:shadow-md active:scale-95"
+>
+  <img
+    src="/assets/images/emojione-monotone_left-arrow.png"
+    alt="Back"
+    class="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-1"
+  />
+  <span>Go Back to List</span>
+</button>
     </div>
   </div>
 
@@ -197,59 +211,103 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <mat-form-field appearance="fill" class="w-full custom-field">
-          <mat-label>Device Name <span class="text-red-500"></span></mat-label>
-          <input
-            matInput
-            placeholder="" formControlName="deviceName"/>
-        </mat-form-field>
-              <mat-error *ngIf="form.get('deviceName')?.hasError('required')">
-         Device Name is required
-        </mat-error>
-        
-        <mat-form-field appearance="fill" class="w-full custom-field custom-field">
-        <mat-label>I/O Status <span class="text-red-500"></span></mat-label>
-        <mat-select formControlName="ioStatus">
-          <mat-option value="I">In</mat-option>
-          <mat-option value="O">Out</mat-option>
-          <mat-option value="IO">In Out</mat-option>
-        </mat-select>
-        <mat-error *ngIf="form.get('ioStatus')?.hasError('required')">
-          I/O Status is required
-        </mat-error>
-      </mat-form-field>
+     <!-- Device Name -->
+<div>
+  <label class="block text-sm font-medium text-[#004A71] mb-1">
+    Device Name <span class="text-red-500">*</span>
+  </label>
 
-       <mat-form-field appearance="fill" class="w-full custom-field custom-field">
-        <mat-label>Location <span class="text-red-500"></span></mat-label>
-        <mat-select formControlName="locationId">
-        
-          <mat-option *ngFor="let item of getAllListLocation" [value]="item.locationId"> {{item.locationName}}</mat-option>
-    
-        </mat-select>
-        <mat-error *ngIf="form.get('locationId')?.hasError('required')">
-          Location is required
-        </mat-error>
-      </mat-form-field>
+  <input
+    type="text"
+    formControlName="deviceName"
+    placeholder="Enter here..."
+    class="w-full px-3 py-2 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm"
+  />
 
+  <p
+    class="text-red-500 text-xs mt-1"
+    *ngIf="form.get('deviceName')?.hasError('required') && form.get('deviceName')?.touched"
+  >
+    Device Name is required
+  </p>
+</div>
 
+<!-- I/O Status -->
+<div>
+  <label class="block text-sm font-medium text-[#004A71] mb-1">
+    I/O Status <span class="text-red-500">*</span>
+  </label>
 
-            <mat-form-field appearance="fill" class="w-full custom-field">
-  <mat-label>Select Access Group</mat-label>
+  <select
+    formControlName="ioStatus"
+    class="w-full px-3 py-2 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm bg-white"
+  >
+    <option value="" disabled selected>Select I/O Status</option>
+    <option value="IN">In</option>
+    <option value="OUT">Out</option>
+    <option value="IN OUT">In Out</option>
+  </select>
 
-  <mat-select formControlName="accessGroupId">
+  <p
+    class="text-red-500 text-xs mt-1"
+    *ngIf="form.get('ioStatus')?.hasError('required') && form.get('ioStatus')?.touched"
+  >
+    I/O Status is required
+  </p>
+</div>
 
-    <mat-option *ngFor="let item of getAllListgroup"
-                [value]="item.accessGroupId">
+<!-- Location -->
+<div>
+  <label class="block text-sm font-medium text-[#004A71] mb-1">
+    Location <span class="text-red-500">*</span>
+  </label>
+
+  <select
+    formControlName="locationId"
+    class="w-full px-3 py-2 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm bg-white"
+  >
+    <option value="" disabled selected>Select Location</option>
+
+    <option *ngFor="let item of getAllListLocation" [value]="item.locationId">
+      {{ item.locationName }}
+    </option>
+  </select>
+
+  <p
+    class="text-red-500 text-xs mt-1"
+    *ngIf="form.get('locationId')?.hasError('required') && form.get('locationId')?.touched"
+  >
+    Location is required
+  </p>
+</div>
+
+<!-- Access Group -->
+<div>
+  <label class="block text-sm font-medium text-[#004A71] mb-1">
+    Select Access Group <span class="text-red-500">*</span>
+  </label>
+
+  <select
+    formControlName="accessGroupId"
+    class="w-full px-3 py-2 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm bg-white"
+  >
+    <option value="" disabled selected>Select Access Group</option>
+
+    <option
+      *ngFor="let item of getAllListgroup"
+      [value]="item.accessGroupId"
+    >
       {{ item.accessGroupName }}
-    </mat-option>
+    </option>
+  </select>
 
-  </mat-select>
-
-  <mat-error *ngIf="form.get('accessGroupId')?.hasError('required')">
+  <p
+    class="text-red-500 text-xs mt-1"
+    *ngIf="form.get('accessGroupId')?.hasError('required') && form.get('accessGroupId')?.touched"
+  >
     Group is required
-  </mat-error>
-
-</mat-form-field>
+  </p>
+</div>
 
 
 <div class="w-full custom-field">

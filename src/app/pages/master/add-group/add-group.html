@@ -1,7 +1,7 @@
 <!-- TABLE SECTION -->
-<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showTableData">
+<div class="p-4" *ngIf="showTableData">
 
-  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 ">
     <h2 class="text-xl font-semibold"> Access Group List</h2>
 
     <div class="flex flex-wrap items-center gap-4 ml-auto">
@@ -21,8 +21,8 @@
       </div>
 
       <button
-        mat-raised-button
-        class="bg-blue-500 hover:bg-blue-600 text-white normal-case export-btn"
+        type="button"
+  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-5 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
         (click)="addnew()">
         Add  New
       </button>
@@ -120,18 +120,24 @@
 
 
 <!-- FORM SECTION -->
-<div class="p-4 bg-white rounded-xl shadow-md" *ngIf="showFormData">
+<div class="p-4" *ngIf="showFormData">
 
-  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 py-4 bg-blue-200">
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3">
     <h2 class="text-xl font-semibold"> Add Access Group </h2>
 
     <div class="flex flex-wrap items-center gap-4 ml-auto">
-      <button
-        mat-raised-button
-        class="bg-blue-500 hover:bg-blue-600 text-white normal-case"
-        (click)="backtoList()">
-        Go Back to List
-      </button>
+     <button
+  type="button"
+  (click)="backtoList()"
+  class="group inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-white px-5 py-2 text-sm font-semibold text-blue-600 shadow-sm transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 hover:shadow-md active:scale-95"
+>
+  <img
+    src="/assets/images/emojione-monotone_left-arrow.png"
+    alt="Back"
+    class="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-1"
+  />
+  <span>Go Back to List</span>
+</button>
     </div>
   </div>
 
@@ -140,36 +146,53 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <!-- Email ID -->
-        <mat-form-field appearance="fill" class="w-full custom-field">
-          <mat-label>Access Group Name <span class="text-red-500"></span></mat-label>
-          <input
-            matInput
-            formControlName="accessGroupName"
-            placeholder="Enter here..." />
-          <mat-error *ngIf="form.get('accessGroupName')?.hasError('required')">
-            Group Name is required
-          </mat-error>
-        
-        </mat-form-field>
+   <!-- Access Group Name -->
+<div>
+  <label class="block text-sm font-medium text-[#004A71] mb-1">
+    Access Group Name <span class="text-red-500">*</span>
+  </label>
 
-<mat-form-field appearance="fill" class="w-full custom-field">
-  <mat-label>
-    Select Branch <span class="text-red-500"></span>
-  </mat-label>
-  <mat-select formControlName="locationId">
+  <input
+    type="text"
+    formControlName="accessGroupName"
+    placeholder="Enter here..."
+    class="w-full px-3 py-2 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm"
+  />
+
+  <p
+    class="text-red-500 text-xs mt-1"
+    *ngIf="form.get('accessGroupName')?.hasError('required') && form.get('accessGroupName')?.touched"
+  >
+    Group Name is required
+  </p>
+</div>
+
+<!-- Select Branch -->
+<div>
+  <label class="block text-sm font-medium text-[#004A71] mb-1">
+    Select Branch <span class="text-red-500">*</span>
+  </label>
+
+  <select
+    formControlName="locationId"
+    class="w-full px-3 py-2 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm bg-white"
+  >
+    <option value="" disabled selected>Select Branch</option>
+
     @for (item of getAllListLocation; track $index) {
-      <mat-option [value]="item.locationId">
+      <option [value]="item.locationId">
         {{ item.locationName }}
-      </mat-option>
+      </option>
     }
-  </mat-select>
+  </select>
 
-  <mat-error *ngIf="form.get('locationId')?.hasError('required') && form.get('locationId')?.touched">
-    Location is required
-  </mat-error>
-</mat-form-field>
-
+  <p
+    class="text-red-500 text-xs mt-1"
+    *ngIf="form.get('locationId')?.hasError('required') && form.get('locationId')?.touched"
+  >
+    Branch is required
+  </p>
+</div>
 
 
                 <!-- locationId -->

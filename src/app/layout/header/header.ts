@@ -49,7 +49,7 @@ export class Header {
   }
 
   ngOnInit(): void {
-this.roleName =  sessionStorage.getItem('roll');
+this.roleName =  sessionStorage.getItem('roleName');
 this.userName =  sessionStorage.getItem('userName');
 
   }

@@ -1,29 +1,34 @@
-.custom-field .mat-mdc-text-field-wrapper{
-    background:#EAF1F6 !important;
-    border-radius:6px !important;
-    height:42px;
+.bg-img {
+  background-image: url('/assets/images/Attendance  Management.png');
+  
+  background-color: #f8fafc; 
 }
 
-.custom-field .mdc-line-ripple{
-    display:none;
+.text-title {
+  background: linear-gradient(90deg, #018CD3 0%, #064C70 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
-.custom-field .mat-mdc-form-field-subscript-wrapper{
-    display:none;
+.loginBtn {
+  background: #0A4F73 !important;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background: #073B56 !important;
+  }
 }
 
-.custom-field input{
-    font-size:14px;
+::placeholder{
+    color: rgba(0, 84, 128, 1);
 }
 
-.loginBtn{
-    width:100%;
-    background:#0A4F73 !important;
-    color:#fff !important;
-    border-radius:6px !important;
-    height:42px;
-}
+.suggest{
+        color: rgba(0, 84, 128, 1);
 
-.loginBtn:hover{
-    background:#083B56 !important;
 }

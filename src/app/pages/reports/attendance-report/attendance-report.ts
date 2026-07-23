@@ -1,15 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { SharedModule } from '../../../shared/shared-module';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../../services/data-service';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
+import { NgSelectModule } from '@ng-select/ng-select';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-attendance-report',
-  imports: [SharedModule, CommonModule],
+  imports: [SharedModule, CommonModule,NgSelectModule],
   templateUrl: './attendance-report.html',
   styleUrl: './attendance-report.scss',
 })
@@ -120,129 +121,57 @@ formatDateToYMD(date: Date | null): string | null {
   return `${year}-${month}-${day}`;
 }
 
-
-// Location list
-locationList: any[] = [];
-
+// Location List
+locationList: any[] = [ ]
+// Selected IDs
 selectedLocationIds: string[] = [];
 
+// Get Locations
 getallDataLocation() {
   this.dataService.getAllData('findAllLocation').subscribe(
     (res: any) => {
       if (res.code === 100) {
         this.locationList = res.extend.data;
       } else if (res.code === 500) {
-        this.toaster.error('Internal server error !');
+        this.toaster.error('Internal server error!');
       } else {
-        this.toaster.error('Something went wrong !');
+        this.toaster.error('Something went wrong!');
       }
     },
     (err) => {
-      const errorMsg = err.error.msg || 'Failed to load Location list !';
-      this.toaster.error(errorMsg);
+      this.toaster.error(err.error.msg || 'Failed to load location list!');
     }
   );
 }
 
-// ---- Select All flag ----
-get isAllSelected(): boolean {
-  return (
-    this.selectedLocationIds.length === this.locationList.length &&
-    this.locationList.length > 0
-  );
-}
+// Select All
+toggleSelectAllLocations() {
 
-isSelected(id: string): boolean {
-  return this.selectedLocationIds.includes(id);
-}
+  if (this.isAllLocationSelected()) {
 
-toggleLocation(id: string, event: any): void {
-  const checked = event.checked;
-
-  if (checked) {
-    if (!this.selectedLocationIds.includes(id)) {
-      this.selectedLocationIds = [...this.selectedLocationIds, id];
-    }
-  } else {
-    this.selectedLocationIds = this.selectedLocationIds.filter(
-      (locId) => locId !== id
-    );
-  }
-
-  console.log('Selected Location IDs : ', this.selectedLocationIds);
-}
-
-// ---- Select All toggle ----
-toggleSelectAll(event: any): void {
-  const checked = event.checked;
-
-  if (checked) {
-    this.selectedLocationIds = this.locationList.map(
-      (d: any) => d.locationId
-    );
-  } else {
     this.selectedLocationIds = [];
+
+  } else {
+
+    this.selectedLocationIds = this.locationList.map(
+      (x: any) => x.locationId
+    );
+
   }
 
-  console.log('Selected Location IDs (SelectAll) : ', this.selectedLocationIds);
+  console.log(this.selectedLocationIds);
+
 }
 
-getLocationName(id: string) {
-  const loc = this.locationList.find((d: any) => d.locationId === id);
-  return loc ? loc.locationName : id;
+// Check All Selected
+isAllLocationSelected(): boolean {
+
+  return (
+    this.locationList.length > 0 &&
+    this.selectedLocationIds.length === this.locationList.length
+  );
+
 }
-
-
-// AttendencesReport() {
-//   const fromDate = this.formatDateToYMD(this.fromDate);
-//   const toDate   = this.formatDateToYMD(this.toDate);
-
-//   let apiUrl: string;
-//   let requestData: any = { fromDate, toDate };
-
-//   // LOCATION 
-//   if (Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0) {
-//     apiUrl = 'getLocationwiseMultiplePunchesReport';
-//     requestData.BranchId = this.selectedLocationIds;
-//     requestData.rollId = this.roleId;
-//   }
-//   // EMPLOYEE 
-//   else if (this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
-//     apiUrl = 'getEmpWiseMultiplePunchReport';
-//     requestData.empId = this.selectedEmployeeId;
-//     requestData.rollId = this.roleId;
-//   }
-//   //  date-based call
-//   else {
-//     apiUrl = 'getMultiplePunchesReport';
-//   }
-
-//   this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
-//     if (res.code == 200) {
-//       this.toaster.error(res.msg);
-//       return;
-//     }
-//     if (res.extend?.punchList) {
-//       this.data = res.extend.punchList
-//         .filter((item: any) => item.enrollId)
-//         .map((item: any) => {
-//           item.PNRNo = (item.pnrNo === 'null' ? '' : item.pnrNo);
-//           return item;
-//         });
-
-//       // Only sort when no location & no employee selected
-//       if (!(Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0)
-//           && (this.selectedEmployeeId == null || this.selectedEmployeeId === '')) {
-//         this.data.sort((a: any, b: any) => {
-//           return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-//         });
-//       }
-
-//       this.dataSource = new MatTableDataSource(this.data);
-//     }
-//   });
-// }
-
 
 
 AttendencesReport() {
@@ -266,7 +195,7 @@ if (Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length >
 
   // EMPLOYEE 
   else if (this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
-    apiUrl = 'getEmpWiseMultiplePunchReport';
+    apiUrl = 'getAttendanceReport';
     requestData.employeeId = this.selectedEmployeeId;
     // requestData.rollId = this.roleId;
   }
@@ -297,41 +226,205 @@ if(res.code==100){
 
 
 
+@ViewChild('contentToConvert', { static: false })
+contentToConvert!: ElementRef;
 
 
 
+// onExportPdf() {
 
+//   console.log('Clicked');
 
+//   const DATA = document.getElementById('contentToConvert');
+//   console.log(DATA);
+
+//   html2canvas(DATA!)
+//     .then(canvas => {
+//       console.log('Canvas Success');
+//     })
+//     .catch(err => {
+//       console.error(err);
+//     });
+
+// }
    
   
-onExportPdf() {
-  const DATA: any = document.getElementById('contentToConvert');
+// onExportPdf() {
+// console.log("helllo......")
+//   const data = document.getElementById('contentToConvert');
 
-  html2canvas(DATA, {
-    scale: 2,            
-    useCORS: true
-  }).then((canvas) => {
+//   if (!data) {
+//     console.error('Element not found');
+//     return;
+//   }
+
+//   html2canvas(data).then(canvas => {
+
+//     const imgWidth = 210;
+//     const pageHeight = 295;
+
+//     const imgHeight = canvas.height * imgWidth / canvas.width;
+
+//     const heightLeft = imgHeight;
+
+//     const contentDataURL = canvas.toDataURL('image/png');
+
+//     const pdf = new jsPDF('p', 'mm', 'a4');
+
+//     pdf.addImage(contentDataURL, 'PNG', 0, 0, imgWidth, imgHeight);
+
+//     pdf.save('Attendance Report.pdf');
+
+//   });
+
+// }
+
+
+onExportPdf() {
+
+  const element = this.contentToConvert.nativeElement;
+
+  // Temporary Center Align
+  const cells = element.querySelectorAll('td, th');
+
+  cells.forEach((cell: HTMLElement) => {
+    cell.style.textAlign = 'center';
+    cell.style.verticalAlign = 'middle';
+  });
+
+  html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff'
+  }).then(canvas => {
 
     const imgData = canvas.toDataURL('image/png');
 
     const pdf = new jsPDF('p', 'mm', 'a4');
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
+    // Margin
+    const margin = 10;
+
+    // Printable Area
+    const printableWidth = pageWidth - (margin * 2);
+    const printableHeight = pageHeight - (margin * 2);
+    const element = this.contentToConvert.nativeElement;
+
+// PDF साठी खाली space द्या
+const oldPadding = element.style.paddingBottom;
+element.style.paddingBottom = '50px';
+
+    const imgWidth = printableWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = margin;
+
+    // First Page
     pdf.addImage(
       imgData,
       'PNG',
-      0,
-      0,
-      pdfWidth,    
-      pdfHeight
+      margin,
+      position,
+      imgWidth,
+      imgHeight
     );
 
-    pdf.save('Attendance Report.pdf');
+    heightLeft -= printableHeight;
+
+    // Remaining Pages
+    while (heightLeft > 0) {
+
+      position = margin - (imgHeight - heightLeft);
+
+      pdf.addPage();
+
+      pdf.addImage(
+        imgData,
+        'PNG',
+        margin,
+        position,
+        imgWidth,
+        imgHeight
+      );
+
+      heightLeft -= printableHeight;
+    }
+
+    pdf.save('Attendance_Report.pdf');
+
+    // Restore Style
+    cells.forEach((cell: HTMLElement) => {
+      cell.style.textAlign = '';
+      cell.style.verticalAlign = '';
+    });
+
+  }).catch(err => {
+    console.error(err);
   });
+
 }
 
+// onExportPdf() {
 
+//   const element = this.contentToConvert.nativeElement;
+
+//   html2canvas(element, {
+
+//     scale: 2,
+
+//     useCORS: true,
+
+//     allowTaint: true,
+
+//     backgroundColor: '#ffffff'
+
+//   }).then(canvas => {
+
+//     const imgData = canvas.toDataURL('image/png');
+
+//     const pdf = new jsPDF('p', 'mm', 'a4');
+
+//     const pageWidth = pdf.internal.pageSize.getWidth();
+
+//     const pageHeight = pdf.internal.pageSize.getHeight();
+
+//     const imgWidth = pageWidth;
+
+//     const imgHeight = canvas.height * imgWidth / canvas.width;
+
+//     let heightLeft = imgHeight;
+
+//     let position = 0;
+
+//     pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+
+//     heightLeft -= pageHeight;
+
+//     while (heightLeft > 0) {
+
+//       position = heightLeft - imgHeight;
+
+//       pdf.addPage();
+
+//       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+
+//       heightLeft -= pageHeight;
+
+//     }
+
+//     pdf.save('Attendance_Report.pdf');
+
+//   }).catch(err => {
+
+//     console.error(err);
+
+//   });
+
+// }
 
 }

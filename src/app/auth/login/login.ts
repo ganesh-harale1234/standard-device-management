@@ -36,7 +36,10 @@ export class Login {
           sessionStorage.setItem('locationId', res.extend.data.locationId),
             sessionStorage.setItem('userName', res.extend.data.name),
             sessionStorage.setItem('roll', res.extend.data.roll),
-            sessionStorage.setItem('rollId', res.extend.data.rollId)
+            sessionStorage.setItem('roleName', res.extend.data.roleName)
+                  sessionStorage.setItem('locationName', res.extend.data.locationName),
+            sessionStorage.setItem('locationId', res.extend.data.locationId)
+        
         }else if(res.code === 200){
           this.toaster.error(res.msg)
         }

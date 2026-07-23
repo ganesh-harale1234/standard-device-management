@@ -67,7 +67,7 @@ form!: FormGroup;
                 this.toaster.error('Internal server error !')
       }
       else{
-        this.toaster.error('Something went wrong !')
+        // this.toaster.error('Something went wrong !')
       }
     }, ((err)=>{
       const errorMsg = err.error.msg || 'Faild to load Location list !'
@@ -87,7 +87,7 @@ form!: FormGroup;
                 this.toaster.error('Internal server error !')
       }
       else{
-        this.toaster.error('Something went wrong !')
+        // this.toaster.error('Something went wrong !')
       }
     }, ((err)=>{
       const errorMsg = err.error.msg || 'Faild to load Group list !'
@@ -115,7 +115,7 @@ if(this.form.valid){
   }else if(res.code === 500){
     this.toaster.error('Internal server error !')
   }else{
-    this.toaster.error('Something went wrong !')
+    // this.toaster.error('Something went wrong !')
   }
  }, ((err:any)=>{
   const errorMsg = err?.error?.msg || 'Server side error !'
@@ -154,7 +154,7 @@ this.groupId = id;
             const errMsg = err?.error?.msg || 'Server side error !'
             this.toaster.error(errMsg)
           }else{
-            this.toaster.error('Something went wrong !')
+            // this.toaster.error('Something went wrong !')
           }
       })
     )
@@ -181,7 +181,7 @@ onUpdate(){
 
         this.toaster.error(res.msg)
       }else{
-        this.toaster.error('Something went wrong !')
+        // this.toaster.error('Something went wrong !')
       }
     },((err:any)=>{
       if(err?.error?.msg){
@@ -207,7 +207,7 @@ this.dataService.deleteData('accessGroup/deleteAccessGroup/'+this.groupId).subsc
   }else if(res.code === 500){
     this.toaster.error('Internal Server Error !')
   }else{
-    this.toaster.error('Something went wrong !')
+    // this.toaster.error('Something went wrong !')
   }
 
 },((err:any)=>{
@@ -281,7 +281,7 @@ this.dataService.deleteData('accessGroup/deleteAccessGroup/'+this.groupId).subsc
     this.isEditMode = false;
   }
 
-      onPageChange(event: PageEvent) {
+  onPageChange(event: PageEvent) {
   this.pageIndex = event.pageIndex;
   this.pageSize = event.pageSize;
 }

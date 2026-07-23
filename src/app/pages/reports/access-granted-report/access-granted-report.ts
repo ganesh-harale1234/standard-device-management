@@ -40,18 +40,40 @@ constructor(private dataService:DataService, private toaster:ToastrService){
   this.roleId = sessionStorage.getItem('rollId')
 
   }
+  formatIoStatus(status: string): string {
+  if (!status) {
+    return '-';
+  }
 
-    formatIoStatus(status: string) {
-  if (!status) return '-';
+  // If already IN or OUT, return directly
+  if (status === 'IN' || status === 'OUT') {
+    return status;
+  }
 
-  const normalized = status.replace(/IO/g, 'I/O');
-
-  return normalized
+  // Handle old format like IO/IO or I/O
+  return status
+    .replace(/IO/g, 'I/O')
     .split('/')
-    .map(v => v === 'I' ? 'IN' : v === 'O' ? 'OUT' : '')
+    .map(value => {
+      if (value === 'I') return 'IN';
+      if (value === 'O') return 'OUT';
+      return value; // Keep existing text like IN 09:01:18 or OUT 17:02:29
+    })
     .filter(Boolean)
     .join(', ');
 }
+
+//     formatIoStatus(status: string) {
+//   if (!status) return '-';
+
+//   const normalized = status.replace(/IO/g, 'I/O');
+
+//   return normalized
+//     .split('/')
+//     .map(v => v === 'I' ? 'IN' : v === 'O' ? 'OUT' : '')
+//     .filter(Boolean)
+//     .join(', ');
+// }
 
 
 showDropdown: boolean = false;

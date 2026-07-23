@@ -7,11 +7,12 @@ import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 @Component({
   selector: 'app-multiple-punches-report',
-  imports: [SharedModule, CommonModule, FormsModule],
+  imports: [SharedModule, CommonModule,NgSelectModule, FormsModule],
   templateUrl: './multiple-punches-report.html',
   styleUrl: './multiple-punches-report.scss',
 })
@@ -44,19 +45,6 @@ constructor(private dataService:DataService, private toaster:ToastrService){
   }
 
 showDropdown: boolean = false;
-
-
-formatIoStatus(status: string) {
-  if (!status) return '-';
-
-  const normalized = status.replace(/IO/g, 'I/O');
-
-  return normalized
-    .split('/')
-    .map(v => v === 'I' ? 'IN' : v === 'O' ? 'OUT' : '')
-    .filter(Boolean)
-    .join(', ');
-}
 
 
 
@@ -125,78 +113,57 @@ formatDateToYMD(date: Date | null): string | null {
   return `${year}-${month}-${day}`;
 }
 
-
-// Location list
-locationList: any[] = [];
-
+// Location List
+locationList: any[] = [ ]
+// Selected IDs
 selectedLocationIds: string[] = [];
 
+// Get Locations
 getallDataLocation() {
   this.dataService.getAllData('findAllLocation').subscribe(
     (res: any) => {
       if (res.code === 100) {
         this.locationList = res.extend.data;
       } else if (res.code === 500) {
-        this.toaster.error('Internal server error !');
+        this.toaster.error('Internal server error!');
       } else {
-        this.toaster.error('Something went wrong !');
+        this.toaster.error('Something went wrong!');
       }
     },
     (err) => {
-      const errorMsg = err.error.msg || 'Failed to load Location list !';
-      this.toaster.error(errorMsg);
+      this.toaster.error(err.error.msg || 'Failed to load location list!');
     }
   );
 }
 
-// ---- Select All flag ----
-get isAllSelected(): boolean {
-  return (
-    this.selectedLocationIds.length === this.locationList.length &&
-    this.locationList.length > 0
-  );
-}
+// Select All
+toggleSelectAllLocations() {
 
-isSelected(id: string): boolean {
-  return this.selectedLocationIds.includes(id);
-}
+  if (this.isAllLocationSelected()) {
 
-toggleLocation(id: string, event: any): void {
-  const checked = event.checked;
-
-  if (checked) {
-    if (!this.selectedLocationIds.includes(id)) {
-      this.selectedLocationIds = [...this.selectedLocationIds, id];
-    }
-  } else {
-    this.selectedLocationIds = this.selectedLocationIds.filter(
-      (locId) => locId !== id
-    );
-  }
-
-  console.log('Selected Location IDs : ', this.selectedLocationIds);
-}
-
-// ---- Select All toggle ----
-toggleSelectAll(event: any): void {
-  const checked = event.checked;
-
-  if (checked) {
-    this.selectedLocationIds = this.locationList.map(
-      (d: any) => d.locationId
-    );
-  } else {
     this.selectedLocationIds = [];
+
+  } else {
+
+    this.selectedLocationIds = this.locationList.map(
+      (x: any) => x.locationId
+    );
+
   }
 
-  console.log('Selected Location IDs (SelectAll) : ', this.selectedLocationIds);
+  console.log(this.selectedLocationIds);
+
 }
 
-getLocationName(id: string) {
-  const loc = this.locationList.find((d: any) => d.locationId === id);
-  return loc ? loc.locationName : id;
-}
+// Check All Selected
+isAllLocationSelected(): boolean {
 
+  return (
+    this.locationList.length > 0 &&
+    this.selectedLocationIds.length === this.locationList.length
+  );
+
+}
 
 MultiplePunchesReport() {
      this.reportData = [];
@@ -217,7 +184,7 @@ if (Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length >
   // EMPLOYEE 
   else if (this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
     apiUrl = 'getEmpWiseMultiplePunchReport';
-    requestData.empId = this.selectedEmployeeId;
+    requestData.id = this.selectedEmployeeId;
     // requestData.rollId = this.roleId;
   }
   else if(Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0){
@@ -297,11 +264,17 @@ onExportPdf() {
       pdfHeight
     );
 
-    pdf.save('Attendance Report.pdf');
+    pdf.save('Multiple Punches Report.pdf');
   });
 }
 
+formatIoStatus(status: string): string {
+  if (!status) {
+    return '';
+  }
 
+  return status;
+}
 
 }
 

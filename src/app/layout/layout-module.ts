@@ -158,6 +158,17 @@ export const routes: Routes = [
       path:'audit-report',
       loadComponent:()=> import('../pages/reports/audit-report/audit-report').then((m)=> m.AuditReport)
      },
+
+       {
+      path:'log-report',
+      loadComponent:()=> import('../pages/reports/log-report/log-report').then((m)=> m.LogReport)
+     },
+
+       {
+      path:'entry-exit-status-report',
+      loadComponent:()=> import('../pages/reports/entry-exit-status-report/entry-exit-status-report').then((m)=> m.EntryExitStatusReport)
+     },
+     
    {
       path:'person-tracking-report',
       loadComponent:()=> import('../pages/reports/person-tracking-report/person-tracking-report').then((m)=> m.PersonTrackingReport)

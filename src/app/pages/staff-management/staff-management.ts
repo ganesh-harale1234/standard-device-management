@@ -12,9 +12,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import * as XLSX from 'xlsx';
 import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { NgSelectModule } from '@ng-select/ng-select';
 @Component({
   selector: 'app-staff-management',
-  imports: [SharedModule, CommonModule,  FormsModule, ReactiveFormsModule, NgxSpinnerModule],
+  imports: [SharedModule, CommonModule,  FormsModule,NgSelectModule, ReactiveFormsModule, NgxSpinnerModule],
   templateUrl: './staff-management.html',
   styleUrl: './staff-management.scss',
 })
@@ -36,6 +37,7 @@ getAllListcompany:any
 devicesListList:any = [];
 imagePath:any;
 getAllListRole:any;
+locationID:any;
   // checkbox filters (header)
   showBiometricId = true;
   showSrNo = true;
@@ -144,7 +146,7 @@ selectedDeviceIds: string[] = [];
   dataSource = new MatTableDataSource([]);
 
   @ViewChild('excelFileInput') excelFileInput!: ElementRef<HTMLInputElement>;
-
+ showLoginFields = false;
   pageIndex = 0;
   pageSize = 10;                               // 5 per page
   pageStart = 0;
@@ -162,7 +164,7 @@ selectedDeviceIds: string[] = [];
       empId: ['', Validators.required],
       name: ['', Validators.required],
       userId: ['', Validators.required],
-      password:['', Validators.required],
+      // password:['', Validators.required],
       cardNum:['', ],
       locationId:['', Validators.required],
       deptId:['',Validators.required ],
@@ -177,7 +179,9 @@ selectedDeviceIds: string[] = [];
       // backupNum: [],,
       // conId:['',],
        conId: [null],
-     
+          
+       loginName: [''],
+    loginPassword: [''],
       rollId: ['', Validators.required],
       // photoUrl: ['']   // default
     });
@@ -201,7 +205,36 @@ selectedDeviceIds: string[] = [];
 
     conIdControl?.updateValueAndValidity();
   }
+  setRoleValidation(role: string) {
+  
 
+  const userName = this.form.get('loginName');
+  const password = this.form.get('loginPassword');
+
+  if (role === 'Admin' || role === 'Branch Admin') {
+
+    this.showLoginFields = true;
+
+    userName?.setValidators([Validators.required]);
+    password?.setValidators(  [
+      Validators.required,
+      Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
+    ]);
+
+  } else {
+
+    this.showLoginFields = false;
+
+    userName?.clearValidators();
+    password?.clearValidators();
+
+    userName?.reset();
+    password?.reset();
+  }
+
+  userName?.updateValueAndValidity();
+  password?.updateValueAndValidity();
+}
 
 addnew(){
  this.isEditMode = false;
@@ -277,9 +310,16 @@ getStatuswiseEmp(empStatus:any){
       }
   })
 }
+hidePassword = true;
 
   ngOnInit(): void {
+    this.locationID = sessionStorage.getItem('locationId')   
+    console.log(this.locationID, "location ID........") 
 //  this.changeStatus(this.isChecked)
+  this.form.get('roleName')?.valueChanges.subscribe(role => {
+    this.setRoleValidation(role);
+  });
+
 this.getallDataRole();
  this.getallData();
  this.getalllocation();
@@ -440,8 +480,15 @@ collegeList:any  = []
 
 getallData() {
     // this.spinner.show()
+  let apiUrl = '';
 
-  this.dataService.getAllData('employee/findAllEmployees').subscribe(
+  if (this.locationID) {
+    apiUrl = `employee/findAllEmployees?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'employee/findAllEmployees';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe(
     (res: any) => {
         this.spinner.hide()
 
@@ -753,6 +800,7 @@ get photoRequiredError(): any {
 
 
 editData(id: any) {
+  this.updateContractorValidator()
   this.empId = id;
   this.showFormData = true;
   this.showTableData = false;
@@ -766,6 +814,7 @@ editData(id: any) {
           if (res.code === 100) {
 
             const empData = res.extend.data[0];
+           this.setRoleValidation(empData.roleName);
 
             // Employee type
             // this.empType = empData.empType ;
@@ -774,6 +823,14 @@ editData(id: any) {
     ? 'contractor'
     : 'staff';
 // "empType": "staff",
+
+const ids = empData.accessGroupId
+  ? empData.accessGroupId
+      .split(',')
+      .map((x: string) => Number(x.trim()))
+  : [];
+
+console.log(ids); // [1,2,1011]
             this.form.patchValue({
               userId: empData.userId,
               deptId: empData.deptId,
@@ -784,21 +841,23 @@ editData(id: any) {
               locationId: empData.locationId,
               empId: empData.empId,
               conId: empData.conId,
+              loginName:empData.loginName,
+                            loginPassword:empData.loginPassword,
+
+             
               // accessGroupId: empData.accessGroupId,
                 // accessGroupId: Number(empData.accessGroupId),
               cardNum: empData.cardNum,
               //joining_date: empData.groupId,
               empStatus: empData.empStatus,
-              roleName:empData.empStatus,
+              roleName:empData.roleName,
+              // "roleName": "Admin",
                             desigId:empData.desigId,
 
-              password: empData.password || '',
-
-  accessGroupId: empData.accessGroupId
-    ? empData.accessGroupId.split(',').map((id: string) => Number(id))
-    : []
-});
-          this.form.get('accessGroupId')?.disable();
+              // password: empData.password || '',
+             accessGroupId: ids
+           });
+          // this.form.get('accessGroupId')?.disable();
 
             if (empData.photo === 'Y' && empData.image) {
               this.photoPreview =
@@ -829,7 +888,7 @@ onUpdate(){
      enrollId:this.empId,
       ...this.form.value,
        empType:this.empType,
-        // accessGroupId: formValues.accessGroupId.join(','),
+        accessGroupId: formValues.accessGroupId.join(','),
       imagePath: this.imagePath, 
     }
     this.dataService.updateData('employee/updateEmployee',fromData).subscribe((res:any)=>{
@@ -1082,6 +1141,7 @@ showDeleteMenu = false;
   // Toggle dropdown
   toggleDeleteMenu(): void {
     this.showDeleteMenu = !this.showDeleteMenu;
+    console.log("DELETE CALL......")
   }
 
   // Close dropdown (if you want to call it from outside also)
@@ -1144,9 +1204,26 @@ OpenUploadSelectedUserModal(){
 
 
 
+@ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
+profileImage: any = null;
+selectedFile: File | null = null;
 
+removeImage() {
+  this.photoFile = null;
+  this.photoPreview = '';
+  this.imagePath = '';
 
+  this.form.patchValue({
+    photo: null
+  });
+
+  this.form.get('photo')?.markAsPristine();
+  this.form.get('photo')?.markAsUntouched();
+  this.form.get('photo')?.updateValueAndValidity();
+
+  this.fileInput.nativeElement.value = '';
+}
 
 
 
@@ -1470,7 +1547,7 @@ uploadSelctedUserToDevice() {
   }
 
   //  Confirm
-  const ok = confirm("Are you sure you want to upload selected employee(s) to device?");
+  const ok = confirm("Are you sure you want to upload selected employee(s) to access group?");
   if (!ok) {
     return;
   }
@@ -1509,6 +1586,19 @@ uploadSelctedUserToDevice() {
          this.spinner.hide()
         this.toastr.success(response.msgs || 'Employees uploaded to device successfully.');
         this.enrollIdList = []
+
+
+    this.isAllSelectedemp = false;
+
+    this.selectedEnrollIds = [];
+    this.enrollIdList = [];
+    this.selectedRolesText = '';
+
+    this.dataSource.data.forEach((row: any) => {
+      row.select = false;
+    });
+
+
         this.getallData();
       }else if(response.code===500){
          this.spinner.hide()
@@ -1687,7 +1777,7 @@ ExportTOExcel()
   XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
  
   /* save to file */
-  XLSX.writeFile(wb, 'SheetJS.xlsx');
+  XLSX.writeFile(wb, 'User Details.xlsx');
  
 }
 
@@ -2034,4 +2124,38 @@ getPlaceholder(): string {
       return 'Search here...';
   }
 }
+
+
+onAccessGroupChange(): void {
+  const selected = this.form.get('accessGroupId')?.value || [];
+  console.log('Selected Access Groups:', selected);
+}
+
+
+isAllAccessGroupSelected(): boolean {
+  const selected = this.form.get('accessGroupId')?.value || [];
+
+  return (
+    this.getAllListgroup.length > 0 &&
+    selected.length === this.getAllListgroup.length
+  );
+}
+toggleSelectAllAccessGroups(): void {
+  if (this.isAllAccessGroupSelected()) {
+    this.form.get('accessGroupId')?.setValue([]);
+  } else {
+    const allIds = this.getAllListgroup.map(
+      (item: any) => item.accessGroupId
+    );
+
+    this.form.get('accessGroupId')?.setValue(allIds);
+  }
+}
+
+
+onlyNum(event:any){
+  event.target.value = event.target.value.replace(/[^0-9]/gi, "")
+}
+
+
 }

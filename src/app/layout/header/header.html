@@ -9,20 +9,33 @@
         </div>
 
         
-             <span class="imglogo"><img src="assets/images/dev-main-logo.png" alt="Logo" class=" text-center logoimg"></span>       
+             <span class="imglogo"><img src="assets/images/image - 2026-07-07T155118.840.png" alt="Logo" class=" text-center logoimg"></span>       
      <!-- <img src="assets/images/dev-main-logo.png" alt="" height="20" width="280" class="mt-8 mb-8"> -->
 
-        <span class="text-xs md:text-2xl hidden md:block ms-17 name" >Device Management System</span>
+        <span class="text-xs md:text-2xl hidden md:block ms-29 name" >Device Management System</span>
 
         <span class="example-spacer">  </span>
 
         <div *ngIf="!isLoading" class="inline-flex items-center text-md">
-            <div class="">
-            <span class="text-sm"> Name : {{userName}} </span>
-             <span class="text-sm pb-0 block" > Role :  {{userName}} </span>
-                                </div>
-            <button mat-button [matMenuTriggerFor]="menu" style="padding-right:
-                0;">
+          <div class="flex flex-col leading-5">
+ <!-- <span class="text-sm font-medium text-[rgb(0,84,128)]">
+    Welcome :
+<span class="font-normal text-[rgb(0,84,128)]">
+  {{ userName }}
+</span>  </span> -->
+
+  <span class="text-sm font-semibold text-[rgb(0,84,128)]">
+    Name :
+    <span class="font-normal text-gray-600">{{ userName }}</span>
+  </span> 
+ <span class="text-sm font-semibold text-[rgb(0,84,128)] mt-1">
+    Role :
+    <span class="font-normal text-gray-600">
+        {{ roleName || 'N/A' }}
+    </span>
+  </span> 
+</div>
+            <button mat-button [matMenuTriggerFor]="menu" style="padding-right:0;">
                 
                 <div class=" items-center text-white">
                
@@ -83,7 +96,7 @@
 
             <button mat-button class="menu-button nav-link" routerLink="dashboard" routerLinkActive="active">
                 <mat-icon>dashboard</mat-icon>
-                <span>Dashboard</span>
+                <span class="text-sm font-medium">Dashboard</span>
             </button>
 
            <!-- <button mat-button class="menu-button nav-link" routerLink="new-dashboard" routerLinkActive="active">
@@ -110,7 +123,7 @@
 
                     <button mat-button class="menu-button nav-link">
 <mat-icon>folder</mat-icon>               
-         <span>Masters</span>
+         <span class="text-sm font-medium">Masters</span>
                     </button>
                 </mat-expansion-panel-header>
   <a mat-button class="menu-button nav-link" routerLink="/add-company" routerLinkActive="active">
@@ -154,7 +167,7 @@
 
        <button mat-button class="menu-button nav-link" routerLink="staff-management" routerLinkActive="active">
                 <mat-icon>supervisor_account</mat-icon>
-                <span> User Management</span>
+                <span class="text-sm font-medium"> User Management</span>
             </button>
             <!-- <div href="">
   <mat-accordion>
@@ -222,18 +235,49 @@
         </mat-accordion> -->
 
 
-        
-             <button mat-button class="menu-button nav-link" routerLink="device-management" routerLinkActive="active">
-                <mat-icon>supervisor_account</mat-icon>
-                <span>Device Management</span>
-            </button>
 
+
+
+
+         <button
+  mat-button
+  class="menu-button nav-link"
+  routerLink="device-management"
+  routerLinkActive="active">
+
+<span style="display: flex;align-items: center; gap:18; " >
+      <span class="icon">
+    <img class="green-icon mr-2 h-4" src="assets/images/ph_device-mobile-fill.png">
+    <img class="white-icon mr-2 h-4" src="assets/images/Vector (13).png">
+  </span>
+
+  <span class="text-sm font-medium">
+   Device Management
+  </span>
+</span>
+</button>
+
+        
+           
 
                    
-             <button mat-button class="menu-button nav-link" routerLink="emp-transfer-data" routerLinkActive="active">
-                <mat-icon>supervisor_account</mat-icon>
-                <span>Employee Transfer Status</span>
-            </button>
+  <button
+  mat-button
+  class="menu-button nav-link"
+  routerLink="emp-transfer-data"
+  routerLinkActive="active">
+
+<span style="display: flex;align-items: center; gap:18; " >
+      <span class="icon">
+    <img class="green-icon mr-2 h-5" src="assets/images/ph_device-mobile-fill (2).png">
+    <img class="white-icon mr-2 h-5" src="assets/images/ph_device-mobile-fill (1).png">
+  </span>
+
+  <span class="text-sm font-medium">
+    Employee Transfer Status
+  </span>
+</span>
+</button>
 
     </div>
        <div href="">
@@ -244,7 +288,7 @@
                     <button mat-button class="menu-button nav-link">
                                                <mat-icon>description</mat-icon>
 
-                        <span>Reports</span>
+                        <span class="text-sm font-medium">Reports</span>
                     </button>
                 </mat-expansion-panel-header>
 
@@ -258,19 +302,25 @@
                     <span>  Master Report </span>
                 </a>
 
-                   <a mat-button class="menu-button nav-link" routerLink="/access-control-report" routerLinkActive="active">
+                   <!-- <a mat-button class="menu-button nav-link" routerLink="/access-control-report" routerLinkActive="active">
                     <span> Access Control Report </span>
-                </a>
+                </a> -->
 
                    <a mat-button class="menu-button nav-link" routerLink="/access-granted-report" routerLinkActive="active">
                     <span> Access Granted Report</span>
                 </a>
 
                  
-                   <a mat-button class="menu-button nav-link" routerLink="/audit-report" routerLinkActive="active">
+                   <!-- <a mat-button class="menu-button nav-link" routerLink="/audit-report" routerLinkActive="active">
                     <span> Audit Report </span>
+                </a> -->
+
+                      <a mat-button class="menu-button nav-link" routerLink="/entry-exit-status-report" routerLinkActive="active">
+                    <span> Entry Exit Status Report </span>
                 </a>
-               <a mat-button class="menu-button nav-link" routerLink="/log-records" routerLinkActive="active">
+
+
+               <a style="margin-bottom: 20px;" mat-button class="menu-button nav-link" routerLink="/log-report" routerLinkActive="active">
                     <span> Log Report </span>
                 </a>
 
@@ -284,7 +334,7 @@
 
             <a mat-button class="menu-button nav-link" routerLink="/help" routerLinkActive="active">
                 <mat-icon>library_books</mat-icon>
-                <span>Help</span>
+                <span class="text-sm font-medium">Help</span>
             </a>
           
          

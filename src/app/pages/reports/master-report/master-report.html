@@ -1,154 +1,175 @@
-<div class="p-0 bg-[#cfe8ff]">
-  <!-- TOP FILTER BAR -->
-  <div
-  class="flex flex-wrap items-center gap-3 px-3 py-3 bg-[#cfe8ff] border-b border-gray-400"
+<div class="p-0 ">
+ <div
+  
+  class="flex flex-wrap items-center gap-3 px-3 py-3 "
 >
-  <!-- Location -->
+
+
+<div class="w-52">
+
+    <ng-select
+        class="custom-ng-select"
+        [items]="locationList"
+        bindLabel="locationName"
+        bindValue="locationId"
+        [multiple]="true"
+        [searchable]="true"
+        [closeOnSelect]="false"
+        placeholder="Select Location"
+        [(ngModel)]="selectedLocationIds">
+
+        <!-- Select All -->
+        <ng-template ng-header-tmp>
+
+            <div class="px-2 py-2 border-b">
+
+                <label class="flex items-center cursor-pointer">
+
+                    <input
+                        type="checkbox"
+                        [checked]="isAllLocationSelected()"
+                        (click)="$event.stopPropagation()"
+                        (change)="toggleSelectAllLocations()">
+
+                    <span class="ml-2">
+                        Select All
+                    </span>
+
+                </label>
+
+            </div>
+
+        </ng-template>
+
+        <!-- Options -->
+        <ng-template
+            ng-option-tmp
+            let-item="item"
+            let-item$="item$">
+
+            <input
+                type="checkbox"
+                [checked]="item$.selected"
+                tabindex="-1"
+                class="mr-2">
+
+            {{ item.locationName }}
+
+        </ng-template>
+
+    </ng-select>
+
+</div>
+ <!-- ========================= -->
+<!-- Employee Search -->
+<!-- ========================= -->
+
+<div class="relative w-52">
+
   <mat-form-field
     appearance="fill"
-    class="w-52 !m-0  rounded-none custom-field"
-  >
-        <!-- <mat-label>Select Location</mat-label> -->
-     <mat-select placeholder="Select Location" multiple>
+    class="w-full custom-field search-field">
 
-    <!-- Trigger Text -->
-    <mat-select-trigger>
-      <ng-container *ngIf="selectedLocationIds.length === 0">
-        Select Location
-      </ng-container>
+    <mat-label>Enter Emp Name or Id</mat-label>
 
-      <!-- 1 item -->
-      <ng-container *ngIf="selectedLocationIds.length === 1">
-        {{ getLocationName(selectedLocationIds[0]) }}
-      </ng-container>
-
-      <!-- 2 items -->
-      <ng-container *ngIf="selectedLocationIds.length === 2">
-        {{ getLocationName(selectedLocationIds[0]) }},
-        {{ getLocationName(selectedLocationIds[1]) }}
-      </ng-container>
-
-      <!-- > 2 items -->
-      <ng-container *ngIf="selectedLocationIds.length > 2">
-        {{ getLocationName(selectedLocationIds[0]) }},
-        {{ getLocationName(selectedLocationIds[1]) }}
-        +{{ selectedLocationIds.length - 2 }} more
-      </ng-container>
-    </mat-select-trigger>
-
-    <!-- Select All Row -->
-    <mat-option (click)="$event.stopPropagation()">
-      <mat-checkbox
-        class="select-all-purple"
-        [checked]="isAllSelected"
-        (click)="$event.stopPropagation()"
-        (change)="toggleSelectAll($event)"
-      >
-        Select All
-      </mat-checkbox>
-    </mat-option>
-
-    <!-- Locations List -->
-    <mat-option
-      *ngFor="let item of locationList"
-      (click)="$event.stopPropagation()"
-    >
-      <mat-checkbox
-        [checked]="isSelected(item.locationId)"
-        (click)="$event.stopPropagation()"
-        (change)="toggleLocation(item.locationId, $event)"
-      >
-        {{ item.locationName }}
-      </mat-checkbox>
-    </mat-option>
-  </mat-select>
-  </mat-form-field>
-
-  
-<div class="relative w-52">   
-
-  <!-- Name or ID -->
-  <mat-form-field appearance="fill" class="w-full custom-field rounded-none">
-    <mat-label>Emp Name or Id</mat-label>
     <input
       matInput
       (input)="onSearchEmp($event)"
-      [(ngModel)]="searchTextemp"
-    />
+      [(ngModel)]="searchTextemp" />
+
   </mat-form-field>
 
-<!-- Search Dropdown -->
-<div
-  *ngIf="showDropdown && employeeList.length > 0"
-  class="absolute left-0 right-0 bg-white border rounded shadow-md max-h-60 overflow-auto z-50"
-  style="top: 100%; margin-top: 2px;"
->
+  <!-- Search Result -->
   <div
-    *ngFor="let emp of employeeList"
-    (click)="onSelectEmployee(emp)"
-    class="p-2 hover:bg-gray-200 cursor-pointer"
-  >
-    {{ emp.name }} ({{ emp.userId }})
+    *ngIf="showDropdown && employeeList.length > 0"
+    class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
+
+    <div
+      *ngFor="let emp of employeeList"
+      (click)="onSelectEmployee(emp)"
+      class="px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors">
+
+      {{ emp.name }} ({{ emp.userId }})
+
+    </div>
+
   </div>
+
+  <!-- No Record -->
+  <div
+    *ngIf="showDropdown && searchDone && employeeList.length === 0 && searchTextemp"
+    class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-3 text-sm text-gray-500 z-50">
+
+    No employee found.
+
+  </div>
+
 </div>
 
-<div
-  *ngIf="showDropdown && searchDone && employeeList.length === 0 && searchTextemp"
-  class="absolute left-0 right-0 text-sm text-gray-500 mt-1 bg-white p-2 z-40 border rounded"
-  style="top: 100%; margin-top: 2px;"
->
-  No employee found.
-</div>
+<!-- ========================= -->
+<!-- From Date -->
+<!-- ========================= -->
 
+<mat-form-field
+  appearance="fill"
+  class="w-44 custom-field search-field">
 
-</div>
+  <mat-label>From</mat-label>
 
+  <input
+    matInput
+    [matDatepicker]="fromPicker"
+    [(ngModel)]="fromDate" />
 
-  <!-- From date -->
-  <mat-form-field
-    appearance="fill"
-    class="w-44 !m-0  rounded-none custom-field"
-  >
-    <mat-label>From</mat-label>
-    <input
-      matInput
-      [matDatepicker]="fromPicker"
-      [(ngModel)]="fromDate"
-    />
-    <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
-    <mat-datepicker #fromPicker></mat-datepicker>
-  </mat-form-field>
+  <mat-datepicker-toggle
+    matSuffix
+    [for]="fromPicker">
+  </mat-datepicker-toggle>
 
-  <!-- To date -->
-  <mat-form-field
-    appearance="fill"
-    class="w-44 !m-0  rounded-none custom-field"
-  >
-    <mat-label>To</mat-label>
-    <input
-      matInput
-      [matDatepicker]="toPicker"
-      [(ngModel)]="toDate"
-    />
-    <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
-    <mat-datepicker #toPicker></mat-datepicker>
-  </mat-form-field>
+  <mat-datepicker #fromPicker></mat-datepicker>
+
+</mat-form-field>
+
+<!-- ========================= -->
+<!-- To Date -->
+<!-- ========================= -->
+
+<mat-form-field
+  appearance="fill"
+  class="w-44 custom-field search-field">
+
+  <mat-label>To</mat-label>
+
+  <input
+    matInput
+    [matDatepicker]="toPicker"
+    [(ngModel)]="toDate" />
+
+  <mat-datepicker-toggle
+    matSuffix
+    [for]="toPicker">
+  </mat-datepicker-toggle>
+
+  <mat-datepicker #toPicker></mat-datepicker>
+
+</mat-form-field>
 
   <!-- Buttons (right aligned) -->
   <div class="flex items-center gap-2 ml-auto">
     <button style="cursor: pointer;"
-     
-      color="primary"
-      class="bg-blue-600 text-white px-2 py-2 !text-sm mb-4"
+      type="button"
+  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+
       (click)="masterReport()"
     >
       View Report
     </button>
 
     <button
-      color="primary"style="cursor: pointer;"
-      class="bg-blue-700 text-white px-2 py-2 !text-sm flex items-center mb-4"
-       (click)="downloadPDF()">
+  type="button"
+  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+
+      (click)="downloadPDF()">
       <mat-icon class="!text-base">download</mat-icon>
       Export to pdf
     </button>
@@ -156,81 +177,74 @@
 </div>
 
 
+
   <!-- REPORT HEADER AREA -->
-   <div id="contentToConvert">
-  <div  class="border border-black border-t-0">
-    <!-- Title row -->
-    <div class="border-b border-black bg-[#cfe8ff] text-center py-2">
+<div id="contentToConvert" class="bg-white rounded-md shadow-sm p-4">
+   <div class="text-center py-2">
+  
+   <!-- Title row -->
+       <div class="text-center py-2">
       <span class="font-semibold text-lg">Master Report</span>
     </div>
 
     <!-- Date / Time row -->
-    <div class="border-b border-black bg-[#cfe8ff] text-center py-3 text-sm">
-      <div>
-        From Date:
-        <span class="font-semibol ">
-          {{ fromDate | date: 'MMM d, y' }}
-          to
-          {{ toDate | date: 'MMM d, y' }}
-        </span>
-      </div>
-      <div>
-        Report Time:
-        <span class="font-semibol">
-          {{ now | date: 'MMM d, y, h:mm:ss a' }}
-        </span>
-      </div>
+  <!-- Date & Report Time -->
+  <div class="text-xs text-center text-[#004A71] mb-4 leading-5">
+    <div>
+      <span class="">From Date:</span>
+      <span class="font-semibold" >   {{ fromDate | date:'MMM d, y' }}
+      to
+      {{ toDate | date:'MMM d, y' }}</span>
+    
     </div>
+
+    <div>
+      <span class="">Report Time:</span>
+   <span class="font-semibold" >       {{ now | date:'MMM d, y, h:mm:ss a' }}
+ </span>
+    </div>
+  </div>
 
     <!-- TABLE HEADER ROW -->
-    <div class="" style="background-color: white !important;">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr>
-            <th class="border border-black px-2 py-3 text-sm">Sr No.</th> 
-            <th class="border border-black px-2 py-3 text-sm">Employee Name</th>
-            <th class="border border-black px-2 py-3 text-sm">Employee Id</th>
-            <th class="border border-black px-2 py-3 text-sm">  Designation  </th>
-              <th class="border border-black px-2 py-3 text-sm"> Date </th>
-            <th class="border border-black px-2 py-3 text-sm">Status</th>
-          </tr>
-        </thead>
-   <tbody>
-    
-          <tr *ngFor="let row of reportData; index as i">
-            <td class="border border-black px-2 py-2 text-sm text-center">
-              {{ i + 1 }}
-            </td>
-               <td class="border border-black px-2 py-2 text-sm">
-              {{ row.employeeName }}
-            </td>
-            <td class="border border-black px-2 py-2 text-sm">
-              {{ row.employeeId }}
-            </td>
-         
-            <td class="border border-black px-2 py-2 text-sm text-center">
-              {{ row.designation }}
-            </td>
-              <td class="border border-black px-2 py-2 text-sm text-center">
-              10-12-2024
-            </td>
-            <td class="border border-black px-2 py-2 text-sm text-center">
-              {{ row.status }}
-            </td>
+<div>
+  <table class="pdf-table">
 
-          </tr>
+    <thead>
+      <tr>
+        <th>Sr No.</th>
+        <th>Employee Name</th>
+        <th style="text-align: center;">Employee Id</th>
+        <th>Designation</th>
+        <th>Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
 
-          <!-- <tr *ngIf="reportData.length === 0">
-            <td
-              colspan="6"
-              class="border border-black px-2 py-4 text-center text-sm"
-            >
-              No records found
-            </td>
-          </tr> -->
-        </tbody> 
-      </table>
-    </div>
+    <tbody>
+
+      <tr *ngFor="let row of reportData; let i = index">
+
+        <td class="text-center">{{ i + 1 }}</td>
+        <td >{{ row.employeeName }}</td>
+        <td style="text-align: center;">{{ row.employeeId }}</td>
+        <td class="text-center">{{ row.designation }}</td>
+       <td class="text-center">
+  {{ row.createdDate ?? '-' }}
+</td>
+        <td class="text-center">{{ row.status }}</td>
+
+      </tr>
+
+      <!-- <tr *ngIf="reportData.length === 0">
+        <td colspan="6" class="no-records">
+          No records found
+        </td>
+      </tr> -->
+
+    </tbody>
+
+  </table>
+</div>
   </div>
   </div>
 </div>

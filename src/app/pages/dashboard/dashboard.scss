@@ -63,8 +63,8 @@
 }
 
 .card-title{
-    font-size:15px;
-    font-weight:600;
+    font-size:18px;
+    font-weight:500;
     color:#1E5676;
     margin:0;
 }
@@ -76,9 +76,95 @@
 }
 
 .card-count{
-    font-size:32px;
-    font-weight:700;
+    font-size:40px;
+    font-weight:400;
     color:#154C79;
     line-height:1;
     margin:0;
+}
+
+th{
+    background-color: rgba(0, 150, 225, 1) !important;
+    color: white !important;
+}
+
+.mat-column-id,
+.mat-mdc-column-id {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.mat-mdc-header-cell.mat-column-id,
+.mat-mdc-cell.mat-column-id {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Center all header cells */
+.mat-mdc-header-cell {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Center all body cells */
+.mat-mdc-cell {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Individual columns */
+.mat-column-serialNum,
+.mat-column-deviceName,
+.mat-column-ipAddress,
+.mat-column-IoStatus,
+.mat-column-status,
+.mat-column-lastActivity,
+.mat-column-userCount,
+.mat-column-fingerPrintCount,
+.mat-column-faceCount,
+.mat-column-transectionCount,
+.mat-column-offlineSince {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* For MDC Angular Material (v15+) */
+.mat-mdc-header-cell.mat-column-serialNum,
+.mat-mdc-header-cell.mat-column-deviceName,
+.mat-mdc-header-cell.mat-column-ipAddress,
+.mat-mdc-header-cell.mat-column-IoStatus,
+.mat-mdc-header-cell.mat-column-status,
+.mat-mdc-header-cell.mat-column-lastActivity,
+.mat-mdc-header-cell.mat-column-userCount,
+.mat-mdc-header-cell.mat-column-fingerPrintCount,
+.mat-mdc-header-cell.mat-column-faceCount,
+.mat-mdc-header-cell.mat-column-transectionCount,
+.mat-mdc-header-cell.mat-column-offlineSince,
+
+.mat-mdc-cell.mat-column-serialNum,
+.mat-mdc-cell.mat-column-deviceName,
+.mat-mdc-cell.mat-column-ipAddress,
+.mat-mdc-cell.mat-column-IoStatus,
+.mat-mdc-cell.mat-column-status,
+.mat-mdc-cell.mat-column-lastActivity,
+.mat-mdc-cell.mat-column-userCount,
+.mat-mdc-cell.mat-column-fingerPrintCount,
+.mat-mdc-cell.mat-column-faceCount,
+.mat-mdc-cell.mat-column-transectionCount,
+.mat-mdc-cell.mat-column-offlineSince {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.serial-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.serial-content img {
+  width: 16px;
+  height: 16px;
 }

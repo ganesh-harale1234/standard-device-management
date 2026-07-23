@@ -9,10 +9,11 @@ import * as XLSX from 'xlsx';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-employee-transfer-data',
-  imports: [SharedModule,MatFormFieldModule, MatInputModule, MatIconModule],
+  imports: [SharedModule,MatFormFieldModule, MatInputModule,NgSelectModule, MatIconModule],
   templateUrl: './employee-transfer-data.html',
   styleUrl: './employee-transfer-data.scss',
 })
@@ -30,6 +31,7 @@ displayedColumns: string[] = [
   'area',
   'deviceName',
   'ipAddress',
+  'activity',
   "status"
 
 ];
@@ -47,7 +49,8 @@ filterData: any[] = [];
 
   ngOnInit(): void {
     this.getDeviceallList();
-     this.getAllempTransferlList()
+     this.getAllempTransferlList();
+     this.getallData();
     
   }
 
@@ -143,18 +146,12 @@ getDeviceName(id: number): string {
 
 
 getFilterdatDevicewise() {
-  // if (this.selectedDeviceSerialNums.length === 0) {
-  //    this.dataSource = [];
-  //   return;
-  // }
 
-  const deviceList = this.selectedDeviceSerialNums.join(',');
-
-  console.log('API PARAM:', deviceList);
+const accessGroupIds = this.selectedAccessGroupIds.join(',');
 
   this.dataService
     .getAllData(
-      'transferActivityTableData?deviceSerialNo=' + deviceList
+      'transferActivityTableData?accessGroupIds=' + accessGroupIds
     )
     .subscribe((res: any) => {
 
@@ -197,7 +194,92 @@ ExportTOExcel()
   XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
  
   /* save to file */
-  XLSX.writeFile(wb, 'SheetJS.xlsx');
+  XLSX.writeFile(wb, 'Employee-transfer.xlsx');
  
+}
+
+
+accessGroupList: any[] = [];
+
+selectedAccessGroupIds: number[] = [];
+
+getAllList: any[] = [];
+filterallData: any[] = [];
+
+
+getallData() {
+
+  this.dataService
+    .getAllData('accessGroup/getAllAccessGroups')
+    .subscribe({
+
+      next: (res: any) => {
+
+        if (res.code === 100) {
+
+          this.getAllList = res.extend.data;
+
+          this.accessGroupList = [...this.getAllList];
+
+          // this.dataSource = new MatTableDataSource(this.getAllList);
+          this.dataSource.paginator = this.paginator;
+
+        }
+
+        else if (res.code === 500) {
+
+
+        }
+
+        else {
+
+
+        }
+
+      },
+
+      error: (err) => {
+
+        const errorMsg =
+          err.error?.msg || 'Failed to load Access Group List!';
+
+
+      }
+
+    });
+
+}
+
+onAccessGroupChange() {
+
+  console.log('Selected:', this.selectedAccessGroupIds);
+
+  this.getFilterdatDevicewise();
+
+}
+
+toggleSelectAllAccessGroups() {
+
+  if (this.isAllAccessGroupSelected()) {
+
+    this.selectedAccessGroupIds = [];
+
+  } else {
+
+    this.selectedAccessGroupIds = this.accessGroupList.map(
+      item => item.accessGroupId
+    );
+
+  }
+
+  this.getFilterdatDevicewise();
+
+}
+
+isAllAccessGroupSelected(): boolean {
+
+  return this.accessGroupList.length > 0 &&
+         this.selectedAccessGroupIds.length === this.accessGroupList.length;
+
 }
 }

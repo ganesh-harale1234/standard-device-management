@@ -101,7 +101,10 @@ if(this.form.valid){
     this.applyPagination();
     this.getallData();
     this.backtoList()
-  }else if(res.code === 500){
+  }else if(res.code === 200){
+      this.toaster.error('Department Name allready exits !')
+
+     }else if(res.code === 500){
     this.toaster.error('Internal server error !')
   }else{
     this.toaster.error('Something went wrong !')
@@ -161,14 +164,19 @@ onUpdate(){
 
     }
     this.dataService.updateData('updateDepartment',fromData).subscribe((res:any)=>{
-      if(res.code == 200){
+      if(res.code == 100){
         this.toaster.success(res.msg || 'Department Data Update Sucessfully !')
         this.getallData();
         this.form.reset();
         this.backtoList()
         this.isEditMode = false;
 
-      }else{
+      }
+       else if(res.code === 200){
+      this.toaster.error('Department Name allready exits !')
+
+     }
+      else{
         this.toaster.error('Something went wrong !')
       }
     },((err:any)=>{

@@ -1,6 +1,6 @@
 <div class="p-1 ">
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
 
   <!-- Total Employees -->
   <mat-card class="dashboard-card">
@@ -8,7 +8,7 @@
       <p class="card-title">Total Employees</p>
 
       <p class="card-count">
-        {{ dashbordCount?.totalEmployees || 0 }}
+        {{ dashbordCount?.totalEmployees || 00 }}
       </p>
     </div>
   </mat-card>
@@ -18,12 +18,12 @@
     <div class="card-body">
 
       <div>
-       <div class="flex gap-3"> <p class="card-title"> (New Joining) </p>
-        <p class="card-subtitle">Last 7 days</p></div>
+       <div class="flex gap-1"> <p class="card-title"> New Joining </p>
+        <p class="card-subtitle">(Last 7 days)</p></div>
       </div>
 
       <p class="card-count">
-        {{ dashbordCount?.newJoineeLast7Days || 0 }}
+        {{ dashbordCount?.newJoineeLast7Days || 00 }}
       </p>
 
     </div>
@@ -35,7 +35,7 @@
       <p class="card-title">Total Device</p>
 
       <p class="card-count">
-        {{ dashbordCount?.totalDevices || 0 }}
+        {{ dashbordCount?.totalDevices || 00 }}
       </p>
     </div>
   </mat-card>
@@ -46,21 +46,21 @@
       <p class="card-title">Present</p>
 
       <p class="card-count">
-        {{ dashbordCount?.presentToday || 0 }}
+        {{ dashbordCount?.presentToday || 00 }}
       </p>
     </div>
   </mat-card>
 
   <!-- On Leave -->
-  <mat-card class="dashboard-card">
+  <!-- <mat-card class="dashboard-card">
     <div class="card-body">
       <p class="card-title">On Leave</p>
 
       <p class="card-count">
-        {{ dashbordCount?.onLeaveToday || 0 }}
+        {{ dashbordCount?.onLeaveToday || 00 }}
       </p>
     </div>
-  </mat-card>
+  </mat-card> -->
 
 </div>
 
@@ -120,12 +120,15 @@
   </td>
 </ng-container>
       <!-- ID -->
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef class="font-semibold">Device ID</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.deviceId }}
-        </td>
-      </ng-container>
+   <ng-container matColumnDef="id">
+  <th mat-header-cell *matHeaderCellDef>
+    Device ID
+  </th>
+
+  <td mat-cell *matCellDef="let element">
+    {{ element.deviceId }}
+  </td>
+</ng-container>
 
       <!-- Serial No -->
       <ng-container matColumnDef="serialNum">
@@ -133,19 +136,19 @@
           Serial No
         </th>
         <td mat-cell *matCellDef="let element">
-    <span class="flex items-center gap-2"> <img class="h-6 w-12" src="assets/images/external-device.png" alt="">    {{ element.deviceSerialNum }} </span>
+    <span class="flex items-center gap-2"> <img class="h-4 w-4" src="assets/images/external-device.png" alt="">    {{ element.deviceSerialNum }} </span>
         </td>
       </ng-container>
 
       <!-- Area -->
-      <ng-container matColumnDef="area">
+      <!-- <ng-container matColumnDef="area">
         <th mat-header-cell *matHeaderCellDef class="font-semibold">
           Area
         </th>
         <td mat-cell *matCellDef="let element">
           {{ element.area }}
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <!-- Device Name -->
       <ng-container matColumnDef="deviceName">
@@ -173,8 +176,8 @@
           I/O Status
         </th>
         <td mat-cell *matCellDef="let element">  
-      
-   {{element.ioStatus=="I" ? "IN" : element.ioStatus=="O" ? "OUT" : element.ioStatus=="IN OUT" ? "IN OUT" : "-" }}
+       {{ element.ioStatus }}
+   <!-- {{element.ioStatus=="I" ? "IN" : element.ioStatus=="O" ? "OUT" : element.ioStatus=="IO" ? "IN OUT" : "-" }} -->
          
         </td>
       </ng-container>

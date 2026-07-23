@@ -2,9 +2,10 @@
     flex: 1 1 auto;
 }
 mat-toolbar {
-    background:  #ffffff;
-     color:  #004a9f;
-}
+  background:rgba(255, 255, 255, 1);
+  color: #004a9f;
+//   border-bottom: 1px solid rgb(253, 241, 241);
+box-shadow: 0 8px 20px red !important;}
 .nav-link {
     color: #004a9f !important;
         margin: 4px 0px 4px 0px;
@@ -24,7 +25,7 @@ mat-sidenav {
     // margin: 16px;
     width: 258px;
     border-right: none;
-    background: #ffffff;
+  background:rgba(255, 255, 255, 1);
     color: #004a9f;
     // border-radius: 10px;
     padding: 16px 8px;
@@ -51,8 +52,10 @@ mat-divider {
 
     overflow: hidden auto;
     scrollbar-width: thin;
-    scrollbar-color: #031cad transparent;
+    scrollbar-color: rgba(0, 150, 225, 1) !important;
+    background-color: rgba(250, 250, 250, 1)
 }
+
 @media (min-width: 1024px) {
     .lg\:mx-4 {
         margin-left: 0rem;
@@ -165,17 +168,27 @@ mat-sidenav {
 }
 
 .imglogo{
-     height: 7px !important;
-    width: 175px !important;
-    margin-bottom: 35px !important;
-    margin-top: -15px !important;
+     height: 47px !important;
+    width: 155px !important;
+    // margin-bottom: 30px !important;
+    // margin-top: -10px !important;
+    position: relative;
+    z-index: 1000;
 
 }
 
-.logoimg{
-      background-color: #ffffff;
-    border-radius: 2px;
+.imglogo {
+      height: 55px !important;
+    width: 130px !important;
+    position: relative;
+    z-index: 995 !important;
+    left: 51px !important;
 }
+
+// .logoimg{
+//     //   background-color: #ffffff;
+//     border-radius: 2px;
+// }
 
 
 
@@ -275,7 +288,7 @@ mat-sidenav {
 
 
 .nav-link.active{
-    background: #1698e8 !important;
+background: rgba(0, 150, 225, 1) !important;
     color: #fff !important;
     border-radius: 2px;
 }
@@ -302,6 +315,55 @@ mat-sidenav {
 }
 
 .name{
-        color: #004a9f !important;
+        color:rgba(0, 74, 113, 1) !important;
 font-weight: 500;
 }
+
+.custom-sidenav {
+    scrollbar-width: thin;
+    scrollbar-color: #d7e3ff transparent;
+}
+
+mat-drawer,
+.mat-drawer {
+    overflow: hidden !important;
+}
+
+::ng-deep .mat-drawer-inner-container {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+.imglogo {
+    height: 38px !important;
+    width: 182px !important;
+    position: relative;
+    z-index: 995 !important;
+    left: 14px !important;
+}
+
+
+// ::ng-deep .mat-drawer-inner-container {
+//   padding-top: 82px;
+// }
+
+::ng-deep .mat-drawer-inner-container {
+  margin-top: 79px !important;
+}
+.green-icon {
+  display: block;
+}
+
+.white-icon {
+  display: none;
+}
+
+.menu-button.active .green-icon {
+  display: none;
+}
+
+.menu-button.active .white-icon {
+  display: block;
+}
+
+
