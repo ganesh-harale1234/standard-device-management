@@ -78,6 +78,15 @@
         </td>
       </ng-container>
 
+        <ng-container matColumnDef="deviceLocation">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+          Device Location
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.deviceLocation }}
+        </td>
+      </ng-container>
+
     
 
       <!-- I/O Status -->
@@ -259,7 +268,7 @@
 <!-- Location -->
 <div>
   <label class="block text-sm font-medium text-[#004A71] mb-1">
-    Location <span class="text-red-500">*</span>
+    Branch Name <span class="text-red-500">*</span>
   </label>
 
   <select
@@ -309,6 +318,25 @@
   </p>
 </div>
 
+<div>
+  <label class="block text-sm font-medium text-[#004A71] mb-1">
+    Device Location <span class="text-red-500">*</span>
+  </label>
+
+  <input
+    type="text"
+    formControlName="deviceLocation"
+    placeholder="Enter here..."
+    class="w-full px-3 py-2 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm"
+  />
+
+  <p
+    class="text-red-500 text-xs mt-1"
+    *ngIf="form.get('deviceLocation')?.hasError('required') && form.get('deviceLocation')?.touched"
+  >
+    device Location is required
+  </p>
+</div>
 
 <div class="w-full custom-field">
   <label class="block mb-2 text-sm font-medium text-gray-700">

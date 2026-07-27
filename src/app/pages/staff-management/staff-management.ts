@@ -247,18 +247,16 @@ backtoList(){
     this.showFormData = false
   this.showTableData = true
 }
+selectedStatus: string = 'All';
 
+changeStatus(status: string) {
 
-selectesdStaus!:string
-changeStatus(value: any) {
-
-  if (value === 'All') {
+  if (status === 'All') {
     this.getallData();
     return;
   }
 
-  this.selectesdStaus = value ? 'Active' : 'Inactive';
-  this.getStatuswiseEmp(this.selectesdStaus);
+  this.getStatuswiseEmp(status);
 }
 
 allEmpShow(){
@@ -757,7 +755,10 @@ get photoRequiredError(): any {
 
 
 
+
+
 // editData(id: any) {
+//   this.updateContractorValidator()
 //   this.empId = id;
 //   this.showFormData = true;
 //   this.showTableData = false;
@@ -768,27 +769,64 @@ get photoRequiredError(): any {
 //       .getById('employee/findEmployeeByUserId?enrollId=' + id)
 //       .subscribe(
 //         (res: any) => {
-//         if (res.code === 100) {
-//   const empData = res.extend.data[0];
+//           if (res.code === 100) {
 
-//   this.empType = empData.conId ? 'contractor' : 'staff';
+//             const empData = res.extend.data[0];
+//            this.setRoleValidation(empData.roleName);
 
-//   this.form.patchValue({
-//     enrollId: empData.enrollId,
-//     deptId: empData.deptId,
-//     name: empData.name,
-//     companyName: empData.companyName,
-//     rollId: empData.rollId,
-//     categoryId: empData.categoryId,
-//     locationId: empData.locationId,
-//     userId: empData.userId,
-//     conId: empData.conId,   
-//     groupId: empData.groupId,
-//     imagePath: empData.imagePath,
-//     cardNum: empData.cardNum,
-//     password: empData.password || ''
-//   });
-// } else {
+//             // Employee type
+//             // this.empType = empData.empType ;
+//             this.empType =
+//   empData.empType?.toLowerCase() === 'contractor'
+//     ? 'contractor'
+//     : 'staff';
+// // "empType": "staff",
+
+// const ids = empData.accessGroupId
+//   ? empData.accessGroupId
+//       .split(',')
+//       .map((x: string) => Number(x.trim()))
+//   : [];
+
+// console.log(ids); // [1,2,1011]
+//             this.form.patchValue({
+//               userId: empData.userId,
+//               deptId: empData.deptId,
+//               name: empData.name,
+//               companyName: empData.companyName,
+//               rollId: empData.rollId,
+//               categoryId: empData.categoryId,
+//               locationId: empData.locationId,
+//               empId: empData.empId,
+//               conId: empData.conId,
+//               loginName:empData.loginName,
+//                             loginPassword:empData.loginPassword,
+
+             
+//               // accessGroupId: empData.accessGroupId,
+//                 // accessGroupId: Number(empData.accessGroupId),
+//               cardNum: empData.cardNum,
+//               //joining_date: empData.groupId,
+//               empStatus: empData.empStatus,
+//               roleName:empData.roleName,
+//               // "roleName": "Admin",
+//                             desigId:empData.desigId,
+
+//               // password: empData.password || '',
+//              accessGroupId: ids
+//            });
+//           // this.form.get('accessGroupId')?.disable();
+
+//             if (empData.photo === 'Y' && empData.image) {
+//               this.photoPreview =
+//                 this.sanitizer.bypassSecurityTrustResourceUrl(
+//                   'data:image/jpeg;base64,' + empData.image
+//                 );
+//             } else {
+//               this.photoPreview = null;
+//             }
+
+//           } else {
 //             this.toaster.error('No Data found!');
 //           }
 //         },
@@ -802,7 +840,7 @@ get photoRequiredError(): any {
 
 
 editData(id: any) {
-  this.updateContractorValidator()
+  this.updateContractorValidator();
   this.empId = id;
   this.showFormData = true;
   this.showTableData = false;
@@ -816,23 +854,20 @@ editData(id: any) {
           if (res.code === 100) {
 
             const empData = res.extend.data[0];
-           this.setRoleValidation(empData.roleName);
 
-            // Employee type
-            // this.empType = empData.empType ;
+            this.setRoleValidation(empData.roleName);
+
             this.empType =
-  empData.empType?.toLowerCase() === 'contractor'
-    ? 'contractor'
-    : 'staff';
-// "empType": "staff",
+              empData.empType?.toLowerCase() === 'contractor'
+                ? 'contractor'
+                : 'staff';
 
-const ids = empData.accessGroupId
-  ? empData.accessGroupId
-      .split(',')
-      .map((x: string) => Number(x.trim()))
-  : [];
+            const ids = empData.accessGroupId
+              ? empData.accessGroupId
+                  .split(',')
+                  .map((x: string) => Number(x.trim()))
+              : [];
 
-console.log(ids); // [1,2,1011]
             this.form.patchValue({
               userId: empData.userId,
               deptId: empData.deptId,
@@ -843,24 +878,16 @@ console.log(ids); // [1,2,1011]
               locationId: empData.locationId,
               empId: empData.empId,
               conId: empData.conId,
-              loginName:empData.loginName,
-                            loginPassword:empData.loginPassword,
-
-             
-              // accessGroupId: empData.accessGroupId,
-                // accessGroupId: Number(empData.accessGroupId),
+              loginName: empData.loginName,
+              loginPassword: empData.loginPassword,
               cardNum: empData.cardNum,
-              //joining_date: empData.groupId,
               empStatus: empData.empStatus,
-              roleName:empData.roleName,
-              // "roleName": "Admin",
-                            desigId:empData.desigId,
+              roleName: empData.roleName,
+              desigId: empData.desigId,
+              accessGroupId: ids
+            });
 
-              // password: empData.password || '',
-             accessGroupId: ids
-           });
-          // this.form.get('accessGroupId')?.disable();
-
+            // Photo Preview
             if (empData.photo === 'Y' && empData.image) {
               this.photoPreview =
                 this.sanitizer.bypassSecurityTrustResourceUrl(
@@ -869,6 +896,12 @@ console.log(ids); // [1,2,1011]
             } else {
               this.photoPreview = null;
             }
+
+            // Disable all fields
+            this.form.disable();
+
+            // Enable only Access Group
+            this.form.get('accessGroupId')?.enable();
 
           } else {
             this.toaster.error('No Data found!');
@@ -883,40 +916,86 @@ console.log(ids); // [1,2,1011]
 }
 
 
-onUpdate(){
-  if(this.form.valid){
-     const formValues = this.form.value
-    const fromData = {
-     enrollId:this.empId,
-      ...this.form.value,
-       empType:this.empType,
-        accessGroupId: formValues.accessGroupId.join(','),
-      imagePath: this.imagePath, 
-    }
-    this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
-      if(res.code == 100){
-        this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
-              this.photoFile = null;
-          this.photoPreview = null;
-        this.getallData();
-        this.form.reset();
-        this.backtoList()
-        this.isEditMode = false;
+// onUpdate(){
+//   if(this.form.valid){
+//      const formValues = this.form.value
+//     const fromData = {
+//      enrollId:this.empId,
+//       ...this.form.value,
+//        empType:this.empType,
+//         accessGroupId: formValues.accessGroupId.join(','),
+//       imagePath: this.imagePath, 
+//     }
+//     this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
+//       if(res.code == 100){
+//         this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
+//               this.photoFile = null;
+//           this.photoPreview = null;
+//         this.getallData();
+//         this.form.reset();
+//         this.backtoList()
+//         this.isEditMode = false;
 
-      }else{
-        this.toaster.error('Something went wrong !')
-      }
-    },((err:any)=>{
-      if(err?.error?.msg){
-            this.toaster.error( err.error.msg,'error!')
-      }else{
-                    this.toaster.error('Server side error !')
-      }
-    })
-  )
-  }else{
+//       }else{
+//         this.toaster.error('Something went wrong !')
+//       }
+//     },((err:any)=>{
+//       if(err?.error?.msg){
+//             this.toaster.error( err.error.msg,'error!')
+//       }else{
+//                     this.toaster.error('Server side error !')
+//       }
+//     })
+//   )
+//   }else{
+//     this.form.markAllAsTouched();
+//     this.toaster.error('Please fill all required fields!')
+//   }
+// }
+
+onUpdate() {
+  if (this.form.valid) {
+
+    const formValues = this.form.getRawValue();
+
+    const formData = {
+      enrollId: this.empId,
+      ...formValues,
+      empType: this.empType,
+      accessGroupId: formValues.accessGroupId?.join(',') || '',
+      imagePath: this.imagePath
+    };
+
+    console.log(formData);
+
+    this.dataService.updateDataC('employee/updateEmployee', formData)
+      .subscribe(
+        (res: any) => {
+          if (res.code == 100) {
+            this.toaster.success(res.msg || 'Employee Updated Successfully!');
+
+            this.photoFile = null;
+            this.photoPreview = null;
+            this.getallData();
+            this.form.reset();
+            this.backtoList();
+            this.isEditMode = false;
+          } else {
+            this.toaster.error('Something went wrong!');
+          }
+        },
+        (err: any) => {
+          if (err?.error?.msg) {
+            this.toaster.error(err.error.msg, 'Error!');
+          } else {
+            this.toaster.error('Server side error!');
+          }
+        }
+      );
+
+  } else {
     this.form.markAllAsTouched();
-    this.toaster.error('Please fill all required fields!')
+    this.toaster.error('Please fill all required fields!');
   }
 }
 

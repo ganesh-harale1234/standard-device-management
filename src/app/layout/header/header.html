@@ -15,7 +15,9 @@
         <span class="text-xs md:text-2xl hidden md:block ms-29 name" >Device Management System</span>
 
         <span class="example-spacer"> 
-  <span class="ml-5" style="font-size: 15px;"> Branch Name : <span style="font-size: 15px;">{{locationName}}</span> </span> </span>
+  <!-- <span class="ml-5" style="font-size: 15px;"> Branch Name : <span style="font-size: 15px;">{{locationName}}</span> 
+</span> -->
+ </span>
 
         <div *ngIf="!isLoading" class="inline-flex items-center text-md">
           <div class="flex flex-col leading-5">
@@ -117,7 +119,7 @@
                 <span>Get Details </span>
             </button> -->
 
-     <div  *ngIf="this.roleName === 'Admin'" href="">
+     <div   href="">
   <mat-accordion>
             <mat-expansion-panel class="mat-elevation-z-0">
                 <mat-expansion-panel-header>
@@ -142,9 +144,9 @@
                     <span>Add Category</span>
                 </a>
 
-                 <a mat-button class="menu-button nav-link" routerLink="/add-contractor" routerLinkActive="active">
+                 <!-- <a mat-button class="menu-button nav-link" routerLink="/add-contractor" routerLinkActive="active">
                     <span> Add Contractor</span>
-                </a>
+                </a> -->
 
                      <!-- <a mat-button class="menu-button nav-link" routerLink="/add-college" routerLinkActive="active">
                     <span> Add College</span>
@@ -154,9 +156,9 @@
                     <span>Add Designation</span>
                     </a>
 
-                      <a mat-button class="menu-button nav-link" routerLink="/add-working-hours" routerLinkActive="active">
+                      <!-- <a mat-button class="menu-button nav-link" routerLink="/add-working-hours" routerLinkActive="active">
                     <span>Add Working Hours</span>
-                    </a>
+                    </a> -->
 
                 <a mat-button class="menu-button nav-link" routerLink="/add-group" routerLinkActive="active">
                     <span>Add Access Groups</span>
@@ -311,9 +313,9 @@
                 </a>
 
 
-                     <a mat-button class="menu-button nav-link" routerLink="/contractor-wise-report" routerLinkActive="active">
+                     <!-- <a mat-button class="menu-button nav-link" routerLink="/contractor-wise-report" routerLinkActive="active">
                     <span>  Contractor wise Report </span>
-                </a>
+                </a> -->
 
                 
 
@@ -330,9 +332,9 @@
                     <span> Audit Report </span>
                 </a> -->
 
-                      <a mat-button class="menu-button nav-link" routerLink="/entry-exit-status-report" routerLinkActive="active">
+                      <!-- <a mat-button class="menu-button nav-link" routerLink="/entry-exit-status-report" routerLinkActive="active">
                     <span> Entry Exit Status Report </span>
-                </a>
+                </a> -->
 
 
                <a style="margin-bottom: 20px;" mat-button class="menu-button nav-link" routerLink="/log-report" routerLinkActive="active">

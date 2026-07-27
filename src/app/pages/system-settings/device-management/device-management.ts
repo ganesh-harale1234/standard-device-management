@@ -32,6 +32,7 @@ displayedColumns: string[] = [
   'serialNum',
     'ipAddress',
   'deviceName',
+  'deviceLocation',
   'IoStatus',
   'status',
  'edit',
@@ -53,6 +54,7 @@ displayedColumns: string[] = [
       locationId:['', Validators.required],
       authorizedDevice:['',Validators.required],
       accessGroupId:['', Validators.required],
+      deviceLocation:['', Validators.required]
 
 
     }))
@@ -123,7 +125,8 @@ getDeviceallList() {
       ioStatus:deviceData.ioStatus,
       locationId:deviceData.locationId,
      accessGroupId: Number(deviceData.accessGroupId),
-       authorizedDevice:deviceData.authorizedDevice
+       authorizedDevice:deviceData.authorizedDevice,
+       deviceLocation:deviceData.deviceLocation
  
        })
      }

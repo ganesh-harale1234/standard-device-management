@@ -23,7 +23,7 @@ export class AddCategory {
   displayedColumns: string[] = [
     'Srno',
     'categoryName',
-    'action'
+    // 'action'
   ];
 
   // dummy data;

@@ -23,15 +23,24 @@
 
  <div class="status-toggle">
   <strong>Status:</strong>
+<div class="status-filter">
+  <mat-radio-group
+    [(ngModel)]="selectedStatus"
+    (change)="changeStatus($event.value)">
 
-  <mat-slide-toggle
-    class="status-switch"
-    [(ngModel)]="isChecked"
-    (ngModelChange)="changeStatus($event)">
-    {{ isChecked ? 'Active' : 'Inactive' }}
-  </mat-slide-toggle>
+    <mat-radio-button value="All">All</mat-radio-button>
+
+    <mat-radio-button value="Active">
+      Active
+    </mat-radio-button>
+
+    <mat-radio-button value="Inactive">
+      Inactive
+    </mat-radio-button>
+
+  </mat-radio-group>
 </div>
-
+  </div>
 </div>
     <div class="flex  items-center gap-4 ml-auto">
 
@@ -99,7 +108,7 @@
 </mat-form-field> -->
 
 </div>
-<button
+<!-- <button
   type="button"
   class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-5 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
   (click)="addnew()"  
@@ -108,9 +117,9 @@
     <img src="/assets/images/add-btnn.png" class="w-4 h-4 object-contain" alt="">
     Add New
   </span>
-</button>
+</button> -->
 
-<button
+<!-- <button
   type="button"
   class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-5 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
   (click)="openUploadExcelDialog()"  
@@ -119,7 +128,7 @@
     <img src="/assets/images/add-btnn.png" class="w-4 h-4 object-contain" alt="">
     Upload Excel
   </span>
-</button>
+</button> -->
     </div>
   </div>
   <div class="">
@@ -933,7 +942,7 @@
             />
             <span>Staff</span>
           </label>
-          <label class="flex items-center gap-2 text-sm font-medium text-[#004A71] cursor-pointer">
+          <!-- <label class="flex items-center gap-2 text-sm font-medium text-[#004A71] cursor-pointer">
             <input 
               type="radio" 
               name="empType" 
@@ -944,7 +953,7 @@
               (change)="onEmpTypeChange()"
             />
             <span>Contractor</span>
-          </label>
+          </label> -->
         </div>
 </div>
 
