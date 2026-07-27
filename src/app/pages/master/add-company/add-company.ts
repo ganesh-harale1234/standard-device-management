@@ -84,7 +84,7 @@ if(this.form.valid){
  const formData = {
   ...this.form.value
  }
- this.dataService.addData('addCompany', formData).subscribe((res:any)=>{
+ this.dataService.addDataC('addCompany', formData).subscribe((res:any)=>{
   if(res.code === 100){
     this.toaster.success(res.msg || 'Company add sucessfully !')
         // this.backtoList();
@@ -123,7 +123,7 @@ this.companyId = id;
     this.isEditMode = true;
 
     if(id){
-      this.dataService.getById('getCompanyById/'+id).subscribe((res:any)=>{
+      this.dataService.getByIdC('getCompanyById/'+id).subscribe((res:any)=>{
         if(res){
         const categoryData = res;
     this.form.patchValue({
@@ -153,8 +153,8 @@ onUpdate(){
      companyId:this.companyId,
    ...this.form.value
     }
-    this.dataService.updateData('updateCompany',fromData).subscribe((res:any)=>{
-      if(res.code == 200){
+    this.dataService.updateDataC('updateCompany',fromData).subscribe((res:any)=>{
+      if(res.code == 100){
         this.toaster.success(res.msg || 'Company Data Update Sucessfully !')
         this.getallData();
         this.form.reset();
@@ -181,7 +181,7 @@ onUpdate(){
 
 delete(id:any){
   this.companyId = id;
-this.dataService.deleteData('deleteCompanyById/'+this.companyId).subscribe((res:any)=>{
+this.dataService.deleteDataC('deleteCompanyById/'+this.companyId).subscribe((res:any)=>{
   if(res.code === 100){
  this.toaster.success(res.msg || 'Data deleted successfully !')
   this.getallData();

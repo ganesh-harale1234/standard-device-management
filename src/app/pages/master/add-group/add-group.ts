@@ -102,7 +102,7 @@ if(this.form.valid){
  const formData = {
   ...this.form.value
  }
- this.dataService.addData('accessGroup/saveAccessGroup', formData).subscribe((res:any)=>{
+ this.dataService.addDataC('accessGroup/saveAccessGroup', formData).subscribe((res:any)=>{
   if(res.code === 100){
     this.toaster.success(res.msg || 'Group add sucessfully !')
     this.form.reset();
@@ -138,7 +138,7 @@ this.groupId = id;
     this.showTableData = false;
     this.isEditMode = true;
     if(id){
-      this.dataService.getById('accessGroup/getAccessGroup/'+id).subscribe((res:any)=>{
+      this.dataService.getByIdC('accessGroup/getAccessGroup/'+id).subscribe((res:any)=>{
         if(res.code === 100 && res.extend && res.extend.data){
         const categoryData = res.extend.data;
    
@@ -169,7 +169,7 @@ onUpdate(){
      accessGroupId:this.groupId,
       ...this.form.value
     }
-    this.dataService.updateData('accessGroup/updateAccessGroup',fromData).subscribe((res:any)=>{
+    this.dataService.updateDataC('accessGroup/updateAccessGroup',fromData).subscribe((res:any)=>{
       if(res.code === 100){
         this.toaster.success(res.msg || 'Group Data Update Sucessfully !')
         this.getallData();
@@ -199,7 +199,7 @@ onUpdate(){
 
 delete(id:any){
   this.groupId = id;
-this.dataService.deleteData('accessGroup/deleteAccessGroup/'+this.groupId).subscribe((res:any)=>{
+this.dataService.deleteDataC('accessGroup/deleteAccessGroup/'+this.groupId).subscribe((res:any)=>{
   if(res.code === 100){
  this.toaster.success(res.msg || 'Data deleted successfully !')
   this.getallData();

@@ -86,7 +86,7 @@ if(this.form.valid){
  const formData = {
   ...this.form.value
  }
- this.dataService.addData('addLocation', formData).subscribe((res:any)=>{
+ this.dataService.addDataC('addLocation', formData).subscribe((res:any)=>{
   if(res.code === 100){
     this.toaster.success(res.msg || 'Location add sucessfully !')
     this.form.reset();
@@ -122,7 +122,7 @@ this.locationId = id;
     this.showTableData = false;
     this.isEditMode = true;
     if(id){
-      this.dataService.getById('findLocationById/'+id).subscribe((res:any)=>{
+      this.dataService.getByIdC('findLocationById/'+id).subscribe((res:any)=>{
         if(res.code === 100){
         const categoryData = res.extend.data;
     this.form.patchValue({
@@ -151,9 +151,9 @@ onUpdate(){
      locationId:this.locationId,
       ...this.form.value
     }
-    this.dataService.updateData('updateLocation',fromData).subscribe((res:any)=>{
+    this.dataService.updateDataC('updateLocation',fromData).subscribe((res:any)=>{
       if(res.code === 100){
-        this.toaster.success(res.msg || 'Location Data Update Sucessfully !')
+this.toaster.success('Location Data Updated Successfully!');
         this.getallData();
         this.form.reset();
         this.backtoList()
@@ -186,7 +186,7 @@ delete(id:any){
 // }
 
   this.locationId = id;
-this.dataService.deleteData('deleteLocationById/'+this.locationId).subscribe((res:any)=>{
+this.dataService.deleteDataC('deleteLocationById/'+this.locationId).subscribe((res:any)=>{
   if(res.code === 100){
  this.toaster.success(res.msg || 'Data deleted successfully !')
   this.getallData();

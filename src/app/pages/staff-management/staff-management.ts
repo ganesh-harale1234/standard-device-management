@@ -281,6 +281,8 @@ allEmpShow(){
 //   }
 // }
 
+// employee/findAllEmployees?locationId
+
 getStatuswiseEmp(empStatus:any){
   this.dataService.getAllData(`employeeStatus?empStatus=${empStatus}`).subscribe((res:any)=>{
        if (res.code === 100) {
@@ -727,7 +729,7 @@ get photoRequiredError(): any {
       imagePath: this.imagePath,
     };
 
-    this.dataService.addData('employee/addEmployee', body).subscribe(
+    this.dataService.addDataC('employee/addEmployee', body).subscribe(
       (res: any) => {
         if (res.code === 100) {
           this.toaster.success(res.msg || 'Employee add sucessfully !');
@@ -891,7 +893,7 @@ onUpdate(){
         accessGroupId: formValues.accessGroupId.join(','),
       imagePath: this.imagePath, 
     }
-    this.dataService.updateData('employee/updateEmployee',fromData).subscribe((res:any)=>{
+    this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
       if(res.code == 100){
         this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
               this.photoFile = null;

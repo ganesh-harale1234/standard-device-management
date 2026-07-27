@@ -90,7 +90,7 @@ if(this.form.valid){
  const formData = {
   ...this.form.value
  }
- this.dataService.addData('addDesignation ', formData).subscribe((res:any)=>{
+ this.dataService.addDataC('addDesignation', formData).subscribe((res:any)=>{
   if(res.code === 100){
     this.toaster.success(res.msg  || 'Department add sucessfully !')
     this.form.reset();
@@ -129,7 +129,7 @@ this.deptId = id;
 
 
     if(id){
-      this.dataService.getById(`findDesignationById?desigId=${id}`).subscribe((res:any)=>{
+      this.dataService.getByIdC(`findDesignationById?desigId=${id}`).subscribe((res:any)=>{
         if(res.code === 100){
         const categoryData = res.extend.designation;
        
@@ -160,7 +160,7 @@ onUpdate() {
       desigName: this.form.value.desigName
     };
 
-    this.dataService.updateData('updateDesignation', formData).subscribe(
+    this.dataService.updateDataC('updateDesignation', formData).subscribe(
       (res: any) => {
         if (res.code === 100) {
           this.toaster.success(res.msg || 'Designation updated successfully!');
@@ -184,10 +184,9 @@ onUpdate() {
     this.toaster.error('Please fill all required fields!');
   }
 }
-
 delete(id:any){
   this.deptId = id;
-this.dataService.deleteData(`deleteDesignationById?desigId=${id}`).subscribe((res:any)=>{
+this.dataService.deleteDataC(`deleteDesignationById/${id}`).subscribe((res:any)=>{
   if(res.code === 100){
  this.toaster.success(res.msg || 'Data deleted successfully !')
   this.getallData();

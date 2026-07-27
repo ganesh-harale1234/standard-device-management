@@ -86,6 +86,12 @@ export const routes: Routes = [
         loadComponent:()=> import('../pages/master/designation/designation').then((m)=> m.Designation)
         // ,canActivate:[authGuard]
       },
+ {
+        path:'add-working-hours',
+        loadComponent:()=> import('../pages/master/working-hours/working-hours').then((m)=> m.WorkingHours)
+        // ,canActivate:[authGuard]
+      },
+
 
        {
         path:'add-company',
@@ -136,6 +142,12 @@ export const routes: Routes = [
       {
         path:'multiple-punches-report',
         loadComponent:()=> import('../pages/reports/multiple-punches-report/multiple-punches-report').then((m)=> m.MultiplePunchesReport)
+        // ,canActivate:[authGuard]
+     },
+
+          {
+        path:'contractor-wise-report',
+        loadComponent:()=> import('../pages/reports/contractor-wise-report/contractor-wise-report').then((m)=> m.ContractorWiseReport)
         // ,canActivate:[authGuard]
      },
 

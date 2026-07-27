@@ -1,0 +1,164 @@
+<div class="p-0 ">
+ <div class="flex flex-wrap items-center gap-3 px-3 py-3">
+
+    <div>
+          <!-- <label class="block text-sm font-medium text-[#004A71] mb-1"> Select Contractor <span class="text-red-500">*</span></label> -->
+         
+         <select   (change)="getContractorId($event)"
+           
+            class="w-full px-3 py-2 border border-sky-500 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm h-[40px]"
+          >
+       
+            <option value="" disabled selected>Select Contractor</option>
+            @for (item of getAllListdepartment; track $index){
+              <option [value]="item.conId"> {{item.contractorName}} </option>
+            }
+          </select>
+      
+        </div>
+
+<mat-form-field 
+  appearance="fill"
+  class="w-44 custom-field search-field">
+
+  <mat-label>From</mat-label>
+
+  <input
+    matInput
+    [matDatepicker]="fromPicker"
+    [(ngModel)]="fromDate" />
+
+  <mat-datepicker-toggle
+    matSuffix
+    [for]="fromPicker">
+  </mat-datepicker-toggle>
+
+  <mat-datepicker #fromPicker></mat-datepicker>
+
+</mat-form-field>
+
+<!-- ========================= -->
+<!-- To Date -->
+<!-- ========================= -->
+
+<mat-form-field
+  appearance="fill"
+  class="w-44 custom-field search-field">
+
+  <mat-label>To</mat-label>
+
+  <input
+    matInput
+    [matDatepicker]="toPicker"
+    [(ngModel)]="toDate" />
+
+  <mat-datepicker-toggle
+    matSuffix
+    [for]="toPicker">
+  </mat-datepicker-toggle>
+
+  <mat-datepicker #toPicker></mat-datepicker>
+
+</mat-form-field>
+
+
+  <!-- Buttons (right aligned) -->
+  <div class="flex items-center gap-2 m">
+    <button style="cursor: pointer;"
+      type="button"
+  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+
+      (click)="AuditReport()"
+    >
+      View Report
+    </button>
+
+    <button
+  type="button"
+  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+
+      (click)="onExportPdf()">
+      <mat-icon class="!text-base">download</mat-icon>
+      Export to pdf
+    </button>
+  </div>
+  <!-- Buttons (right aligned) -->
+
+</div>
+
+
+<!-- <div id="contentToConvert" class="bg-white rounded-md shadow-sm p-4"> -->
+  <div #contentToConvert id="contentToConvert" class="pdf-container">
+   <div class="text-center py-2">
+    <!-- Title row -->
+    <div class="py-2">
+      <span class="font-semibold text-lg">contractor Wise Report</span>
+    </div>
+
+    <!-- Date / Time row -->
+   <div class="text-xs text-center text-[#004A71] mb-4 leading-5">
+    <div>
+      <span class="">From Date:</span>
+      <span class="font-semibold" >   {{ fromDate | date:'MMM d, y' }}
+      to
+      {{ toDate | date:'MMM d, y' }}</span>
+    
+    </div>
+
+    <div>
+      <span class="">Report Time:</span>
+   <span class="font-semibold" >       {{ now | date:'MMM d, y, h:mm:ss a' }}
+ </span>
+    </div>
+  </div>
+    <!-- TABLE HEADER ROW -->
+   <div>
+  <table class="pdf-table">
+
+    <thead>
+      <tr>
+        <th>Sr No.</th>
+        <th>Modified Date</th>
+        <th>Description</th>
+        <th>Action</th>
+        <th>By Whom</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      <tr *ngFor="let row of reportData; let i = index">
+
+        <td class="text-center">{{ i + 1 }}</td>
+
+        <td class="text-center">
+          {{ row.modifiedDate | date:'dd-MM-yyyy' }}
+        </td>
+
+        <td>
+          {{ row.description }}
+        </td>
+
+        <td class="text-center">
+          {{ row.action }}
+        </td>
+
+        <td class="text-center">
+          {{ row.byWhom }}
+        </td>
+
+      </tr>
+
+      <tr *ngIf="reportData.length === 0">
+        <td colspan="5" class="no-records">
+          No Records Found
+        </td>
+      </tr>
+
+    </tbody>
+
+  </table>
+</div>
+  </div>
+  </div>
+</div>

@@ -26,6 +26,7 @@ export class Header {
   isLoading = false;
   selectedSection$!: Observable<any>;
   userName:any;
+  locationName:any;
   roleName:any;
   changePasswordForm!: FormGroup;
   @ViewChild(MatSidenav)
@@ -51,6 +52,9 @@ export class Header {
   ngOnInit(): void {
 this.roleName =  sessionStorage.getItem('roleName');
 this.userName =  sessionStorage.getItem('userName');
+this.locationName =  sessionStorage.getItem('locationName');
+
+
 
   }
 

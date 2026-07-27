@@ -9,13 +9,11 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 export class DataService  {
 
   baseUrl:any = environment.HostUrl; 
-
-
-
+userName:any;
   constructor(private http:HttpClient){
+this.userName =  sessionStorage.getItem('userName');
 
   }
-
 
   private titleSubject = new BehaviorSubject<string>('Real Time Dashboard');
 
@@ -31,6 +29,13 @@ export class DataService  {
   return this.http.post(fullUrl, data); 
 }
 
+addDataC(url: string, data: any): Observable<any> {
+  return this.http.post(
+    this.baseUrl + url + '?userName=' + this.userName,
+    data
+  );
+}
+
 getAllData(url:any): Observable<any>{
   const fullUrl = this.baseUrl+url;
   return this.http.get(`${fullUrl}`)
@@ -41,10 +46,25 @@ getById(url:any): Observable<any> {
   return this.http.get(fullUrl)
 }
 
+
+getByIdC(url:any): Observable<any> {
+  const fullUrl = this.baseUrl+url;
+  return this.http.get(fullUrl)
+}
+
 updateData(url:any,data:any):Observable<any>{
   const fullUrl = this.baseUrl+url
   return this.http.put(fullUrl, data)
 }
+
+
+updateDataC(url:any,data:any):Observable<any>{
+  return this.http.put(
+    this.baseUrl + url + '?userName=' + this.userName,
+    data
+  );
+}
+
 
 // deleteData(id:any, url:any){
 //   const fullUrl = this.baseUrl+url;
@@ -61,6 +81,17 @@ deleteData(url: string) {
   return this.http.delete(fullUrl);
 }
 
+deleteDataC(url: string) {
+  return this.http.delete(
+    this.baseUrl + url + '?userName=' + this.userName
+  );
+}
+
+
+//  return this.http.post(
+//     this.baseUrl + url + '?userName=' + this.userName,
+//     data
+//   );
   saveRolePermissions(payload: any) {
     return this.http.post(`${this.baseUrl}/save`, payload);
   }

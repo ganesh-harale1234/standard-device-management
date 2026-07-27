@@ -3,38 +3,33 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { SharedModule } from '../../../shared/shared-module';
 import { CommonModule } from '@angular/common';
-import { DataService } from '../../../services/data-service';
 import { ToastrService } from 'ngx-toastr';
+import { DataService } from '../../../services/data-service';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 
 @Component({
-  selector: 'app-add-department',
-  imports: [SharedModule, CommonModule],
-  templateUrl: './add-department.html',
-  styleUrl: './add-department.scss',
+  selector: 'app-working-hours',
+  imports: [SharedModule,CommonModule],
+  templateUrl: './working-hours.html',
+  styleUrl: './working-hours.scss',
 })
-export class AddDepartment {
+export class WorkingHours {
+
   showFormData: boolean = false;
   showTableData: boolean = true;
   isEditMode:boolean = false;
-deptId:any;
+groupId:any;
   // table columns
   displayedColumns: string[] = [
     'Srno',
-    'department-name',
+    'inTime',
+     'outTime',
+     'branch-name',
     'action'
   ];
 
   // dummy data
-  getAllList:any = [
-    {
-      emailId: 'admin@example.com'
-    },
-  {
-      emailId: 'ganesh@example.com'
-    },
- 
-  ];
+  getAllList:any = [];
 
   // pagination + table
   filterallData: any = [];
@@ -48,38 +43,55 @@ deptId:any;
 
 form!: FormGroup;
 @ViewChild(MatPaginator) paginator!: MatPaginator;
-  constructor(private fb: FormBuilder, private dataService:DataService, private toaster:ToastrService) {
+  constructor(private fb: FormBuilder, private toaster:ToastrService, private dataService:DataService) {
     this.form = this.fb.group({
-      deptName: ['', [Validators.required,]],
-      deptDesc:['', Validators.required]
+      accessGroupName: ['', [Validators.required,]],
+      locationId:['', Validators.required]
     });
   }
 
   ngOnInit(): void {
-    // this.filterallData = [...this.getAllList];
-    // this.totalItems = this.filterallData.length;
     // this.applyPagination();
     this.getallData();
+    this.getallDataLocation()
   }
 
+  getAllListLocation:any [] = [];
+
+ getallDataLocation(){
+    this.dataService.getAllData('findAllLocation').subscribe((res:any)=>{
+
+      if(res.code === 100){
+      this.getAllListLocation = res.extend.data;
+
+      }else if(res.code===500){
+                this.toaster.error('Internal server error !')
+      }
+      else{
+        // this.toaster.error('Something went wrong !')
+      }
+    }, ((err)=>{
+      const errorMsg = err.error.msg || 'Faild to load Location list !'
+      this.toaster.error(errorMsg)
+    })
+  )
+  }
 
   getallData(){
-    this.dataService.getAllData('getAllDepartments').subscribe((res:any)=>{
+    this.dataService.getAllData('accessGroup/getAllAccessGroups').subscribe((res:any)=>{
       if(res.code === 100){
-      this.getAllList = res.extend.allDepartments;
-            this.filterallData = this.getAllList;
-              // this.totalItems = this.filterallData.length;
-              // this.applyPagination();
-               this.dataSource = new MatTableDataSource(this.getAllList);
+      this.getAllList = res.extend.data;
+          this.filterallData = this.getAllList;
+                   this.dataSource = new MatTableDataSource(this.getAllList);
       this.dataSource.paginator = this.paginator;
       }else if(res.code===500){
                 this.toaster.error('Internal server error !')
       }
       else{
-        this.toaster.error('Something went wrong !')
+        // this.toaster.error('Something went wrong !')
       }
     }, ((err)=>{
-      const errorMsg = err.error.msg || 'Faild to load Department list !'
+      const errorMsg = err.error.msg || 'Faild to load Group list !'
       this.toaster.error(errorMsg)
     })
   )
@@ -91,9 +103,9 @@ if(this.form.valid){
  const formData = {
   ...this.form.value
  }
- this.dataService.addDataC('addDepartment', formData).subscribe((res:any)=>{
+ this.dataService.addDataC('accessGroup/saveAccessGroup', formData).subscribe((res:any)=>{
   if(res.code === 100){
-    this.toaster.success(res.msg  || 'Department add sucessfully !')
+    this.toaster.success(res.msg || 'Group add sucessfully !')
     this.form.reset();
        this.filterallData = [...this.getAllList];
     this.totalItems = this.filterallData.length;
@@ -101,13 +113,10 @@ if(this.form.valid){
     this.applyPagination();
     this.getallData();
     this.backtoList()
-  }else if(res.code === 200){
-      this.toaster.error('Department Name allready exits !')
-
-     }else if(res.code === 500){
+  }else if(res.code === 500){
     this.toaster.error('Internal server error !')
   }else{
-    this.toaster.error('Something went wrong !')
+    // this.toaster.error('Something went wrong !')
   }
  }, ((err:any)=>{
   const errorMsg = err?.error?.msg || 'Server side error !'
@@ -125,18 +134,18 @@ if(this.form.valid){
 }
 
 editData(id:any){
-this.deptId = id;
+this.groupId = id;
   this.showFormData = true;
     this.showTableData = false;
     this.isEditMode = true;
-
     if(id){
-      this.dataService.getByIdC('getDepartmentById/'+id).subscribe((res:any)=>{
-        if(res.code === 100){
-        const categoryData = res.extend.deviceGroup;
+      this.dataService.getByIdC('accessGroup/getAccessGroup/'+id).subscribe((res:any)=>{
+        if(res.code === 100 && res.extend && res.extend.data){
+        const categoryData = res.extend.data;
+   
     this.form.patchValue({
-      deptName : categoryData.deptName,
-       deptDesc:categoryData.deptDesc
+      accessGroupName : categoryData.accessGroupName,
+      locationId:categoryData.locationId,
     })
         }else{
       this.toaster.error('No Data fond api !')
@@ -146,7 +155,7 @@ this.deptId = id;
             const errMsg = err?.error?.msg || 'Server side error !'
             this.toaster.error(errMsg)
           }else{
-            this.toaster.error('Something went wrong !')
+            // this.toaster.error('Something went wrong !')
           }
       })
     )
@@ -158,26 +167,22 @@ this.deptId = id;
 onUpdate(){
   if(this.form.valid){
     const fromData = {
-     deptId:this.deptId,
-        deptName:this.form.value.deptName,
-        deptDesc:this.form.value.deptDesc
-
+     accessGroupId:this.groupId,
+      ...this.form.value
     }
-    this.dataService.updateDataC('updateDepartment',fromData).subscribe((res:any)=>{
-      if(res.code == 100){
-        this.toaster.success(res.msg || 'Department Data Update Sucessfully !')
+    this.dataService.updateDataC('accessGroup/updateAccessGroup',fromData).subscribe((res:any)=>{
+      if(res.code === 100){
+        this.toaster.success(res.msg || 'Group Data Update Sucessfully !')
         this.getallData();
-        this.form.reset();
         this.backtoList()
+        this.form.reset();
         this.isEditMode = false;
 
-      }
-       else if(res.code === 200){
-      this.toaster.error('Department Name allready exits !')
+      }else if(res.code === 200) {
 
-     }
-      else{
-        this.toaster.error('Something went wrong !')
+        this.toaster.error(res.msg)
+      }else{
+        // this.toaster.error('Something went wrong !')
       }
     },((err:any)=>{
       if(err?.error?.msg){
@@ -194,8 +199,8 @@ onUpdate(){
 }
 
 delete(id:any){
-  this.deptId = id;
-this.dataService.deleteDataC('deleteDepartmentById/'+this.deptId).subscribe((res:any)=>{
+  this.groupId = id;
+this.dataService.deleteDataC('accessGroup/deleteAccessGroup/'+this.groupId).subscribe((res:any)=>{
   if(res.code === 100){
  this.toaster.success(res.msg || 'Data deleted successfully !')
   this.getallData();
@@ -203,7 +208,7 @@ this.dataService.deleteDataC('deleteDepartmentById/'+this.deptId).subscribe((res
   }else if(res.code === 500){
     this.toaster.error('Internal Server Error !')
   }else{
-    this.toaster.error('Something went wrong !')
+    // this.toaster.error('Something went wrong !')
   }
 
 },((err:any)=>{
@@ -213,7 +218,6 @@ this.dataService.deleteDataC('deleteDepartmentById/'+this.deptId).subscribe((res
 
 )
 }
-
 
 
   // show form
@@ -263,7 +267,7 @@ this.dataService.deleteDataC('deleteDepartmentById/'+this.deptId).subscribe((res
     const value = (event.target.value || '').trim().toLowerCase();
 
     const filtered = this.getAllList.filter((item:any) =>
-      item.deptName.toLowerCase().includes(value)
+      item.accessGroupName.toLowerCase().includes(value)
     );
 
     this.filterallData = filtered;
@@ -278,9 +282,8 @@ this.dataService.deleteDataC('deleteDepartmentById/'+this.deptId).subscribe((res
     this.isEditMode = false;
   }
 
-    onPageChange(event: PageEvent) {
+  onPageChange(event: PageEvent) {
   this.pageIndex = event.pageIndex;
   this.pageSize = event.pageSize;
 }
-
 }

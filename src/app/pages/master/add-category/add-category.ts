@@ -81,7 +81,7 @@ if(this.form.valid){
  const formData = {
   ...this.form.value
  }
- this.dataService.addData('addCategory', formData).subscribe((res:any)=>{
+ this.dataService.addDataC('addCategory', formData).subscribe((res:any)=>{
   if(res.code === 100){
     this.toaster.success(res.msg || 'Category add sucessfully !')
     this.form.reset();
@@ -117,7 +117,7 @@ this.categoryId = id;
     this.showTableData = false;
     this.isEditMode = true;
     if(id){
-      this.dataService.getById('getCategoryById/'+id).subscribe((res:any)=>{
+      this.dataService.getByIdC('getCategoryById/'+id).subscribe((res:any)=>{
         if(res.code === 100 && res.extend && res.extend.deviceGroup){
         const categoryData = res.extend.deviceGroup;
     this.form.patchValue({
@@ -146,7 +146,7 @@ onUpdate(){
      categoryId:this.categoryId,
       ...this.form.value
     }
-    this.dataService.updateData('updateCategory',fromData).subscribe((res:any)=>{
+    this.dataService.updateDataC('updateCategory',fromData).subscribe((res:any)=>{
       if(res.code == 100){
         this.toaster.success(res.msg || 'Category Data Update Sucessfully !')
         this.getallData();
@@ -173,7 +173,7 @@ onUpdate(){
 
 delete(id:any){
   this.categoryId = id;
-this.dataService.deleteData('deleteCategoryById/'+this.categoryId).subscribe((res:any)=>{
+this.dataService.deleteDataC('deleteCategoryById/'+this.categoryId).subscribe((res:any)=>{
   if(res.code === 100){
  this.toaster.success(res.msg || 'Data deleted successfully !')
   this.getallData();

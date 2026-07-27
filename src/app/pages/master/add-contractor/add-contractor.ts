@@ -85,7 +85,7 @@ if(this.form.valid){
   const formData = {
     ...this.form.value
   }
-  this.dataService.addData('addContractor',formData).subscribe((res:any)=>{
+  this.dataService.addDataC('addContractor',formData).subscribe((res:any)=>{
     if(res.code === 100){
       this.toaster.success(res?.msg || 'Contractor added successfully!');
       this.getallData();
@@ -120,7 +120,7 @@ editData(id:any){
   this.showFormData = true;
     this.showTableData = false;
     this.isEditMode = true;
-this.dataService.getById('findContractorById?conId='+ id).subscribe((res:any)=>{
+this.dataService.getByIdC('findContractorById?conId='+ id).subscribe((res:any)=>{
   if(res.code === 100){
     const contactorData = res.extend.contractor;
     this.form.patchValue({
@@ -145,7 +145,7 @@ onUpdate(){
      conId:this.editConID,
 
   }
-  this.dataService.updateData('updateContractor', formData).subscribe((res:any)=>{
+  this.dataService.updateDataC('updateContractor', formData).subscribe((res:any)=>{
     if(res.code === 100){
       this.toaster.success(res.msg || 'Contractor updated successfully !');
       this.getallData();
@@ -169,7 +169,7 @@ onUpdate(){
 
 delete(id:any){
   const conId = id;
-this.dataService.deleteData('deleteContractorById?conId='+conId).subscribe((res:any)=>{
+this.dataService.deleteDataC('deleteContractorById/'+conId).subscribe((res:any)=>{
  if(res.code === 100){
   this.toaster.success(res.msg || 'Contractor Deleted successfully !')
         this.getallData();

@@ -31,6 +31,7 @@ displayedColumns: string[] = [
   'area',
   'deviceName',
   'ipAddress',
+  'accessGroupName',
   'activity',
   "status"
 
