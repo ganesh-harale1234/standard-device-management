@@ -31,25 +31,37 @@ export class RealTimeDashboard implements OnInit{
 
 punchingLogs:any = [];
 alarmLogs:any = [] =[];
+locationID:any;
+RoleName:any;
 
 constructor(private fb:FormBuilder, public dataService:DataService, private toaster:ToastrService){
-
 
 }
 
 
 ngOnInit(){
-   
+         this.locationID = sessionStorage.getItem('locationId');
+    this.RoleName =  sessionStorage.getItem('roleName');
+    console.log(this.locationID ,this.RoleName)
  this.getPunchinglog();
  this.getAlarmLogs()
 this.dataService.setTitle('Real time Dashboard');
+ 
 
 
 }
 
 getPunchinglog(){
-        console.log("Punching log fuction call...")
-  this.dataService.getAllData(`todaysPunchLogs`).subscribe((res:any)=>{
+  let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `todaysPunchLogs?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'todaysPunchLogs';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe((res: any) => {
+
     if(res.code == 100){
       console.log("Punching log", res)
    this.punchingLogs = res.extend.todaysPunchLogs
@@ -70,8 +82,16 @@ getPunchinglog(){
 
 
 getAlarmLogs(){
-        console.log("Punching log fuction call...")
-  this.dataService.getAllData(`todaysAlarmLogs`).subscribe((res:any)=>{
+        
+  let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `todaysAlarmLogs?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'todaysAlarmLogs';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe((res: any) => {
     if(res.code == 100){
       console.log("Punching log", res)
  

@@ -8,6 +8,62 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 "
 
 <div class="w-52">
 
+    <ng-select
+        class="custom-ng-select"
+        [items]="locationLists"
+        bindLabel="locationName"
+        bindValue="locationId"
+        [multiple]="true"
+        [searchable]="true"
+        [closeOnSelect]="false"
+        placeholder="Select Location"
+        [(ngModel)]="selectedLocationIds">
+
+        <!-- Select All -->
+        <ng-template ng-header-tmp>
+
+            <div class="px-2 py-2 border-b">
+
+                <label class="flex items-center cursor-pointer">
+
+                    <input
+                        type="checkbox"
+                        [checked]="isAllLocationSelected()"
+                        (click)="$event.stopPropagation()"
+                        (change)="toggleSelectAllLocations()">
+
+                    <span class="ml-2">
+                        Select All
+                    </span>
+
+                </label>
+
+            </div>
+
+        </ng-template>
+
+        <!-- Options -->
+        <ng-template
+            ng-option-tmp
+            let-item="item"
+            let-item$="item$">
+
+            <input
+                type="checkbox"
+                [checked]="item$.selected"
+                tabindex="-1"
+                class="mr-2">
+
+            {{ item.locationName }}
+
+        </ng-template>
+
+    </ng-select>
+
+</div>
+
+<div class="w-52">
+
  <ng-select
     class="custom-ng-select"
     [items]="getAllList"
@@ -252,9 +308,8 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 "
 
         <td>{{ row.totalCount }}</td>
 
-        <td>{{ row.inCampusDuration }}</td>
-
-        <td>{{ row.outCampusDuration }}</td>
+<td>{{ row.inCampusDuration?.slice(0, 5) }}</td>
+<td>{{ row.outCampusDuration?.slice(0, 5) }}</td>
 
       </tr>
 

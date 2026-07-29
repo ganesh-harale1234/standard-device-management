@@ -38,6 +38,7 @@ devicesListList:any = [];
 imagePath:any;
 getAllListRole:any;
 locationID:any;
+RoleName:any;
   // checkbox filters (header)
   showBiometricId = true;
   showSrNo = true;
@@ -166,7 +167,7 @@ selectedDeviceIds: string[] = [];
       userId: ['', Validators.required],
       // password:['', Validators.required],
       cardNum:['', ],
-      locationId:['', Validators.required],
+      locationId:[''],
       deptId:['',Validators.required ],
       accessGroupId:['',],
       categoryId:['', Validators.required],
@@ -192,6 +193,24 @@ selectedDeviceIds: string[] = [];
   onEmpTypeChange() {
     this.updateContractorValidator();
   }
+
+setValu:boolean = true;
+
+  updateLocationValidator(role: string) {
+  const locationControl = this.form.get('locationId');
+
+  if (role === 'Admin') {
+    locationControl?.clearValidators();
+    this.setValu = false;
+  } else {
+    locationControl?.setValidators([Validators.required]);
+     this.setValu = true;
+  }
+
+  locationControl?.updateValueAndValidity();
+}
+
+
 
   updateContractorValidator() {
     const conIdControl = this.form.get('conId');
@@ -248,19 +267,19 @@ backtoList(){
   this.showTableData = true
 }
 
+selectedStatus: string = 'All';
 
-selectesdStaus!:string
-changeStatus(value: any) {
 
-  if (value === 'All') {
+
+changeStatus(status: string) {
+
+  if (status === 'All') {
     this.getallData();
     return;
   }
 
-  this.selectesdStaus = value ? 'Active' : 'Inactive';
-  this.getStatuswiseEmp(this.selectesdStaus);
+  this.getStatuswiseEmp(status);
 }
-
 allEmpShow(){
   this.getallData();
 }
@@ -284,7 +303,17 @@ allEmpShow(){
 // employee/findAllEmployees?locationId
 
 getStatuswiseEmp(empStatus:any){
-  this.dataService.getAllData(`employeeStatus?empStatus=${empStatus}`).subscribe((res:any)=>{
+  // this.dataService.getAllData(`employeeStatus?empStatus=${empStatus}`).subscribe((res:any)=>{
+
+  let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `employeeStatus?empStatus=${empStatus}&locationId=${this.locationID}`;
+  } else {
+    apiUrl = `employeeStatus?empStatus=${empStatus}`;
+  }
+    this.dataService.getAllData(apiUrl).subscribe((res: any) => {
+
        if (res.code === 100) {
         this.getAllList = (res?.extend?.data || []).map((item: any) => {
 
@@ -315,8 +344,13 @@ getStatuswiseEmp(empStatus:any){
 hidePassword = true;
 
   ngOnInit(): void {
-    this.locationID = sessionStorage.getItem('locationId')   
+    this.locationID = sessionStorage.getItem('locationId');
+    this.RoleName =  sessionStorage.getItem('roleName');
+
     console.log(this.locationID, "location ID........") 
+     this.form.get('roleName')?.valueChanges.subscribe((role) => {
+    this.updateLocationValidator(role);
+  });
 //  this.changeStatus(this.isChecked)
   this.form.get('roleName')?.valueChanges.subscribe(role => {
     this.setRoleValidation(role);
@@ -419,7 +453,17 @@ collegeList:any  = []
   }
 
    getallDatagroup(){
-    this.dataService.getAllData('accessGroup/getAllAccessGroups').subscribe((res:any)=>{
+    // this.dataService.getAllData('accessGroup/getAllAccessGroups').subscribe((res:any)=>{
+  let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `accessGroup/getAllAccessGroups?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'accessGroup/getAllAccessGroups';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe((res: any) => {
+
       if(res.code === 100){
       this.getAllListgroup = res.extend.data;
   
@@ -464,8 +508,17 @@ collegeList:any  = []
   }
 
  getalllocation(){
-    this.dataService.getAllData('findAllLocation').subscribe((res:any)=>{
+    // this.dataService.getAllData('findAllLocation').subscribe((res:any)=>{
 
+  let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `findAllLocation?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'findAllLocation';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe((res: any) => {
       if(res.code === 100){
       this.getAllListlocation = res.extend.data;
        
@@ -480,11 +533,16 @@ collegeList:any  = []
   }
 
 
+    //  "locationId": 4,
+    //   "name": "Sagar",
+    //    "roleName": "Branch Admin",
+
+
 getallData() {
     // this.spinner.show()
   let apiUrl = '';
 
-  if (this.locationID) {
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
     apiUrl = `employee/findAllEmployees?locationId=${this.locationID}`;
   } else {
     apiUrl = 'employee/findAllEmployees';
@@ -817,6 +875,8 @@ editData(id: any) {
 
             const empData = res.extend.data[0];
            this.setRoleValidation(empData.roleName);
+                      this.updateLocationValidator(empData.roleName);
+
 
             // Employee type
             // this.empType = empData.empType ;
@@ -1581,7 +1641,7 @@ uploadSelctedUserToDevice() {
 
   //  API call
   this.spinner.show()
-  this.dataService.addData('command/setUserToDevice', form).subscribe({
+  this.dataService.addDataC('command/setUserToDevice', form).subscribe({
     next: (response: any) => {
        this.spinner.hide()
       if (response.code === 100) {

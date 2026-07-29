@@ -118,12 +118,12 @@
     <thead>
       <tr>
         <th>Sr No.</th>
-        <th>Modified Date</th>
-        <th>Description</th>
-        <th>Action</th>
-        <th>By Whom</th>
+        <th>Employee Id</th>
+        <th>Employee Name</th>
+        <th>Contractor Name</th>
       </tr>
     </thead>
+
 
     <tbody>
 
@@ -132,20 +132,18 @@
         <td class="text-center">{{ i + 1 }}</td>
 
         <td class="text-center">
-          {{ row.modifiedDate | date:'dd-MM-yyyy' }}
+          {{ row.employeeId}}
         </td>
 
         <td>
-          {{ row.description }}
+          {{ row.employeeName }}
         </td>
 
         <td class="text-center">
-          {{ row.action }}
+          {{ row.contractorName }}
         </td>
 
-        <td class="text-center">
-          {{ row.byWhom }}
-        </td>
+   
 
       </tr>
 

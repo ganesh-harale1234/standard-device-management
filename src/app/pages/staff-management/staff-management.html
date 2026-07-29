@@ -23,13 +23,33 @@
 
  <div class="status-toggle">
   <strong>Status:</strong>
-
+<!-- 
   <mat-slide-toggle
     class="status-switch"
     [(ngModel)]="isChecked"
     (ngModelChange)="changeStatus($event)">
     {{ isChecked ? 'Active' : 'Inactive' }}
-  </mat-slide-toggle>
+  </mat-slide-toggle> -->
+
+  <div class="status-filter">
+  <mat-radio-group
+    [(ngModel)]="selectedStatus"
+    (change)="changeStatus($event.value)">
+
+    <mat-radio-button value="All">
+   <span style="color:#004a9f;">   All </span>
+    </mat-radio-button>
+
+    <mat-radio-button  value="Active">
+     <span style="color:#004a9f;">  Active</span>
+    </mat-radio-button>
+
+    <mat-radio-button value="Inactive">
+    <span style="color:#004a9f;">  Inactive </span>
+    </mat-radio-button>
+
+  </mat-radio-group>
+</div>
 </div>
 
 </div>
@@ -1049,7 +1069,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-[#004A71] mb-1">Select Branch <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-medium text-[#004A71] mb-1">Select Branch <span class="text-red-500" *ngIf="setValu">*</span></label>
           <select
             formControlName="locationId"
             class="w-full px-3 py-2 border border-sky-500 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm h-[38px]"

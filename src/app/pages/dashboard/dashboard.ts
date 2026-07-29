@@ -45,19 +45,30 @@ export class Dashboard {
 
   dataSource: any = new MatTableDataSource(DEVICE_DATA);
   dashbordCount:any;
-
+  RoleName:any;
+locationID:any;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(private dataService: DataService, private toaster: ToastrService, private router :Router) { }
 
   ngOnInit(): void {
       this.dataService.setTitle('Analytics Dashboard');
+        this.locationID = sessionStorage.getItem('locationId');
+    this.RoleName =  sessionStorage.getItem('roleName');
 
     this.getAllDeviceList();
     this.getDashbordcount()
   }
 
   getAllDeviceList() {
-    this.dataService.getAllData('getAllDeviceInfo').subscribe((res: any) => {
+    let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `getAllDeviceInfo?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'getAllDeviceInfo';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe((res: any) => {
          const list = res;
      this.dataSource.data = list;          
       this.dataSource.paginator = this.paginator; 
@@ -66,7 +77,15 @@ export class Dashboard {
 
 
  getDashbordcount(){
-  this.dataService.getAllData(`dashboardTotalSummary`).subscribe((res:any)=>{
+  let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `dashboardTotalSummary?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'dashboardTotalSummary';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe((res: any) => {
    this.dashbordCount = res;
   })
  }

@@ -222,18 +222,17 @@ AuditReport() {
 
   // Contractor
   else if (this.selectedDeptId) {
-    apiUrl = 'getContractorWiseMultiplePunchReport'; // Contractor API
-    requestData.contractorId = this.selectedDeptId;
-  }
+    apiUrl = 'contractorWiseReport'; // Contractor API
+requestData.conId = Number(this.selectedDeptId);  }
 
   // Date only
   else {
-    apiUrl = 'auditReport';
+    apiUrl = 'contractorWiseReport';
   }
 
   this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
     if (res.code === 100) {
-      this.reportData = res.extend?.auditReport || [];
+      this.reportData = res.extend?.contractorReportList || [];
     } else {
       this.toaster.error(res.msg || 'Something went wrong!');
     }
@@ -243,9 +242,6 @@ AuditReport() {
 }
 
 
-
-
-   
   
 onExportPdf() {
   const DATA: any = document.getElementById('contentToConvert');
@@ -271,7 +267,7 @@ onExportPdf() {
       pdfHeight
     );
 
-    pdf.save('Log Report.pdf');
+    pdf.save('Contractor Wise Report.pdf');
   });
 }
 

@@ -227,8 +227,8 @@
         <td>{{row.employeeId}}</td>
         <td>{{row.employeeName}}</td>
         <td>{{row.attendanceDate | date:'dd-MM-yyyy'}}</td>
-        <td>{{row.punchIn}}</td>
-        <td>{{row.punchOut}}</td>
+        <td>{{row.punchIn?.slice(0, 5)}}</td>
+        <td>{{row.punchOut?.slice(0, 5)}}</td>
 
       </tr>
 

@@ -45,10 +45,13 @@ form!: FormGroup;
 @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(private fb: FormBuilder, private toaster:ToastrService, private dataService:DataService) {
     this.form = this.fb.group({
-      accessGroupName: ['', [Validators.required,]],
+      inTime: ['', [Validators.required,]],
+      outTime: ['', [Validators.required,]],
       locationId:['', Validators.required]
     });
   }
+ 
+
 
   ngOnInit(): void {
     // this.applyPagination();
@@ -76,9 +79,9 @@ form!: FormGroup;
     })
   )
   }
-
+ 
   getallData(){
-    this.dataService.getAllData('accessGroup/getAllAccessGroups').subscribe((res:any)=>{
+    this.dataService.getAllData('workingHours/getAllWorkingHours').subscribe((res:any)=>{
       if(res.code === 100){
       this.getAllList = res.extend.data;
           this.filterallData = this.getAllList;
@@ -100,12 +103,16 @@ form!: FormGroup;
 onSubmit(){
 
 if(this.form.valid){
- const formData = {
-  ...this.form.value
- }
- this.dataService.addDataC('accessGroup/saveAccessGroup', formData).subscribe((res:any)=>{
+
+ const payload = {
+  inTime: `${this.form.value.inTime}:00`,
+  outTime: `${this.form.value.outTime}:00`,
+  locationId: this.form.value.locationId
+};
+  
+ this.dataService.addDataC('workingHours/saveWorkingHours', payload).subscribe((res:any)=>{
   if(res.code === 100){
-    this.toaster.success(res.msg || 'Group add sucessfully !')
+    this.toaster.success(res.msg || 'Working Hours Created Successfully!')
     this.form.reset();
        this.filterallData = [...this.getAllList];
     this.totalItems = this.filterallData.length;
@@ -139,13 +146,16 @@ this.groupId = id;
     this.showTableData = false;
     this.isEditMode = true;
     if(id){
-      this.dataService.getByIdC('accessGroup/getAccessGroup/'+id).subscribe((res:any)=>{
+
+      this.dataService.getByIdC('workingHours/getWorkingHours/'+id).subscribe((res:any)=>{
         if(res.code === 100 && res.extend && res.extend.data){
         const categoryData = res.extend.data;
    
     this.form.patchValue({
-      accessGroupName : categoryData.accessGroupName,
-      locationId:categoryData.locationId,
+  
+            inTime: categoryData.inTime,
+              outTime: categoryData.outTime,
+                locationId: categoryData.locationId,
     })
         }else{
       this.toaster.error('No Data fond api !')
@@ -166,13 +176,21 @@ this.groupId = id;
 
 onUpdate(){
   if(this.form.valid){
-    const fromData = {
-     accessGroupId:this.groupId,
-      ...this.form.value
-    }
-    this.dataService.updateDataC('accessGroup/updateAccessGroup',fromData).subscribe((res:any)=>{
+ 
+
+ const formatTime = (time: string) =>
+  time.length === 5 ? `${time}:00` : time;
+
+const payload = {
+  id: this.groupId,
+  inTime: formatTime(this.form.value.inTime),
+  outTime: formatTime(this.form.value.outTime),
+  locationId: this.form.value.locationId
+};
+
+    this.dataService.updateDataC('workingHours/updateWorkingHours',payload).subscribe((res:any)=>{
       if(res.code === 100){
-        this.toaster.success(res.msg || 'Group Data Update Sucessfully !')
+        this.toaster.success(res.msg || 'Working hours Data Update Sucessfully !')
         this.getallData();
         this.backtoList()
         this.form.reset();
@@ -197,10 +215,9 @@ onUpdate(){
     this.toaster.error('Please fill all required fields!')
   }
 }
-
 delete(id:any){
   this.groupId = id;
-this.dataService.deleteDataC('accessGroup/deleteAccessGroup/'+this.groupId).subscribe((res:any)=>{
+this.dataService.deleteDataC('workingHours/deleteWorkingHours/'+this.groupId).subscribe((res:any)=>{
   if(res.code === 100){
  this.toaster.success(res.msg || 'Data deleted successfully !')
   this.getallData();
@@ -267,7 +284,7 @@ this.dataService.deleteDataC('accessGroup/deleteAccessGroup/'+this.groupId).subs
     const value = (event.target.value || '').trim().toLowerCase();
 
     const filtered = this.getAllList.filter((item:any) =>
-      item.accessGroupName.toLowerCase().includes(value)
+      item.locationName.toLowerCase().includes(value)
     );
 
     this.filterallData = filtered;

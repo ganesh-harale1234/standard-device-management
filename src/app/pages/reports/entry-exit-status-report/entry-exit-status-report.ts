@@ -39,6 +39,7 @@ constructor(private dataService:DataService, private toaster:ToastrService){
   this.getallDataLocation();
   this.roleId = sessionStorage.getItem('rollId')
   this.getallData()
+  this.getallDataLocations();
 
   }
 getAllList:any[] = []
@@ -207,55 +208,58 @@ isAllCategorySelected(): boolean {
   );
 
 }
-// AttendencesReport() {
-//   const fromDate = this.formatDateToYMD(this.fromDate);
-//   const toDate   = this.formatDateToYMD(this.toDate);
 
-//   let apiUrl: string;
-//   let requestData: any = { fromDate, toDate };
+// Location List
+locationLists: any[] = [ ]
+// Selected IDs
+selectedLocationIds: string[] = [];
 
-//   // LOCATION 
-//   if (Array.isArray(this.selectedCategoryIds) && this.selectedCategoryIds.length > 0) {
-//     apiUrl = 'getLocationwiseMultiplePunchesReport';
-//     requestData.BranchId = this.selectedCategoryIds;
-//     requestData.rollId = this.roleId;
-//   }
-//   // EMPLOYEE 
-//   else if (this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
-//     apiUrl = 'getEmpWiseMultiplePunchReport';
-//     requestData.empId = this.selectedEmployeeId;
-//     requestData.rollId = this.roleId;
-//   }
-//   //  date-based call
-//   else {
-//     apiUrl = 'getMultiplePunchesReport';
-//   }
+// Get Locations
+getallDataLocations() {
+  this.dataService.getAllData('findAllLocation').subscribe(
+    (res: any) => {
+      if (res.code === 100) {
+        this.locationLists = res.extend.data;
+      } else if (res.code === 500) {
+        this.toaster.error('Internal server error!');
+      } else {
+        this.toaster.error('Something went wrong!');
+      }
+    },
+    (err) => {
+      this.toaster.error(err.error.msg || 'Failed to load location list!');
+    }
+  );
+}
 
-//   this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
-//     if (res.code == 200) {
-//       this.toaster.error(res.msg);
-//       return;
-//     }
-//     if (res.extend?.punchList) {
-//       this.data = res.extend.punchList
-//         .filter((item: any) => item.enrollId)
-//         .map((item: any) => {
-//           item.PNRNo = (item.pnrNo === 'null' ? '' : item.pnrNo);
-//           return item;
-//         });
+// Select All
+toggleSelectAllLocations() {
 
-//       // Only sort when no location & no employee selected
-//       if (!(Array.isArray(this.selectedCategoryIds) && this.selectedCategoryIds.length > 0)
-//           && (this.selectedEmployeeId == null || this.selectedEmployeeId === '')) {
-//         this.data.sort((a: any, b: any) => {
-//           return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-//         });
-//       }
+  if (this.isAllLocationSelected()) {
 
-//       this.dataSource = new MatTableDataSource(this.data);
-//     }
-//   });
-// }
+    this.selectedLocationIds = [];
+
+  } else {
+
+    this.selectedLocationIds = this.locationLists.map(
+      (x: any) => x.locationId
+    );
+
+  }
+
+  console.log(this.selectedLocationIds);
+
+}
+
+// Check All Selected
+isAllLocationSelected(): boolean {
+
+  return (
+    this.locationLists.length > 0 &&
+    this.selectedLocationIds.length === this.locationLists.length
+  );
+
+}
 
 
 
@@ -281,6 +285,7 @@ AttendencesReport() {
       fromDate,
       toDate,
       categoryIdList: this.selectedCategoryIds,
+      locationId:this.selectedLocationIds,
       employeeId: this.selectedEmployeeId
     };
 
@@ -303,8 +308,12 @@ AttendencesReport() {
   else if (this.selectedCategoryIds?.length > 0) {
 
     const categoryIds = this.selectedCategoryIds.join(',');
+        const locationIds = this.selectedLocationIds.join(',');
 
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}`;
+          
+
+
+    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}&locationIds=${locationIds}`;
 
   }
 
