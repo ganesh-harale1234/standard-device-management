@@ -131,6 +131,7 @@
             <th class="py-3 px-4 font-semibold">Name</th>
             <th class="py-3 px-4 font-semibold">Date & Time</th>
             <th class="py-3 px-4 font-semibold">Device Name</th>
+          <th class="py-3 px-4 font-semibold">Branch Name</th>
             <th class="py-3 px-4 font-semibold text-center">IN/OUT</th>
           </tr>
         </thead>
@@ -138,9 +139,11 @@
         <tbody class="divide-y divide-gray-100 bg-white">
           <tr *ngFor="let row of filterPunchingLog" class="hover:bg-gray-50 transition-colors">
             <td class="py-3 px-4 text-gray-600">{{ row.empId }}</td>
-            <td class="py-3 px-4 text-gray-800 font-medium">{{ row.name }}</td>
+            <td class="py-3 px-4 text-gray-600 ">{{ row.name }}</td>
             <td class="py-3 px-4 text-gray-600">{{ row.punchTime | date:'yyyy-MM-dd HH:mm:ss' }}</td>
             <td class="py-3 px-4 text-gray-600">{{ row.deviceName }}</td>
+                        <td class="py-3 px-4 text-gray-600">{{row.locationName}}</td>
+
             <td class="py-3 px-4 flex justify-center">
               <span
                 class="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold text-white shadow-sm"
@@ -184,6 +187,8 @@
             <th class="py-3 px-4 font-semibold">ID</th>
             <th class="py-3 px-4 font-semibold">Name</th>
             <th class="py-3 px-4 font-semibold">Device Name</th>
+                      <th class="py-3 px-4 font-semibold">Branch Name</th>
+
           </tr>
         </thead>
 
@@ -192,6 +197,7 @@
             <td class="py-3 px-4 text-gray-600">{{ log.id }}</td>
             <td class="py-3 px-4 text-gray-800 font-medium">{{ log.name }}</td>
             <td class="py-3 px-4 text-gray-600">{{ log.deviceName }}</td>
+                <td class="py-3 px-4 text-gray-600"> {{log.locationName}} </td>
           </tr>
         </tbody>
       </table>

@@ -206,6 +206,7 @@
   type="text"
   class="w-full h-10 px-3 border border-sky-500 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500"
   [placeholder]="getPlaceholder()" maxlength="50"
+  (input)="onSearchInput($event)"
   (input)="applyFilter($event)">
 </div>
 
@@ -1074,7 +1075,7 @@
             formControlName="locationId"
             class="w-full px-3 py-2 border border-sky-500 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm h-[38px]"
           >
-            <option value="" disabled selected>Select Branch</option>
+            <option value="" selected>Select Branch</option>
             @for (item of getAllListlocation; track $index) {
               <option [value]="item.locationId"> {{ item.locationName }} </option>
             }
@@ -1316,31 +1317,7 @@
           />
         </div>
 
-        <!-- <div class="mt-4 w-48 space-y-2">
-          <button
-            type="button"
-            (click)="fileInput.click()"
-            class="w-full bg-sky-500 text-white hover:bg-sky-600 font-semibold py-2 px-4 rounded-md shadow-sm text-xs text-center transition duration-150"
-          >
-            Capture Photo
-          </button>
-          
-          <button
-            type="button"
-            (click)="fileInput.click()"
-            class="w-full bg-white text-sky-600 border border-sky-500 hover:bg-sky-50 font-semibold py-2 px-4 rounded-md shadow-sm text-xs text-center transition duration-150"
-          >
-            Upload Image
-          </button>
-
-          <input
-            #fileInput
-            type="file"
-            accept="image/*"
-            class="hidden"
-            (change)="onFileSelected($event)"
-          />
-        </div> -->
+     
 
         <div class="mt-4 w-48 space-y-2">
 

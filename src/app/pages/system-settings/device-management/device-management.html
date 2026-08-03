@@ -3,6 +3,70 @@
   <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 ">
     <h2 class="text-xl font-semibold">Device List</h2>
 
+<div class="">
+
+    <label class="block text-sm font-medium text-gray-700 mb-1">
+      Search By
+    </label>
+    <select
+ class=" w-55 h-10 px-3 border border-sky-500 rounded-md bg-white
+             focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+[(ngModel)]="searchType"
+(change)="onSearchTypeChange()">
+
+<option value="deviceName">Device Name</option>
+
+<option value="serialNum">Serial No</option>
+
+<option value="ipAddress">IP Address</option>
+<option value="locationName">Branch Name</option>
+<option value="status">Status</option>
+
+<option value="ioStatus">IO Status</option>
+
+</select>
+</div>
+
+<div 
+*ngIf="searchType!='status'
+&& searchType!='ioStatus'">
+
+<input   class=" w-55 h-10 px-3 mt-6 border border-sky-500 rounded-md bg-white
+             focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+type="text"
+
+[placeholder]="getPlaceholder()"
+(input)="onSearchInput($event)">
+
+</div>
+
+<div
+*ngIf="searchType=='status'
+|| searchType=='ioStatus'">
+
+<select 
+class=" w-55 h-10 px-3 border mt-6 border-sky-500 rounded-md bg-white
+             focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+[(ngModel)]="selectedValue"
+(change)="filterDropdown()">
+
+<option value="">
+  select one
+<!-- Select {{getSelectLabel()}} -->
+</option>
+
+<option
+*ngFor="let item of dropdownList"
+[value]="item">
+
+{{item}}
+
+</option>
+
+</select>
+
+</div>
+
     <div class="flex flex-wrap items-center gap-4 ml-auto">
       <!-- Search box -->
       <!-- <div
@@ -78,7 +142,15 @@
         </td>
       </ng-container>
 
-    
+      <ng-container matColumnDef="location">
+        <th mat-header-cell *matHeaderCellDef class="font-semibold">
+          Branch Name
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.locationName }}
+        </td>
+      </ng-container>
+
 
       <!-- I/O Status -->
       <ng-container matColumnDef="IoStatus">

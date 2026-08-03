@@ -15,7 +15,7 @@
         <span class="text-xs md:text-2xl hidden md:block ms-29 name" >Device Management System</span>
 
         <span class="example-spacer"> 
-  <span class="ml-5" style="font-size: 15px;"> Branch Name : <span style="font-size: 15px;">{{locationName}}</span> </span> </span>
+  <span *ngIf="roleName === 'Branch Admin'" class="ml-5" style="font-size: 15px;"> <span style="color:black" >Branch Name</span> : <span style="font-size: 18px;">{{locationName}}</span> </span> </span>
 
         <div *ngIf="!isLoading" class="inline-flex items-center text-md">
           <div class="flex flex-col leading-5">
@@ -35,6 +35,11 @@
         {{ roleName || 'N/A' }}
     </span>
   </span> 
+
+
+  
+
+  
 </div>
             <button mat-button [matMenuTriggerFor]="menu" style="padding-right:0;">
                 
@@ -117,7 +122,7 @@
                 <span>Get Details </span>
             </button> -->
 
-     <div  *ngIf="this.roleName === 'Admin'" href="">
+     <div  *ngIf="roleName === 'Admin'" href="">
   <mat-accordion>
             <mat-expansion-panel class="mat-elevation-z-0">
                 <mat-expansion-panel-header>
@@ -128,22 +133,22 @@
                     </button>
                 </mat-expansion-panel-header>
   <a mat-button class="menu-button nav-link" routerLink="/add-company" routerLinkActive="active">
-                    <span> Add Company </span>
+                    <span> Company </span>
                 </a>
 
                 <a mat-button class="menu-button nav-link" routerLink="/add-location" routerLinkActive="active">
-                    <span> Add Branch </span>
+                    <span>  Branch </span>
                 </a>
 
                   <a mat-button class="menu-button nav-link" routerLink="/add-department" routerLinkActive="active">
                     <span>Add Department</span>
                 </a>
    <a mat-button class="menu-button nav-link" routerLink="/add-category" routerLinkActive="active">
-                    <span>Add Category</span>
+                    <span> Category</span>
                 </a>
 
                  <a mat-button class="menu-button nav-link" routerLink="/add-contractor" routerLinkActive="active">
-                    <span> Add Contractor</span>
+                    <span>  Contractor</span>
                 </a>
 
                      <!-- <a mat-button class="menu-button nav-link" routerLink="/add-college" routerLinkActive="active">
@@ -151,15 +156,15 @@
                 </a> -->
 
                     <a mat-button class="menu-button nav-link" routerLink="/add-designation" routerLinkActive="active">
-                    <span>Add Designation</span>
+                    <span>Designation</span>
                     </a>
 
                       <a mat-button class="menu-button nav-link" routerLink="/add-working-hours" routerLinkActive="active">
-                    <span>Add Working Hours</span>
+                    <span> Working Hours</span>
                     </a>
 
                 <a mat-button class="menu-button nav-link" routerLink="/add-group" routerLinkActive="active">
-                    <span>Add Access Groups</span>
+                    <span>Access Groups</span>
                 </a>
 <!-- 
                   <a mat-button class="menu-button nav-link" routerLink="/role-master" routerLinkActive="active">

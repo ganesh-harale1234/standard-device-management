@@ -26,12 +26,19 @@ locationList:any = [];
 getAllListLocation:any;
 deviceId:any;
 getAllListgroup:any;
+
+searchType: string = 'deviceName';
+searchText: string = '';
+selectedValue: string = '';
+allDeviceList: any[] = [];
+dropdownList: string[] = [];
 displayedColumns: string[] = [
   'sr-No',
   'id',
   'serialNum',
     'ipAddress',
   'deviceName',
+  'location',
   'IoStatus',
   'status',
  'edit',
@@ -58,7 +65,11 @@ displayedColumns: string[] = [
     }))
    }
 
+locationID:any;
+RoleName:any;
   ngOnInit(): void {
+  this.locationID = sessionStorage.getItem('locationId');
+  this.RoleName =  sessionStorage.getItem('roleName');
     this.getDeviceallList();
     this.locationListall();
     this.getallDatagroup();
@@ -99,7 +110,18 @@ displayedColumns: string[] = [
   }
 
 getDeviceallList() {
-  this.dataService.getAllData('device').subscribe((res: any[]) => {
+
+   let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `device?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'device';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe((res: any[]) => {
+
+    this.allDeviceList = res;      // Original Data
 
     this.dataSource = new MatTableDataSource(res);
 
@@ -108,6 +130,7 @@ getDeviceallList() {
     this.totalItems = res.length;
 
   });
+
 }
   
     editData(id:any): void {
@@ -170,6 +193,135 @@ if(res.code ===100){
   this.form.markAllAsTouched();
   this.toaster.error('Please fill all fields required !')
  }
+
+}
+
+
+
+
+
+
+
+
+
+onSearchTypeChange() {
+
+  this.searchText = '';
+
+  this.selectedValue = '';
+
+  switch (this.searchType) {
+
+    case 'status':
+      this.dropdownList = ['Online', 'Offline'];
+      break;
+
+    case 'ioStatus':
+      this.dropdownList = ['IN', 'OUT', 'IO'];
+      break;
+
+    default:
+      this.dropdownList = [];
+      break;
+
+  }
+
+  this.dataSource.data = [...this.allDeviceList];
+
+}
+
+
+
+applyFilter() {
+
+  let data = [...this.allDeviceList];
+
+  // Status
+  if (this.searchType === 'status' && this.selectedValue) {
+
+    data = data.filter((item: any) =>
+      (item.status == 1 ? 'Online' : 'Offline') === this.selectedValue
+    );
+
+  }
+
+  // IO Status
+  else if (this.searchType === 'ioStatus' && this.selectedValue) {
+
+    data = data.filter((item: any) =>
+      item.ioStatus === this.selectedValue
+    );
+
+  }
+
+  // Text Search
+  else if (this.searchText.trim()) {
+
+    const text = this.searchText.toLowerCase();
+
+    data = data.filter((item: any) => {
+
+      switch (this.searchType) {
+
+        case 'deviceName':
+          return item.deviceName?.toLowerCase().includes(text);
+
+        case 'serialNum':
+          return item.serialNum?.toLowerCase().includes(text);
+
+        case 'ipAddress':
+          return item.ipAddress?.toLowerCase().includes(text);
+
+
+              case 'locationName':
+          return item.locationName?.toLowerCase().includes(text);
+
+        default:
+          return true;
+
+      }
+
+    });
+
+  }
+
+  this.dataSource.data = data;
+
+}
+
+onSearchInput(event: any) {
+
+  this.searchText = event.target.value;
+
+  this.applyFilter();
+
+}
+getPlaceholder() {
+
+  switch (this.searchType) {
+
+    case 'deviceName':
+      return 'Search Device Name';
+
+    case 'serialNum':
+      return 'Search Serial No';
+
+    case 'ipAddress':
+      return 'Search IP Address';
+
+         case 'locationName':
+      return 'Search branch Name';
+
+    default:
+      return 'Search';
+
+  }
+
+}
+
+filterDropdown() {
+
+  this.applyFilter();
 
 }
 

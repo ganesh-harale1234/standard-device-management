@@ -35,7 +35,12 @@ constructor(private dataService:DataService, private toaster:ToastrService){
 }
 
 
+
+locationID:any;
+RoleName:any;
   ngOnInit(): void {
+  this.locationID = sessionStorage.getItem('locationId');
+  this.RoleName =  sessionStorage.getItem('roleName');
   this.getallDataLocation();
   this.roleId = sessionStorage.getItem('rollId')
   this.getallData()
@@ -212,11 +217,19 @@ isAllCategorySelected(): boolean {
 // Location List
 locationLists: any[] = [ ]
 // Selected IDs
-selectedLocationIds: string[] = [];
+selectedLocationIds: any;
 
 // Get Locations
 getallDataLocations() {
-  this.dataService.getAllData('findAllLocation').subscribe(
+   let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `findAllLocation?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'findAllLocation';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe(
     (res: any) => {
       if (res.code === 100) {
         this.locationLists = res.extend.data;
@@ -237,7 +250,7 @@ toggleSelectAllLocations() {
 
   if (this.isAllLocationSelected()) {
 
-    this.selectedLocationIds = [];
+    this.selectedLocationIds = "";
 
   } else {
 
@@ -274,10 +287,7 @@ AttendencesReport() {
   let requestData: any = {};
 
   // Category + Employee
-  if (
-    this.selectedCategoryIds?.length > 0 &&
-    this.selectedEmployeeId
-  ) {
+  if (this.selectedCategoryIds?.length > 0 && this.selectedEmployeeId) {
 
     apiUrl = 'getAttendanceReport';
 
@@ -285,14 +295,24 @@ AttendencesReport() {
       fromDate,
       toDate,
       categoryIdList: this.selectedCategoryIds,
-      locationId:this.selectedLocationIds,
+      locationId: this.selectedLocationIds,
       employeeId: this.selectedEmployeeId
     };
 
+    this.dataService.addData(apiUrl, requestData).subscribe({
+      next: (res: any) => {
+        this.reportData = res || [];
+      },
+      error: (err) => {
+        this.toaster.error(err.error?.msg || 'Server Error');
+      }
+    });
+
+    return;
   }
 
-  // Employee
-  else if (this.selectedEmployeeId) {
+  // Employee Only
+  if (this.selectedEmployeeId) {
 
     apiUrl = 'getEmpWiseMultiplePunchReport';
 
@@ -302,54 +322,59 @@ AttendencesReport() {
       employeeId: this.selectedEmployeeId
     };
 
+    this.dataService.addData(apiUrl, requestData).subscribe({
+      next: (res: any) => {
+        this.reportData = res || [];
+      },
+      error: (err) => {
+        this.toaster.error(err.error?.msg || 'Server Error');
+      }
+    });
+
+    return;
   }
 
-  // Category
+  // Category + Location
+  if (this.selectedCategoryIds?.length > 0 && this.selectedLocationIds) {
+
+    const categoryIds = this.selectedCategoryIds.join(',');
+    const locationIds = this.selectedLocationIds;
+
+    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}&locationIds=${locationIds}`;
+  }
+
+  // Category Only
   else if (this.selectedCategoryIds?.length > 0) {
 
     const categoryIds = this.selectedCategoryIds.join(',');
-        const locationIds = this.selectedLocationIds.join(',');
 
-          
-
-
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}&locationIds=${locationIds}`;
-
+    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}`;
   }
 
-  // Only Date
+  // Location Only
+  else if (this.selectedLocationIds) {
+
+    const locationIds = this.selectedLocationIds;
+
+    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&locationIds=${locationIds}`;
+  }
+
+  // Date Only
   else {
 
     apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}`;
-
-    requestData = {
-      fromDate,
-      toDate
-    };
-
   }
 
   this.dataService.getAllData(apiUrl).subscribe({
-
     next: (res: any) => {
-
-      
-
-        this.reportData = res || [];
-
-
+      this.reportData = res || [];
     },
-
     error: (err) => {
-
       this.toaster.error(err.error?.msg || 'Server Error');
-
     }
-
   });
 
 }
-
 
 
 

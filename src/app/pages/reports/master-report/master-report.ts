@@ -37,7 +37,11 @@ constructor(private dataService:DataService, private toaster:ToastrService){
 }
 
 
+locationID:any;
+RoleName:any;
   ngOnInit(): void {
+  this.locationID = sessionStorage.getItem('locationId');
+  this.RoleName =  sessionStorage.getItem('roleName');
   this.getallDataLocation();
   this.roleId = sessionStorage.getItem('rollId')
 
@@ -119,7 +123,15 @@ selectedLocationIds: string[] = [];
 
 // Get Locations
 getallDataLocation() {
-  this.dataService.getAllData('findAllLocation').subscribe(
+  let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `findAllLocation?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'findAllLocation';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe(
     (res: any) => {
       if (res.code === 100) {
         this.locationList = res.extend.data;

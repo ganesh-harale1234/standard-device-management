@@ -13,6 +13,7 @@ import * as XLSX from 'xlsx';
 import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { NgSelectModule } from '@ng-select/ng-select';
+import {FaceDetector,FilesetResolver} from '@mediapipe/tasks-vision';
 @Component({
   selector: 'app-staff-management',
   imports: [SharedModule, CommonModule,  FormsModule,NgSelectModule, ReactiveFormsModule, NgxSpinnerModule],
@@ -366,7 +367,8 @@ this.getallDataRole();
  this.getallDatacompany();
  this.getDeviceallList();
  this.getallCollegeData();
- this.getallDiginationData()
+ this.getallDiginationData();
+   this.loadFaceDetector();
   }
 
 
@@ -632,9 +634,49 @@ photoPreview: any | null = null;
 photoFile: File | null = null;
 
 
+
+private faceDetector!: FaceDetector;
+private detectorLoaded = false;
+
 // ---------- FILE FROM GALLERY ----------
-onFileSelected(event: Event): void {
+// onFileSelected(event: Event): void {
+//   const input = event.target as HTMLInputElement;
+//   if (!input.files || input.files.length === 0) {
+//     return;
+//   }
+
+//   const file = input.files[0];
+
+//   if (!file.type.startsWith('image/')) {
+//     alert('Please select an image file.');
+//     return;
+//   }
+
+//   this.photoFile = file;
+
+//   const reader = new FileReader();
+//   reader.onload = () => {
+//     this.photoPreview = reader.result as string;
+
+//     // ---- CONSOLE LOGS ----
+//     console.log('File Selected - DataURL (with prefix):', this.photoPreview);
+
+//     const pureBase64 = this.photoPreview.split(',')[1];
+//      this.imagePath = pureBase64;
+//     console.log('File Selected - Pure Base64 (without prefix):', pureBase64);
+//     // ----------------------
+//   };
+//   reader.readAsDataURL(file);
+
+//   this.form.patchValue({ photo: file });
+//   this.form.get('photo')?.markAsDirty();
+//   this.form.get('photo')?.updateValueAndValidity();
+// }
+
+async onFileSelected(event: Event): Promise<void> {
+
   const input = event.target as HTMLInputElement;
+
   if (!input.files || input.files.length === 0) {
     return;
   }
@@ -642,31 +684,120 @@ onFileSelected(event: Event): void {
   const file = input.files[0];
 
   if (!file.type.startsWith('image/')) {
-    alert('Please select an image file.');
+
+    this.toastr.error('Please select an image.');
+
+    input.value = '';
+
     return;
+
+  }
+
+  if (!this.detectorLoaded) {
+
+    this.toastr.error('Face detector is loading.');
+
+    return;
+
+  }
+
+  const isHuman = await this.validateHumanFace(file);
+
+  if (!isHuman) {
+
+    this.photoFile = null;
+    this.photoPreview = null;
+    this.imagePath = '';
+
+    this.form.patchValue({
+      photo: null
+    });
+
+    input.value = '';
+
+    this.toastr.error('Only human face images are allowed.');
+
+    return;
+
   }
 
   this.photoFile = file;
 
   const reader = new FileReader();
+
   reader.onload = () => {
+
     this.photoPreview = reader.result as string;
 
-    // ---- CONSOLE LOGS ----
-    console.log('File Selected - DataURL (with prefix):', this.photoPreview);
+    const pureBase64 =
+      this.photoPreview.split(',')[1];
 
-    const pureBase64 = this.photoPreview.split(',')[1];
-     this.imagePath = pureBase64;
-    console.log('File Selected - Pure Base64 (without prefix):', pureBase64);
-    // ----------------------
+    this.imagePath = pureBase64;
+
   };
+
   reader.readAsDataURL(file);
 
-  this.form.patchValue({ photo: file });
+  this.form.patchValue({
+    photo: file
+  });
+
   this.form.get('photo')?.markAsDirty();
   this.form.get('photo')?.updateValueAndValidity();
+
+  this.toastr.success('Human face detected successfully.');
+
 }
 
+
+async loadFaceDetector() {
+
+  const vision = await FilesetResolver.forVisionTasks(
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+  );
+
+  this.faceDetector = await FaceDetector.createFromOptions(
+    vision,
+    {
+      baseOptions: {
+        modelAssetPath:
+          'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/latest/blaze_face_short_range.tflite'
+      },
+      runningMode: 'IMAGE'
+    }
+  );
+
+  this.detectorLoaded = true;
+
+}
+
+async validateHumanFace(file: File): Promise<boolean> {
+
+  return new Promise((resolve) => {
+
+    const img = new Image();
+
+    img.onload = async () => {
+
+      try {
+
+        const result = this.faceDetector.detect(img);
+
+        resolve(result.detections.length > 0);
+
+      } catch {
+
+        resolve(false);
+
+      }
+
+    };
+
+    img.src = URL.createObjectURL(file);
+
+  });
+
+}
 
 // ---------- OPEN CAMERA ----------
 async openCamera(): Promise<void> {
@@ -800,8 +931,8 @@ get photoRequiredError(): any {
           this.applyPagination();
           this.getallData();
           this.backtoList()
-        } else if (res.code === 500) {
-          this.toaster.error('Internal server error !');
+        } else if (res.code === 200) {
+          this.toaster.error( res.msg ||'Data allready exits..!');
         } else {
           this.toaster.error('Something went wrong !');
         }
@@ -2140,6 +2271,57 @@ filterDropdown() {
   this.pageIndex = 0;
   this.applyPagination();
 
+}
+
+searchText: string = '';
+
+onSearchInput(event: any) {
+
+  let value = event.target.value;
+
+  // Employee Name / Status => Only Characters
+  if (this.searchType === 'name' || this.searchType === 'empStatus') {
+    value = value.replace(/[^a-zA-Z\s]/g, '');
+  }
+
+  // BioID => Only Numbers
+  else if (this.searchType === 'userId') {
+    value = value.replace(/[^0-9]/g, '');
+  }
+
+  this.searchText = value;
+  event.target.value = value;
+
+  this.filterData();
+}
+
+
+
+
+filterData() {
+
+  this.filterallData = this.getAllList.filter((emp: any) => {
+
+    switch (this.searchType) {
+
+      case 'name':
+        return emp.name?.toLowerCase().includes(this.searchText.toLowerCase());
+
+      case 'empStatus':
+        return emp.empStatus?.toLowerCase().includes(this.searchText.toLowerCase());
+
+      case 'userId':
+        return emp.userId?.toString().includes(this.searchText);
+
+      default:
+        return true;
+    }
+
+  });
+
+  this.totalItems = this.filterallData.length;
+  this.pageIndex = 0;
+  this.applyPagination();
 }
 
 
