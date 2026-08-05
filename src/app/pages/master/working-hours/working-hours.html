@@ -46,7 +46,7 @@
         <!-- Email ID -->
         <ng-container matColumnDef="inTime">
           <th mat-header-cell *matHeaderCellDef class="font-semibold sticky top-0 bg-white z-10">
-         Start Work In Time
+         Start Working Time
           </th>
           <td mat-cell *matCellDef="let row">
             {{ row.inTime | slice:0:5  }}
@@ -55,7 +55,7 @@
         
     <ng-container matColumnDef="outTime">
           <th mat-header-cell *matHeaderCellDef class="font-semibold sticky top-0 bg-white z-10">
-        End Work Out Time
+        End Working Time
           </th>
           <td mat-cell *matCellDef="let row">
            {{ row.outTime | slice:0:5 }}
@@ -184,7 +184,7 @@
    <!-- Access Group Name -->
 <div>
   <label class="block text-sm font-medium text-[#004A71] mb-1">
-      Start Work In Time <span class="text-red-500">*</span>
+     Start Working Time <span class="text-red-500">*</span>
   </label>
 
   <input
@@ -198,13 +198,13 @@
     class="text-red-500 text-xs mt-1"
     *ngIf="form.get('inTime')?.hasError('required') && form.get('inTime')?.touched"
   >
-   Start work In Time is required
+   Start Working Time is required
   </p>
 </div>
 
 <div>
   <label class="block text-sm font-medium text-[#004A71] mb-1">
-   End Work Out Time <span class="text-red-500">*</span>
+   End Working Time<span class="text-red-500">*</span>
   </label>
 
   <input
@@ -218,7 +218,7 @@
     class="text-red-500 text-xs mt-1"
     *ngIf="form.get('outTime')?.hasError('required') && form.get('outTime')?.touched"
   >
-  End Work Out Time is required
+  End Working Time is required
   </p>
 </div>
 

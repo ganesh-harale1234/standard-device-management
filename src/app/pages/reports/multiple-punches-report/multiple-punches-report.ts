@@ -280,12 +280,9 @@ onExportPdf() {
 }
 
 formatIoStatus(status: string): string {
-  if (!status) {
-    return '';
-  }
+  if (!status) return '';
 
-  return status;
+  return status.replace(/(\d{2}:\d{2}):\d{2}/g, '$1');
 }
-
 }
 

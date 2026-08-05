@@ -97,8 +97,7 @@ AuditReport() {
 const apiUrl:any = ""
 
 
-
-  this.dataService.getAllData(`transferActivityTableData?formDate=${fromDate}&toDate=${toDate}`)
+  this.dataService.getAllData(`transferActivityTableDataByDateWise?fromDate=${fromDate}&toDate=${toDate}`)
     .subscribe((res: any) => {
 
       this.transferList = res?.extend?.data || [];

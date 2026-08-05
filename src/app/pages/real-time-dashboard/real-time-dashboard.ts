@@ -50,6 +50,7 @@ this.dataService.setTitle('Real time Dashboard');
 
 
 }
+countShowOnlyIn:any[] = []
 
 getPunchinglog(){
   let apiUrl = '';
@@ -65,8 +66,16 @@ getPunchinglog(){
     if(res.code == 100){
       console.log("Punching log", res)
    this.punchingLogs = res.extend.todaysPunchLogs
-     this.filterPunchingLog = this.punchingLogs;
-     this.totalCountLog = this.filterPunchingLog?.length;
+   // Only IN status records
+this.filterPunchingLog = [...this.punchingLogs]
+
+
+this.countShowOnlyIn = this.punchingLogs.filter(
+  (item: any) => item.ioStatus === 'IN'
+);
+
+// Count of only IN records
+this.totalCountLog = this.countShowOnlyIn.length;
     }else if(res.code == 200){
       // this.toaster.error(res.msg || "Data not found today...!")
     }

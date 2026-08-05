@@ -19,13 +19,13 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () =>
           import('../pages/real-time-dashboard/real-time-dashboard').then(m => m.RealTimeDashboard),
-        //  canActivate:[authGuard]
+         canActivate:[authGuard]
       },
         {
         path: 'staff-management',
         loadComponent: () =>
           import('../pages/staff-management/staff-management').then(m => m.StaffManagement)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
       }
 
       ,
@@ -47,7 +47,7 @@ export const routes: Routes = [
         path: 'device-management',
         loadComponent: () =>
           import('../pages/system-settings/device-management/device-management').then(m => m.DeviceManagement)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
       },
 
         {
@@ -61,7 +61,7 @@ export const routes: Routes = [
         path: 'emp-transfer-data',
         loadComponent: () =>
           import('../pages/system-settings/employee-transfer-data/employee-transfer-data').then(m => m.EmployeeTransferData)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
       }
       ,
         {
@@ -74,17 +74,17 @@ export const routes: Routes = [
       {
         path:'add-location',
         loadComponent:()=> import('../pages/master/add-location/add-location').then((m)=> m.AddLocation)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
       },
         {
         path:'add-college',
         loadComponent:()=> import('../pages/master/add-college/add-college').then((m)=> m.AddCollege)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
       },
         {
         path:'add-designation',
         loadComponent:()=> import('../pages/master/designation/designation').then((m)=> m.Designation)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
       },
  {
         path:'add-working-hours',
@@ -96,7 +96,7 @@ export const routes: Routes = [
        {
         path:'add-company',
         loadComponent:()=> import('../pages/master/add-company/add-company').then((m)=> m.AddCompany)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
       },
       
       {
@@ -108,18 +108,18 @@ export const routes: Routes = [
       {
         path:'add-group',
         loadComponent:()=> import('../pages/master/add-group/add-group').then((m)=> m.AddGroup)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
       },
 
       {
         path:'add-category',
         loadComponent:()=> import('../pages/master/add-category/add-category').then((m)=> m.AddCategory)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
       },
      {
         path:'add-contractor',
         loadComponent:()=> import('../pages/master/add-contractor/add-contractor').then((m)=> m.AddContractor)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
      },
 
         {   
@@ -137,18 +137,18 @@ export const routes: Routes = [
       {
         path:'attendance-report',
         loadComponent:()=> import('../pages/reports/attendance-report/attendance-report').then((m)=> m.AttendanceReport)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
      },
       {
         path:'multiple-punches-report',
         loadComponent:()=> import('../pages/reports/multiple-punches-report/multiple-punches-report').then((m)=> m.MultiplePunchesReport)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
      },
 
           {
         path:'contractor-wise-report',
         loadComponent:()=> import('../pages/reports/contractor-wise-report/contractor-wise-report').then((m)=> m.ContractorWiseReport)
-        // ,canActivate:[authGuard]
+        , canActivate:[authGuard]
      },
 
      {
@@ -199,7 +199,9 @@ export const routes: Routes = [
      {
       path:'new-dashboard',
       loadComponent:()=> import('../pages/new-dashboard/new-dashboard').then((m)=> m.NewDashboard)
-     },
+            , canActivate:[authGuard]
+
+    },
      
        {
         path:'help',

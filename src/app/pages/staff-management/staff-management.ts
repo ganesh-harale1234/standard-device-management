@@ -343,10 +343,12 @@ getStatuswiseEmp(empStatus:any){
   })
 }
 hidePassword = true;
-
+userNameLogin:any;
+  
   ngOnInit(): void {
     this.locationID = sessionStorage.getItem('locationId');
     this.RoleName =  sessionStorage.getItem('roleName');
+    this.userNameLogin =  sessionStorage.getItem('userName');
 
     console.log(this.locationID, "location ID........") 
      this.form.get('roleName')?.valueChanges.subscribe((role) => {
@@ -487,9 +489,9 @@ collegeList:any  = []
       }else if(res.code===500){
                 this.toaster.error('Internal server error !')
       }
-      else{
-        this.toaster.error('Something went wrong !')
-      }
+      // else{
+      //   this.toaster.error('Something went wrong !')
+      // }
     }, 
   )
   }
@@ -1859,10 +1861,10 @@ emponDeleteSoftware() {
   // ✅ Store current selection locally
   const enrollIds = this.enrollIdList;
   const userNames = this.selectedRolesText;
-
+// empDeleteFromSoftware?enrollId=7&userName=Patil 
   this.dataService
     .deleteData(
-      `empDeleteFromSoftware?enrollId=${enrollIds}&userName=${userNames}`
+      `empDeleteFromSoftware?enrollId=${enrollIds}&userName=${this.userNameLogin}`
     )
     .subscribe(
       (response: any) => {
@@ -1932,7 +1934,7 @@ emponDeleteDevices() {
   this.dataService
     .getAllData(
 
-      `deletePersonFromAccessGroup?enrollIds=${enrollIdParam}&accessGroupIds=${deviceSnParam}&userNames=${userNameParam}`
+      `deletePersonFromAccessGroup?enrollIds=${enrollIdParam}&accessGroupIds=${deviceSnParam}&userName=${this.userNameLogin}`
     )
     .subscribe({
       next: (response: any) => {
