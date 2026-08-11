@@ -86,26 +86,32 @@ if(this.form.valid){
  const formData = {
   ...this.form.value
  }
- this.dataService.addDataC('addLocation', formData).subscribe((res:any)=>{
-  if(res.code === 100){
-    this.toaster.success(res.msg || 'Location add sucessfully !')
-    this.form.reset();
-       this.filterallData = [...this.getAllList];
-    this.totalItems = this.filterallData.length;
-    this.pageIndex = 0;
-    this.applyPagination();
-    this.getallData();
-    this.backtoList()
-  }else if(res.code === 500){
-    this.toaster.error('Internal server error !')
-  }else{
-    this.toaster.error('Something went wrong !')
-  }
- }, ((err:any)=>{
-  const errorMsg = err?.error?.msg || 'Server side error !'
-  this.toaster.error(errorMsg)
+this.dataService.addDataC('addLocation', formData).subscribe(
+  (res: any) => {
+    if (res.code === 100) {
+      this.toaster.success(res.msg || 'Location added successfully!');
+      this.form.reset();
+      this.filterallData = [...this.getAllList];
+      this.totalItems = this.filterallData.length;
+      this.pageIndex = 0;
+      this.applyPagination();
+      this.getallData();
+      this.backtoList();
 
- }))
+    } else if (res.code === 200) {
+      this.toaster.error(res.msg);
+
+    } else if (res.code === 500) {
+      this.toaster.error(res.msg || 'Internal server error!');
+
+    } else {
+      this.toaster.error(res.msg || 'Something went wrong!');
+    }
+  },
+  (err: any) => {
+    this.toaster.error(err?.error?.msg || 'Server side error!');
+  }
+);
 
 }else{
   this.form.markAllAsTouched();
@@ -114,6 +120,14 @@ if(this.form.valid){
 
  
 
+}
+
+allowExceptNumbers(event: KeyboardEvent): void {
+  const char = event.key;
+
+  if (/^[0-9]$/.test(char)) {
+    event.preventDefault();
+  }
 }
 
 editData(id:any){
@@ -186,23 +200,29 @@ delete(id:any){
 // }
 
   this.locationId = id;
-this.dataService.deleteDataC('deleteLocationById/'+this.locationId).subscribe((res:any)=>{
-  if(res.code === 100){
- this.toaster.success(res.msg || 'Data deleted successfully !')
-  this.getallData();
+this.dataService.deleteDataC('deleteLocationById/' + this.locationId).subscribe(
+  (res: any) => {
 
-  }else if(res.code === 500){
-    this.toaster.error('Internal Server Error !')
-  }else{
-    this.toaster.error('Something went wrong !')
+    if (res.code === 100) {
+      this.toaster.success(res.msg || 'Data deleted successfully!');
+      this.getallData();
+
+    } else if (res.code === 200) {
+      this.toaster.error(res.msg); // किंवा error()
+
+    } else if (res.code === 500) {
+      this.toaster.error('Internal Server Error!');
+
+    } else {
+      this.toaster.error(res.msg || 'Something went wrong!');
+    }
+
+  },
+  (err: any) => {
+    const errorMessage = err?.error?.msg || err?.error?.message || 'Something went wrong!';
+    this.toaster.error(errorMessage);
   }
-
-},((err:any)=>{
-         const errorMessage = err?.error?.message || 'Something went wrong!';
-         this.toaster.error(errorMessage)
-})
-
-)
+);
 }
 
 

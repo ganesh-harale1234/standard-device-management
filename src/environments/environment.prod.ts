@@ -1,7 +1,8 @@
 export const environment = {
   production: true,
  
-          HostUrl:'http://10.14.1.14:9096/' //prasant ....
+          // HostUrl:'http://14.139.120.71:9096/' //prasant ....
+                    HostUrl:'http://192.168.1.9:9096/' //Ganesh Sir ....
 
 
 };

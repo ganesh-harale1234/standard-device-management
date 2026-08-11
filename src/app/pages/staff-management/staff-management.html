@@ -181,9 +181,9 @@
     <option value="deptName">Department Wise</option>
     <option value="accessGroupName">Access Group Wise</option>
     <option value="categoryName">Category Wise</option>
-    <option value="contractorName">Contractor Wise</option>
+    <option value="conName">Contractor Wise</option>
     <option value="userId">BioID Wise</option>
-    <option value="empStatus">Status Wise</option>
+    <!-- <option value="empStatus">Status Wise</option> -->
 
   </select>
 </div>
@@ -194,7 +194,7 @@
   *ngIf="searchType!='deptName'
       && searchType!='accessGroupName'
       && searchType!='categoryName'
-      && searchType!='contractorName'">
+      && searchType!='conName'">
 
   <!-- <input
     type="text"
@@ -216,7 +216,7 @@
   *ngIf="searchType=='deptName'
       || searchType=='accessGroupName'
       || searchType=='categoryName'
-      || searchType=='contractorName'">
+      || searchType=='conName'">
 
   <select
     class="w-full h-10 px-3 border border-gray-300 rounded-md"
@@ -742,6 +742,16 @@
 </td>
   </ng-container>
 
+  <ng-container matColumnDef="imageAvailable" *ngIf="showImageAvailable">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+            Image 
+    </th>
+ <td mat-cell *matCellDef="let row">
+  {{ row.imageAvailable ? row.imageAvailable : 'N/A' }}
+</td>
+  </ng-container>
+
     <!-- Status... -->
   <!-- <ng-container matColumnDef="empStatus" *ngIf="showstatus">
     <th mat-header-cell *matHeaderCellDef
@@ -1218,7 +1228,7 @@
 
         <div *ngIf="isEditMode">
   <label class="block text-sm font-medium text-[#004A71] mb-1">
-    Select Access Group
+    Select Access Group <span class="text-red-500">*</span>
   </label>
 
   <!-- <ng-select
@@ -1275,6 +1285,8 @@
     [searchable]="false"
     [closeOnSelect]="false"
     [clearable]="false"
+    (change)="onAccessGroupChangeS($event)"
+    
     [ngClass]="{'readonly-ng-select': isEditMode}">
 
     <ng-template
@@ -1292,6 +1304,10 @@
     </ng-template>
 
 </ng-select>
+ <span *ngIf="isAccessGroupError">    <p class="text-red-500 text-xs mt-1">
+          Access Group is required
+          </p> </span>
+
 </div>
 
       </div>
@@ -1522,7 +1538,7 @@
 
       <button
          (click)="uploadExcelFile()"
-      [disabled]="!selectedExcelFile"
+      
       mat-dialog-close
         class="bg-sky-500 text-white hover:bg-sky-600 font-semibold px-6 py-2 rounded-md text-sm shadow-sm transition duration-150"
       >

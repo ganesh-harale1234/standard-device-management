@@ -23,6 +23,9 @@
   background: #e5e7eb;   /* light gray */
   border-radius: 10px;
 }
+table th{
+  font-weight: 500;
+}
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #0284c7;   /* sky-600 */
@@ -44,14 +47,14 @@
 
 .card-title{
     font-size:15px;
-    font-weight:600;
+    font-weight:500;
     color:#1E5676;
     margin:0;
 }
 
 .card-titles{
     font-size:18px;
-    font-weight:600;
+    font-weight:500;
     color:#1E5676;
     margin:0;
 }

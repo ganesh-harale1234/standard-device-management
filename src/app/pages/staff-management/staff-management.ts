@@ -46,6 +46,7 @@ RoleName:any;
   showName = true;
   showEmployeeId = true;
   showLevel = true;
+  showImageAvailable = true;
   showstatus=true;
   // showPhoto = true;
   showEdit = true;
@@ -57,6 +58,7 @@ RoleName:any;
     'biometricId',
     'name',
     'accessGroup',
+    'imageAvailable',
     // 'employeeId',
     'level',
     // 'empStatus',
@@ -265,11 +267,11 @@ addnew(){
 
 backtoList(){
     this.showFormData = false
-  this.showTableData = true
+  this.showTableData = true;
+  this.photoPreview = ""
 }
 
 selectedStatus: string = 'All';
-
 
 
 changeStatus(status: string) {
@@ -1075,17 +1077,37 @@ console.log(ids); // [1,2,1011]
   }
 }
 
+isAccessGroupError = false;
 
-onUpdate(){
-  if(this.form.valid){
-     const formValues = this.form.value
+onAccessGroupChangeS(event: any) {
+  if (event && event.length > 0) {
+    this.isAccessGroupError = false;
+  }
+}
+
+onUpdate() {
+
+  const accessGroup = this.form.get('accessGroupId')?.value;
+
+  if (!accessGroup || accessGroup.length === 0) {
+    this.isAccessGroupError = true;
+    return;
+  }
+
+  this.isAccessGroupError = false;
+
+  if (this.form.valid) {
+
+    const formValues = this.form.value;
+
     const fromData = {
-     enrollId:this.empId,
-      ...this.form.value,
-       empType:this.empType,
-        accessGroupId: formValues.accessGroupId.join(','),
-      imagePath: this.imagePath, 
-    }
+      enrollId: this.empId,
+      ...formValues,
+      empType: this.empType,
+      accessGroupId: accessGroup.join(','),
+      imagePath: this.imagePath
+    };
+
     this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
       if(res.code == 100){
         this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
@@ -1112,6 +1134,86 @@ onUpdate(){
     this.toaster.error('Please fill all required fields!')
   }
 }
+
+
+
+
+
+// onUpdate(){
+//   if(this.form.valid){
+//      const formValues = this.form.value
+//     const fromData = {
+//      enrollId:this.empId,
+//       ...this.form.value,
+//        empType:this.empType,
+//         accessGroupId: formValues.accessGroupId.join(','),
+//       imagePath: this.imagePath, 
+//     }
+//     this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
+//       if(res.code == 100){
+//         this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
+//               this.photoFile = null;
+//           this.photoPreview = null;
+//         this.getallData();
+//         this.form.reset();
+//         this.backtoList()
+//         this.isEditMode = false;
+
+//       }else{
+//         this.toaster.error('Something went wrong !')
+//       }
+//     },((err:any)=>{
+//       if(err?.error?.msg){
+//             this.toaster.error( err.error.msg,'error!')
+//       }else{
+//                     this.toaster.error('Server side error !')
+//       }
+//     })
+//   )
+//   }else{
+//     this.form.markAllAsTouched();
+//     this.toaster.error('Please fill all required fields!')
+//   }
+// }
+
+
+
+// onUpdate(){
+//   if(this.form.valid){
+//      const formValues = this.form.value
+//     const fromData = {
+//      enrollId:this.empId,
+//       ...this.form.value,
+//        empType:this.empType,
+//         accessGroupId: formValues.accessGroupId.join(','),
+//       imagePath: this.imagePath, 
+//     }
+//     this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
+//       if(res.code == 100){
+//         this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
+//               this.photoFile = null;
+//           this.photoPreview = null;
+//         this.getallData();
+//         this.form.reset();
+//         this.backtoList()
+//         this.isEditMode = false;
+
+//       }else{
+//         this.toaster.error('Something went wrong !')
+//       }
+//     },((err:any)=>{
+//       if(err?.error?.msg){
+//             this.toaster.error( err.error.msg,'error!')
+//       }else{
+//                     this.toaster.error('Server side error !')
+//       }
+//     })
+//   )
+//   }else{
+//     this.form.markAllAsTouched();
+//     this.toaster.error('Please fill all required fields!')
+//   }
+// }
 
 // delete(id:any){
 //   const enrollId = id;
@@ -1202,6 +1304,7 @@ onUpdate(){
     this.showName = this.columns.find(c => c.key === 'name')?.checked ?? false;
     // this.showEmployeeId = this.columns.find(c => c.key === 'employeeId')?.checked ?? false;
     this.showLevel = this.columns.find(c => c.key === 'level')?.checked ?? false;
+    this.showImageAvailable = this.columns.find(c => c.key === 'imageAvailable')?.checked ?? false;
     // this.showPhoto = this.columns.find(c => c.key === 'photo')?.checked ?? false;
     this.showEdit = this.columns.find(c => c.key === 'edit')?.checked ?? false;
   }
@@ -1215,6 +1318,7 @@ onColumnChange(event: Event) {
   this.showName = selected.includes('name');
   // this.showEmployeeId = selected.includes('employeeId');
   this.showLevel = selected.includes('level');
+  this.showImageAvailable = selected.includes('imageAvailable');  
   // this.showPhoto = selected.includes('photo');
   this.showEdit = selected.includes('edit');
 }
@@ -1230,6 +1334,7 @@ onColumnChange(event: Event) {
     // cols.push('backupNum');
 
     if (this.showLevel) cols.push('level');
+    if (this.showImageAvailable) cols.push('imageAvailable');
         // if (this.showstatus) cols.push('empStatus');
 
     
@@ -1372,10 +1477,13 @@ OpenUploadSelectedUserModal(){
     }
  
     openUploadExcelDialog(): void {
-  this.dialog.open(this.uploadExcelDialog, {
-    width: '50%',
-    height: '55%'
-  });
+this.dialog.open(this.uploadExcelDialog, {
+  width: '600px',
+  maxWidth: '95vw',
+  minHeight: '300px',
+  maxHeight: '90vh',
+  panelClass: 'upload-excel-dialog'
+});
 }
 
   onCancel(): void {
@@ -1965,18 +2073,60 @@ emponDeleteDevices() {
 
 
 
-ExportTOExcel()
-{
-   const ws: XLSX.WorkSheet=XLSX.utils.table_to_sheet(this.table.nativeElement);
+// ExportTOExcel()
+// {
+//    const ws: XLSX.WorkSheet=XLSX.utils.table_to_sheet(this.table.nativeElement);
+//   const wb: XLSX.WorkBook = XLSX.utils.book_new();
+//   XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+ 
+//   /* save to file */
+//   XLSX.writeFile(wb, 'User Details.xlsx');
+ 
+// }
+
+// ExportTOExcel() {
+
+//   const excelData = this.getAllList.map((item: any) => ({
+//     'Biometric ID': item.userId,
+//     'Name': item.name,
+//     'Access Group': item.accessGroupName,
+//     'Status': item.empStatus
+//   }));
+
+//   const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
+
+//   const wb: XLSX.WorkBook = XLSX.utils.book_new();
+//   XLSX.utils.book_append_sheet(wb, ws, 'Employees');
+
+//   XLSX.writeFile(wb, 'Employee Details.xlsx');
+// }
+
+ExportTOExcel() {
+
+  const excelData = this.getAllList.map((item: any) => ({
+   'Biometric ID': item.userId,
+    'Name': item.name,
+    'Access Group': item.accessGroupName,
+    'Image': item.imageAvailable,
+    'Status': item.empStatus
+  }));
+
+  const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
+
+  // Column Width
+  ws['!cols'] = [
+    { wch: 15 }, // Biometric ID
+    { wch: 30 }, // Name
+    { wch: 35 }, // Access Group
+    { wch: 15 }, // Image
+    { wch: 15 }  // Status
+  ];
+
   const wb: XLSX.WorkBook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
- 
-  /* save to file */
-  XLSX.writeFile(wb, 'User Details.xlsx');
- 
+  XLSX.utils.book_append_sheet(wb, ws, 'Employees');
+
+  XLSX.writeFile(wb, 'Employee Details.xlsx');
 }
-
-
 
 
   // Upload button click
@@ -1998,7 +2148,7 @@ onExcelFileSelected(event: any): void {
 uploadExcelFile(): void {
 
   if (!this.selectedExcelFile) {
-    this.toastr.warning('Please select an Excel file.');
+    this.toastr.error('Please select an Excel file.');
     return;
   }
 
@@ -2202,41 +2352,55 @@ onSearchTypeChange() {
   switch (this.searchType) {
 
     case 'deptName':
-      this.dropdownList = this.getAllListdepartment.map((x:any) => x.deptName);
+      this.dropdownList = this.getAllListdepartment.map(
+        (x: any) => x.deptName
+      );
       break;
 
     case 'accessGroupName':
-      this.dropdownList = this.getAllListgroup.map((x:any) => x.accessGroupName);
+      this.dropdownList = this.getAllListgroup.map(
+        (x: any) => x.accessGroupName
+      );
       break;
 
     case 'categoryName':
-      this.dropdownList = this.getAllListcategory.map((x:any) => x.categoryName);
+      this.dropdownList = this.getAllListcategory.map(
+        (x: any) => x.categoryName
+      );
       break;
 
-case 'contractorName':
-  this.dropdownList = this.getAllListcontractor.map(
-    (x: any) => x.contractorName
-  );
-  break;
+    case 'conName':
+      this.dropdownList = this.getAllList
+        .filter((x: any) => x.conName)
+        .map((x: any) => x.conName);
+
+      this.dropdownList = [...new Set(this.dropdownList)];
+      break;
+
     default:
       this.dropdownList = [];
       break;
-
   }
+
+  console.log('Search Type:', this.searchType);
+  console.log('Contractor Dropdown:', this.dropdownList);
 
   this.filterallData = [...this.getAllList];
 
   this.totalItems = this.filterallData.length;
   this.pageIndex = 0;
+
   this.applyPagination();
-
 }
-
 
 filterDropdown() {
 
+  console.log('Selected Contractor:', this.selectedValue);
+
   if (!this.selectedValue) {
+
     this.filterallData = [...this.getAllList];
+
   } else {
 
     this.filterallData = this.getAllList.filter((emp: any) => {
@@ -2249,11 +2413,10 @@ filterDropdown() {
         case 'categoryName':
           return emp.categoryName === this.selectedValue;
 
-    case 'contractorName':
-  return emp.contractorName === this.selectedValue;
+        case 'conName':
+          return emp.conName === this.selectedValue;
 
         case 'accessGroupName':
-
           return (emp.accessGroupName || '')
             .toLowerCase()
             .split(',')
@@ -2262,17 +2425,17 @@ filterDropdown() {
 
         default:
           return true;
-
       }
 
     });
-
   }
+
+  console.log('Filtered Data:', this.filterallData);
 
   this.totalItems = this.filterallData.length;
   this.pageIndex = 0;
-  this.applyPagination();
 
+  this.applyPagination();
 }
 
 searchText: string = '';
@@ -2348,7 +2511,7 @@ getSelectLabel(): string {
     case 'categoryName':
       return 'Category';
 
-    case 'contractorName':
+    case 'conName':
       return 'Contractor';
 
     default:

@@ -10,6 +10,13 @@ font-weight: 500;
     order: 0;
     font-weight: 600 !important;
 }
+::ng-deep .ng-select.ng-select-single .ng-select-container{
+    height: 44px !important;
+    min-height: 44px !important;
+}
+::ng-deep .ng-select .ng-input input {
+  caret-color: transparent;
+}
 
 ::ng-deep .mat-mdc-option .mat-pseudo-checkbox {
   display: none !important;

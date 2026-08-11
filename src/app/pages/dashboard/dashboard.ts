@@ -41,7 +41,7 @@ const DEVICE_DATA: any = [
 export class Dashboard {
   
 
-  displayedColumns: string[] = [ 'srNo', 'id', 'serialNum', 'deviceName', 'ipAddress', 'IoStatus', 'status', 'lastActivity', 'userCount', 'fingerPrintCount', 'faceCount', 'transectionCount', 'offlineSince'];
+  displayedColumns: string[] = [ 'srNo', 'id', 'serialNum', 'deviceName', 'ipAddress', 'IoStatus', 'status', 'lastActivity', 'userCount', 'fingerPrintCount', 'faceCount', 'transectionCount'];
 
   dataSource: any = new MatTableDataSource(DEVICE_DATA);
   dashbordCount:any;

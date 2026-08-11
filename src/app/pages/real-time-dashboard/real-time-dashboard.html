@@ -123,21 +123,22 @@
     </div>
 
     <!-- TABLE -->
+     
     <div class="h-80 overflow-y-auto custom-scrollbar rounded-lg border border-gray-100 overflow-hidden"> 
       <table class="w-full text-sm text-left border-collapse">
         <thead class="bg-[rgba(0,150,225,1)] text-white sticky top-0 z-10">
           <tr>
-            <th class="py-3 px-4 font-semibold">ID</th>
-            <th class="py-3 px-4 font-semibold">Name</th>
-            <th class="py-3 px-4 font-semibold">Date & Time</th>
-            <th class="py-3 px-4 font-semibold">Device Name</th>
-          <th class="py-3 px-4 font-semibold">Branch Name</th>
-            <th class="py-3 px-4 font-semibold text-center">IN/OUT</th>
+            <th class="py-3 px-4 ">ID</th>
+            <th class="py-3 px-4 ">Name</th>
+            <th class="py-3 px-4 ">Date & Time</th>
+            <th class="py-3 px-4 ">Device Name</th>
+          <th class="py-3 px-4 ">Branch Name</th>
+            <th class="py-3 px-4  text-center">IN/OUT</th>
           </tr>
         </thead>
 
         <tbody class="divide-y divide-gray-100 bg-white">
-          <tr *ngFor="let row of filterPunchingLog" class="hover:bg-gray-50 transition-colors">
+          <tr *ngFor="let row of pagedPunchingLog" class="hover:bg-gray-50 transition-colors">
             <td class="py-3 px-4 text-gray-600">{{ row.empId }}</td>
             <td class="py-3 px-4 text-gray-600 ">{{ row.name }}</td>
             <td class="py-3 px-4 text-gray-600">{{ row.punchTime | date:'yyyy-MM-dd HH:mm:ss' }}</td>
@@ -158,7 +159,35 @@
           </tr>
         </tbody>
       </table>
+
     </div>
+          <div class="flex justify-between items-center mt-3">
+
+  <span class="text-sm text-gray-600">
+    Showing {{ (currentPage - 1) * pageSize + 1 }} -
+    {{ endRecord }}
+    of {{ filterPunchingLog.length }}
+  </span>
+
+  <div class="flex gap-2">
+    <button
+      (click)="previousPage()"
+      [disabled]="currentPage == 1"
+      class="px-3 py-1 border rounded disabled:opacity-50">
+      Previous
+    </button>
+
+    <span>{{ currentPage }} / {{ totalPages }}</span>
+
+    <button
+      (click)="nextPage()"
+      [disabled]="currentPage == totalPages"
+      class="px-3 py-1 border rounded disabled:opacity-50">
+      Next
+    </button>
+  </div>
+
+</div>
   </div>
 
 
@@ -184,16 +213,16 @@
       <table class="w-full text-sm text-left border-collapse">
         <thead class="bg-[rgba(0,150,225,1)] text-white sticky top-0 z-10">
           <tr>
-            <th class="py-3 px-4 font-semibold">ID</th>
-            <th class="py-3 px-4 font-semibold">Name</th>
-            <th class="py-3 px-4 font-semibold">Device Name</th>
-                      <th class="py-3 px-4 font-semibold">Branch Name</th>
+            <th class="py-3 px-4 ">ID</th>
+            <th class="py-3 px-4 ">Name</th>
+            <th class="py-3 px-4 ">Device Name</th>
+                      <th class="py-3 px-4 ">Branch Name</th>
 
           </tr>
         </thead>
 
         <tbody class="divide-y divide-gray-100 bg-white">
-          <tr *ngFor="let log of filteralarmLogs" class="hover:bg-gray-50 transition-colors" [ngClass]="log.color">
+          <tr *ngFor="let log of pagedAlarmLogs" class="hover:bg-gray-50 transition-colors" [ngClass]="log.color">
             <td class="py-3 px-4 text-gray-600">{{ log.id }}</td>
             <td class="py-3 px-4 text-gray-800 font-medium">{{ log.name }}</td>
             <td class="py-3 px-4 text-gray-600">{{ log.deviceName }}</td>
@@ -202,6 +231,39 @@
         </tbody>
       </table>
     </div>
+
+    <div class="flex justify-between items-center mt-3">
+
+  <span class="text-sm text-gray-600">
+    Showing
+    {{ (alarmCurrentPage - 1) * alarmPageSize + 1 }}
+    -
+    {{ alarmEndRecord }}
+    of
+    {{ filteralarmLogs.length }}
+  </span>
+
+  <div class="flex gap-2">
+
+    <button
+      (click)="previousAlarmPage()"
+      [disabled]="alarmCurrentPage == 1"
+      class="px-3 py-1 border rounded disabled:opacity-50">
+      Previous
+    </button>
+
+    <span>{{ alarmCurrentPage }} / {{ alarmTotalPages }}</span>
+
+    <button
+      (click)="nextAlarmPage()"
+      [disabled]="alarmCurrentPage == alarmTotalPages"
+      class="px-3 py-1 border rounded disabled:opacity-50">
+      Next
+    </button>
+
+  </div>
+
+</div>
   </div>
 
 </div>

@@ -57,6 +57,14 @@ form!: FormGroup;
  console.log("this data to chield componant", data)
   }
 
+allowExceptNumbers(event: KeyboardEvent): void {
+  const char = event.key;
+
+  if (/^[0-9]$/.test(char)) {
+    event.preventDefault();
+  }
+}
+
   getallData(){
     this.dataService.getAllData('getAllCompany').subscribe((res:any)=>{
       if(res.code === 100){

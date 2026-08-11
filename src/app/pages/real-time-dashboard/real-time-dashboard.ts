@@ -68,7 +68,8 @@ getPunchinglog(){
    this.punchingLogs = res.extend.todaysPunchLogs
    // Only IN status records
 this.filterPunchingLog = [...this.punchingLogs]
-
+this.currentPage = 1;
+this.updatePagination();
 
 this.countShowOnlyIn = this.punchingLogs.filter(
   (item: any) => item.ioStatus === 'IN'
@@ -108,6 +109,8 @@ getAlarmLogs(){
    console.log("alram", this.alarmLogs)
      this.filteralarmLogs = this.alarmLogs;
      this.totalCountAlarm = this.filteralarmLogs?.length;
+     this.alarmCurrentPage = 1;
+this.updateAlarmPagination();
     }else if(res.code == 200){
       // this.toaster.error(res.msg || "Data not found today...!")
     }
@@ -122,25 +125,119 @@ getAlarmLogs(){
 }
 
 
+// filterDatapunchingLog(event: any) {
+//   const value = (event.target.value || '').trim().toLowerCase();
+//   console.log('search value......', value);
+//   this.filterPunchingLog = this.punchingLogs.filter((item: any) => {
+//     return item.name.toLowerCase().includes(value);   
+//   });
+//   this.currentPage = 1;
+// this.updatePagination();
+//   console.log('filtered data.......', this.filterPunchingLog);
+// }
+
 filterDatapunchingLog(event: any) {
   const value = (event.target.value || '').trim().toLowerCase();
-  console.log('search value......', value);
-  this.filterPunchingLog = this.punchingLogs.filter((item: any) => {
-    return item.name.toLowerCase().includes(value);   
-  });
-  console.log('filtered data.......', this.filterPunchingLog);
+
+  if (!value) {
+    this.filterPunchingLog = [...this.punchingLogs];
+  } else {
+    this.filterPunchingLog = this.punchingLogs.filter((item: any) =>
+      (item.name || '').toLowerCase().includes(value)
+    );
+  }
+
+  this.currentPage = 1;
+  this.updatePagination();
 }
 
 
-filterDatAlaram(event:any){
-   const value = (event.target.value || '').trim().toLowerCase();
-  console.log('search value......', value);
-  this.filteralarmLogs = this.alarmLogs.filter((item: any) => {
-    return item.name.toLowerCase().includes(value);   
-  });
+filterDatAlaram(event: any) {
+  const value = (event.target.value || '').trim().toLowerCase();
 
+  if (!value) {
+    this.filteralarmLogs = [...this.alarmLogs];
+  } else {
+    this.filteralarmLogs = this.alarmLogs.filter((item: any) =>
+      (item.name || '').toLowerCase().includes(value)
+    );
+  }
+
+  this.alarmCurrentPage = 1;
+  this.updateAlarmPagination();
+}
+
+
+// Punching Log Pagination
+pagedPunchingLog: any[] = [];
+currentPage = 1;
+pageSize = 10;
+
+get totalPages(): number {
+  return Math.ceil(this.filterPunchingLog.length / this.pageSize);
+}
+
+get endRecord(): number {
+  return Math.min(this.currentPage * this.pageSize, this.filterPunchingLog.length);
+}
+
+updatePagination() {
+  const start = (this.currentPage - 1) * this.pageSize;
+  const end = start + this.pageSize;
+  this.pagedPunchingLog = this.filterPunchingLog.slice(start, end);
+}
+
+nextPage() {
+  if (this.currentPage < this.totalPages) {
+    this.currentPage++;
+    this.updatePagination();
+  }
+}
+
+previousPage() {
+  if (this.currentPage > 1) {
+    this.currentPage--;
+    this.updatePagination();
+  }
+}
+
+
+// Alarm Log Pagination
+pagedAlarmLogs: any[] = [];
+alarmCurrentPage = 1;
+alarmPageSize = 10;
+
+get alarmTotalPages(): number {
+  return Math.ceil(this.filteralarmLogs.length / this.alarmPageSize);
+}
+
+get alarmEndRecord(): number {
+  return Math.min(
+    this.alarmCurrentPage * this.alarmPageSize,
+    this.filteralarmLogs.length
+  );
 }
 
 
 
+
+updateAlarmPagination() {
+  const start = (this.alarmCurrentPage - 1) * this.alarmPageSize;
+  const end = start + this.alarmPageSize;
+  this.pagedAlarmLogs = this.filteralarmLogs.slice(start, end);
+}
+
+nextAlarmPage() {
+  if (this.alarmCurrentPage < this.alarmTotalPages) {
+    this.alarmCurrentPage++;
+    this.updateAlarmPagination();
+  }
+}
+
+previousAlarmPage() {
+  if (this.alarmCurrentPage > 1) {
+    this.alarmCurrentPage--;
+    this.updateAlarmPagination();
+  }
+}
 }

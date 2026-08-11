@@ -15,6 +15,14 @@ font-weight: 500;
   display: none !important;
 }
 
+::ng-deep .ng-select.ng-select-single .ng-select-container{
+    height: 44px !important;
+    min-height: 44px !important;
+}
+::ng-deep .ng-select .ng-input input {
+  caret-color: transparent;
+}
+
 /* Select All checkbox purple color */
 ::ng-deep .select-all-purple .mdc-checkbox__background {
   border-color: #7c3aed !important;      /* purple */

@@ -3,11 +3,11 @@
 
   <div
   
-class="flex flex-wrap items-center gap-3 px-3 py-3 ">
+class="flex flex-wrap items-center gap-3 py-3 ">
 
  <div class="w-52">
 
-    <ng-select
+    <!-- <ng-select
         class="custom-ng-select"
         [items]="locationLists"
         bindLabel="locationName"
@@ -24,15 +24,7 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 ">
 
                 <label class="flex items-center cursor-pointer">
 
-                    <!-- <input
-                        type="checkbox"
-                        [checked]="isAllLocationSelected()"
-                        (click)="$event.stopPropagation()"
-                        (change)="toggleSelectAllLocations()">
-
-                    <span class="ml-2">
-                        Select All
-                    </span> -->
+                    
 
                 </label>
 
@@ -55,13 +47,18 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 ">
 
         </ng-template>
 
+    </ng-select> -->
+    <ng-select style="border: 1px solid #2563eb !important;
+    border-radius: 6px !important;" [items]="locationLists" bindLabel="locationName" bindValue="locationId" [clearable]="true"
+      [(ngModel)]="selectedLocationIds" placeholder="Select Branch">
     </ng-select>
 
 </div>  
 
 <div class="w-52">
 
- <ng-select
+ <ng-select style="border: 1px solid #2563eb !important;
+    border-radius: 6px !important;"
     class="custom-ng-select"
     [items]="getAllList"
     bindLabel="categoryName"
@@ -70,6 +67,7 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 ">
     [searchable]="true"
     [closeOnSelect]="false"
     placeholder="Select Category"
+    [clearable]="false"
     [(ngModel)]="selectedCategoryIds">
 
     <!-- Select All -->
@@ -158,7 +156,7 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 ">
 
 <mat-form-field
   appearance="fill"
-  class="w-44 custom-field search-field">
+  class="w-35 custom-field search-field">
 
   <mat-label>From</mat-label>
 
@@ -182,7 +180,7 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 ">
 
 <mat-form-field
   appearance="fill"
-  class="w-44 custom-field search-field">
+  class="w-35 custom-field search-field">
 
   <mat-label>To</mat-label>
 
@@ -216,9 +214,16 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 ">
   class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
 
       (click)="onExportPdf()">
-      <mat-icon class="!text-base">download</mat-icon>
       Export to pdf
     </button>
+
+        <button
+  type="button" 
+  class="bg-[#005177] hover:bg-[#003e5c] text-white  text-sm font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"  
+ (click)="onExportExcel()" >
+
+  Export to Excel
+</button>
   </div>
 </div>
 
@@ -228,29 +233,48 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 ">
       <div #contentToConvert id="contentToConvert" class="pdf-container">
     <!-- Title row -->
 
- <div class="text-center py-2">
+ <div class="text-center">
       <span class="font-semibold text-lg">Entry Exit Status Report</span>
     </div>
 
-    <!-- Date / Time row -->
-  <!-- Date & Report Time -->
-  <div class="text-xs text-center text-[#004A71] mb-4 leading-5">
+       <div class="text-center mt-2  text-[#004A71] leading-5">
     <div>
-      <span class="">From Date:</span>
-      <span class="font-semibold" >   {{ fromDate | date:'MMM d, y' }}
-      to
-      {{ toDate | date:'MMM d, y' }}</span>
-    
+      <span>From Date:</span>
+      <span class="font-semibold">
+        {{ fromDate | date:'MMM d, y' }}
+        to
+        {{ toDate | date:'MMM d, y' }}
+      </span>
     </div>
 
+    </div>
+
+  <!-- Date & Report Time -->
+
+  <div class="flex items-center justify-between mb-3">
+
+  <!-- Branch Name -->
+  <div>
+    <p class="text-[#004A71]">
+      Branch Name:
+      <span class="font-semibold">
+        {{ getSelectedLocationName() }}
+      </span>
+    </p>
+  </div>
+
+  <!-- Report Details -->
+  <div class="text-right text-[#004A71] leading-5">
+ 
     <div>
-      <span class="">Report Time:</span>
-   <span class="font-semibold" >       {{ now | date:'MMM d, y, h:mm:ss a' }}
- </span>
+      <span>Report Time:</span>
+      <span class="font-semibold">
+        {{ now | date:'MMM d, y, h:mm:ss a' }}
+      </span>
     </div>
   </div>
 
-
+</div>
 
 
 
@@ -269,23 +293,23 @@ class="flex flex-wrap items-center gap-3 px-3 py-3 ">
 
       <tr class="header-row">
         <th rowspan="2">SR. NO</th>
-        <th rowspan="2">NAME OF EMPLOYEE</th>
-        <th rowspan="2">DESIGNATION</th>
+        <th rowspan="2">Employee Name</th>
+        <th rowspan="2"> Disignation </th>
        <th rowspan="2">Branch Name</th>
 <th rowspan="2">Date</th>
-        <th colspan="3">COUNT</th>
+        <th colspan="3">Count</th>
 
         <th colspan="2">
-          WORKING DURATION (HOURS)
+          Working Duration (Hours)
         </th>
       </tr>
 
       <tr class="header-row">
-        <th>ENTRY</th>
-        <th>EXITS</th>
-        <th>TOTAL</th>
-        <th>IN CAMPUS</th>
-        <th>OUT CAMPUS</th>
+        <th>Entry</th>
+        <th>Exits</th>
+        <th>Total</th>
+        <th>In  Campus</th>
+        <th>Out Campus</th>
       </tr>
 
     </thead>

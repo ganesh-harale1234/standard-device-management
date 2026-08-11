@@ -29,6 +29,21 @@ this.userName =  sessionStorage.getItem('userName');
   return this.http.post(fullUrl, data); 
 }
 
+viewmasterReportDetails(requestData: any): Observable<any> {
+  const fullUrl = `${this.baseUrl}masterReport`;
+  return this.http.post(fullUrl, requestData);
+}  
+
+viewattendanceReportDetails(requestData: any): Observable<any> {
+  const fullUrl = `${this.baseUrl}getAttendanceReport`;
+  return this.http.post(fullUrl, requestData);
+}   
+
+viewmultiplePunchesReportDetails(requestData: any): Observable<any> {
+  const fullUrl = `${this.baseUrl}getEmpWiseMultiplePunchReport`;
+  return this.http.post(fullUrl, requestData);
+}   
+
 addDataC(url: string, data: any): Observable<any> {
   return this.http.post(
     this.baseUrl + url + '?userName=' + this.userName,

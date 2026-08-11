@@ -7,10 +7,12 @@ import { MatTableDataSource } from '@angular/material/table';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { CommonModule } from '@angular/common';
+import * as XLSX from 'xlsx';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-contractor-wise-report',
-  imports: [CommonModule, SharedModule, FormsModule],
+  imports: [CommonModule, SharedModule, FormsModule,NgSelectModule],
 
   templateUrl: './contractor-wise-report.html',
   styleUrl: './contractor-wise-report.scss',
@@ -37,7 +39,11 @@ constructor(private dataService:DataService, private toaster:ToastrService){
 
 getAllListdepartment:any[] = []
 
+ locationID:any;
+RoleName:any;
   ngOnInit(): void {
+  this.locationID = sessionStorage.getItem('locationId');
+  this.RoleName =  sessionStorage.getItem('roleName');
   this.getallDataLocation();
   this.getallDatadepartment();
   this.roleId = sessionStorage.getItem('rollId')
@@ -132,115 +138,190 @@ formatDateToYMD(date: Date | null): string | null {
 }
 
 
-// Location list
-locationList: any[] = [];
-
+// Location List
+locationList: any[] = [ ]
+// Selected IDs
 selectedLocationIds: string[] = [];
 
+// Get Locations
 getallDataLocation() {
-  this.dataService.getAllData('findAllLocation').subscribe(
+
+  let apiUrl = '';
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `findAllLocation?locationId=${this.locationID}`;
+  } else {
+    apiUrl = 'findAllLocation';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe(
     (res: any) => {
       if (res.code === 100) {
-        this.locationList = res.extend.data;
+            this.locationList = res.extend.data;
       } else if (res.code === 500) {
-        this.toaster.error('Internal server error !');
+        this.toaster.error('Internal server error!');
       } else {
-        this.toaster.error('Something went wrong !');
+        this.toaster.error('Something went wrong!');
       }
     },
     (err) => {
-      const errorMsg = err.error.msg || 'Failed to load Location list !';
-      this.toaster.error(errorMsg);
+      this.toaster.error(err.error.msg || 'Failed to load location list!');
     }
   );
 }
 
-// ---- Select All flag ----
-get isAllSelected(): boolean {
-  return (
-    this.selectedLocationIds.length === this.locationList.length &&
-    this.locationList.length > 0
-  );
-}
+// Select All
+toggleSelectAllLocations() {
 
-isSelected(id: string): boolean {
-  return this.selectedLocationIds.includes(id);
-}
+  if (this.isAllLocationSelected()) {
 
-toggleLocation(id: string, event: any): void {
-  const checked = event.checked;
-
-  if (checked) {
-    if (!this.selectedLocationIds.includes(id)) {
-      this.selectedLocationIds = [...this.selectedLocationIds, id];
-    }
-  } else {
-    this.selectedLocationIds = this.selectedLocationIds.filter(
-      (locId) => locId !== id
-    );
-  }
-
-  console.log('Selected Location IDs : ', this.selectedLocationIds);
-}
-
-// ---- Select All toggle ----
-toggleSelectAll(event: any): void {
-  const checked = event.checked;
-
-  if (checked) {
-    this.selectedLocationIds = this.locationList.map(
-      (d: any) => d.locationId
-    );
-  } else {
     this.selectedLocationIds = [];
+
+  } else {
+
+    this.selectedLocationIds = this.locationList.map(
+      (x: any) => x.locationId
+    );
+
   }
 
-  console.log('Selected Location IDs (SelectAll) : ', this.selectedLocationIds);
+  console.log(this.selectedLocationIds);
+
 }
 
-getLocationName(id: string) {
-  const loc = this.locationList.find((d: any) => d.locationId === id);
-  return loc ? loc.locationName : id;
+// Check All Selected
+isAllLocationSelected(): boolean {
+
+  return (
+    this.locationList.length > 0 &&
+    this.selectedLocationIds.length === this.locationList.length
+  );
+
+}
+onLocationChange(event: any) {
+  this.selectedLocationName = event.locationName;
 }
 
+
+
+// AuditReport() {
+//   this.reportData = [];
+
+//   const fromDate = this.formatDateToYMD(this.fromDate);
+//   const toDate = this.formatDateToYMD(this.toDate);
+
+//   let apiUrl: string;
+//   let requestData: any = { fromDate, toDate };
+
+//   // Employee
+//   if (this.selectedEmployeeId) {
+//     apiUrl = 'getEmpWiseMultiplePunchReport';
+//     requestData.empId = this.selectedEmployeeId;
+//   }
+
+//   // Contractor
+//   else if (this.selectedDeptId) {
+//     apiUrl = 'contractorWiseReport'; // Contractor API
+// requestData.conId = Number(this.selectedDeptId);  }
+
+//   // Date only
+//   else {
+//     apiUrl = 'contractorWiseReport';
+//   }
+
+//   this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
+//     if (res.code === 100) {
+//       this.reportData = res.extend?.contractorReportList || [];
+//     } else {
+//       this.toaster.error(res.msg || 'Something went wrong!');
+//     }
+//   }, (err: any) => {
+//     this.toaster.error(err?.error?.msg || 'Server side error!');
+//   });
+// }
+
+onExportExcel(){
+  
+}
 
 
 AuditReport() {
+
   this.reportData = [];
+
+  // Branch Mandatory
+  if (!this.selectlocationId) {
+    this.toaster.error('Please select Branch');
+    return;
+  }
 
   const fromDate = this.formatDateToYMD(this.fromDate);
   const toDate = this.formatDateToYMD(this.toDate);
 
-  let apiUrl: string;
-  let requestData: any = { fromDate, toDate };
+  let apiUrl = '';
+  let requestData: any = {
+    fromDate,
+    toDate,
+    locationId: this.selectlocationId
+  };
 
   // Employee
   if (this.selectedEmployeeId) {
+
     apiUrl = 'getEmpWiseMultiplePunchReport';
-    requestData.empId = this.selectedEmployeeId;
+
+    requestData = {
+      fromDate,
+      toDate,
+      locationId: this.selectlocationId,
+      empId: this.selectedEmployeeId
+    };
+
   }
 
   // Contractor
   else if (this.selectedDeptId) {
-    apiUrl = 'contractorWiseReport'; // Contractor API
-requestData.conId = Number(this.selectedDeptId);  }
 
-  // Date only
-  else {
     apiUrl = 'contractorWiseReport';
+
+    requestData = {
+      fromDate,
+      toDate,
+      locationId: this.selectlocationId,
+      conId: Number(this.selectedDeptId)
+    };
+
   }
 
-  this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
-    if (res.code === 100) {
-      this.reportData = res.extend?.contractorReportList || [];
-    } else {
-      this.toaster.error(res.msg || 'Something went wrong!');
-    }
-  }, (err: any) => {
-    this.toaster.error(err?.error?.msg || 'Server side error!');
-  });
-}
+  // Date + Location
+  else {
 
+    apiUrl = 'contractorWiseReport';
+
+    requestData = {
+      fromDate,
+      toDate,
+      locationId: this.selectlocationId
+    };
+
+  }
+
+  this.dataService.addData(apiUrl, requestData).subscribe({
+    next: (res: any) => {
+
+      if (res.code === 100) {
+        this.reportData = res.extend?.contractorReportList || [];
+      } else {
+        this.toaster.error(res.msg || 'Something went wrong!');
+      }
+
+    },
+    error: (err: any) => {
+      this.toaster.error(err?.error?.msg || 'Server side error!');
+    }
+  });
+
+}
 
   
 onExportPdf() {
@@ -270,5 +351,14 @@ onExportPdf() {
     pdf.save('Contractor Wise Report.pdf');
   });
 }
+
+selectedLocationName = '';
+selectlocationId: number | null = null;
+getSelectedLocationName() {
+  return this.locationList.find(
+    (x: any) => x.locationId === this.selectlocationId
+  )?.locationName;
+}
+
 
 }

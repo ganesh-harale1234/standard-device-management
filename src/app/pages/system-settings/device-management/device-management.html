@@ -342,30 +342,41 @@
     Select Access Group <span class="text-red-500">*</span>
   </label>
 
-  <select
-    formControlName="accessGroupId"
-    class="w-full px-3 py-2 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm bg-white"
-  >
-    <option value="" disabled selected>Select Access Group</option>
+<select
+  formControlName="accessGroupId"
+  class="w-full px-3 py-2 border border-sky-500 rounded-md">
 
-    <option
-      *ngFor="let item of getAllListgroup"
-      [value]="item.accessGroupId"
-    >
-      {{ item.accessGroupName }}
-    </option>
-  </select>
+  <option [ngValue]="null">Select Access Group</option>
 
-  <p
+  <option
+    *ngFor="let item of getAllListgroup"
+    [ngValue]="item.accessGroupId">
+    {{ item.accessGroupName }}
+  </option>
+
+</select>
+
+<p
+  class="text-red-500 text-xs mt-1"
+  *ngIf="form.get('accessGroupId')?.invalid && form.get('accessGroupId')?.touched">
+  Access Group is required.
+</p>
+
+<div
+  *ngIf="accessGroupError"
+  class="text-red-500 text-sm mt-1">
+  Access Group is required.
+</div>
+  <!-- <p
     class="text-red-500 text-xs mt-1"
     *ngIf="form.get('accessGroupId')?.hasError('required') && form.get('accessGroupId')?.touched"
   >
     Group is required
-  </p>
+  </p> -->
 </div>
 
 
-<div class="w-full custom-field">
+<!-- <div class="w-full custom-field">
   <label class="block mb-2 text-sm font-medium text-gray-700">
     Authorized Device <span style="color: red;" >*</span>
   </label>
@@ -373,7 +384,7 @@
   <mat-checkbox formControlName="authorizedDevice">
     Allow this device
   </mat-checkbox>
-</div>
+</div> -->
 
 
               <!-- <mat-error *ngIf="form.get('deviceName')?.hasError('required')">

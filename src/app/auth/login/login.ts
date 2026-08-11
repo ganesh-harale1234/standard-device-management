@@ -30,7 +30,7 @@ export class Login {
       }
       this.userService.userLogin(loginData).subscribe((res: any) => {
         if (res.code === 100) {
-
+          console.log('Login response:', res);
           this.toaster.success(res.msgs || 'Login successfully !');
           this.router.navigate(['/dashboard'])
           sessionStorage.setItem('locationId', res.extend.data.locationId),

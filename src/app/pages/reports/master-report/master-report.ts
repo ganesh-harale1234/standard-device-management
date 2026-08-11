@@ -7,6 +7,8 @@ import { CommonModule } from '@angular/common';
 import { SharedModule } from '../../../shared/shared-module';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import * as XLSX from 'xlsx';
+
 import { NgSelectModule } from '@ng-select/ng-select';
 @Component({
   selector: 'app-master-report',
@@ -29,7 +31,7 @@ selectedEmployeeId: string | null = null;
   toDate: Date = new Date();
   now: Date = new Date();
 
-  reportData:any = [] =[];
+  reportData:any = [];
  data: any[] = [];
  dataSource: any
 constructor(private dataService:DataService, private toaster:ToastrService){
@@ -228,6 +230,59 @@ if(res.code==100){
   });
 }
 
+// locationid:any[]=[]
+
+// onLocationChange(locationId: any) {
+//   const selectedValue = locationId && typeof locationId === 'object'
+//     ? locationId.locationId ?? locationId.id ?? null
+//     : locationId ?? null;
+
+//   this.selectedLocationId = selectedValue ?? null;
+//   this.locationid = selectedValue != null ? [selectedValue] : [];
+//   console.log(this.locationid);
+// }
+
+// onLocationClear() {
+//   this.selectedLocationId = null;
+//   this.locationid = [];
+//   console.log(this.locationid);
+// }
+
+  selectlocationId: number | null = null;
+  viewReportDetails() {
+    if (this.selectlocationId == null) {
+      this.toaster.error('Please select a Branch');
+      return;
+    }
+    const employeeText = this.searchTextemp || null;
+
+    const employeeId = employeeText? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null : null;
+    
+    const fromDate = this.formatDateToYMD(this.fromDate);
+    const toDate = this.formatDateToYMD(this.toDate);
+
+    const requestData = {
+      employeeId: employeeId || null,
+      fromDate: fromDate,
+      toDate: toDate,
+      locationId: this.selectlocationId ? [this.selectlocationId] : []
+    };
+
+    this.dataService.viewmasterReportDetails(requestData).subscribe((res: any) => {
+      if (res.code === 100) {
+        this.reportData = res.extend?.masterReportList;
+        console.log('Report Details:', this.reportData);
+      } else if (res.code === 200) {
+        this.toaster.error(res.msg);
+      } else if (res.code === 500) {
+        this.toaster.error(res.msg);
+      } else {
+        this.toaster.error("Something went wrong!");
+      }
+    });
+
+  }
+
 
  downloadPDF() {
   const DATA: any = document.getElementById('contentToConvert');
@@ -257,6 +312,68 @@ if(res.code==100){
   });
 }
 
+onExportExcel(): void {
+
+  // Check data
+  if (!this.reportData || this.reportData.length === 0) {
+    this.toaster.error('No employee data available for export');
+    return;
+  }
+
+  // Prepare Excel data
+  const excelData = this.reportData.map((item: any, index: number) => {
+
+    return {
+      'Sr No.': index + 1,
+      'Employee ID': item.employeeId ?? '',
+      'Employee Name': item.employeeName ?? '',
+      'Designation': item.designation ?? '',
+      'Status': item.status ?? '',
+      'Created Date': item.createdDate ?? '',
+      'Image Available': item.imageAvailable ?? ''
+    };
+
+  });
+
+  // Create worksheet
+  const worksheet: XLSX.WorkSheet =
+    XLSX.utils.json_to_sheet(excelData);
+
+  // Set column widths
+  worksheet['!cols'] = [
+    { wch: 10 }, // Sr No.
+    { wch: 15 }, // Employee ID
+    { wch: 25 }, // Employee Name
+    { wch: 30 }, // Designation
+    { wch: 15 }, // Status
+    { wch: 20 }, // Created Date
+    { wch: 20 }  // Image Available
+  ];
+
+  // Create workbook
+  const workbook: XLSX.WorkBook =
+    XLSX.utils.book_new();
+
+  // Add worksheet
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    'Employee Report'
+  );
+
+  // Download Excel
+  XLSX.writeFile(
+    workbook,
+    'Employee_Master_Report.xlsx'
+  );
+}
   
 
+selectedLocationName = '';
+
+getSelectedLocationName() {
+  return this.locationList.find(
+    (x: any) => x.locationId === this.selectlocationId
+  )?.locationName;
+}
 }

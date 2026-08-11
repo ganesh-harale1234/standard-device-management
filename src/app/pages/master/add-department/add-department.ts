@@ -51,7 +51,7 @@ form!: FormGroup;
   constructor(private fb: FormBuilder, private dataService:DataService, private toaster:ToastrService) {
     this.form = this.fb.group({
       deptName: ['', [Validators.required,]],
-      deptDesc:['', Validators.required]
+      deptDesc:['']
     });
   }
 
@@ -161,32 +161,25 @@ onUpdate(){
      deptId:this.deptId,
         deptName:this.form.value.deptName,
         deptDesc:this.form.value.deptDesc
-
     }
-    this.dataService.updateDataC('updateDepartment',fromData).subscribe((res:any)=>{
-      if(res.code == 100){
-        this.toaster.success(res.msg || 'Department Data Update Sucessfully !')
-        this.getallData();
-        this.form.reset();
-        this.backtoList()
-        this.isEditMode = false;
 
-      }
-       else if(res.code === 200){
-      this.toaster.error('Department Name allready exits !')
+this.dataService.updateDataC('updateDepartment', fromData).subscribe((res: any) => {
 
-     }
-      else{
-        this.toaster.error('Something went wrong !')
-      }
-    },((err:any)=>{
-      if(err?.error?.msg){
-            this.toaster.error( err.error.msg,'error!')
-      }else{
-                    this.toaster.error('Server side error !')
-      }
-    })
-  )
+  if (res.code === 200) {
+    this.toaster.success(res.msg || 'Department Updated Successfully!');
+    this.getallData();
+    this.form.reset();
+    this.backtoList();
+    this.isEditMode = false;
+  }
+  else if (res.code === 409) {
+    this.toaster.error('Department Name already exists!');
+  }
+  else {
+    this.toaster.error(res.msg || 'Something went wrong!');
+  }
+
+});
   }else{
     this.form.markAllAsTouched();
     this.toaster.error('Please fill all required fields!')

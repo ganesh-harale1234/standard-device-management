@@ -1,6 +1,6 @@
   <div class="p-4" *ngIf="showTableData">
 
-  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 ">
+  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4  ">
 
 
 <div class="flex flex-wrap items-center  rounded-sm gap-4">
@@ -9,9 +9,101 @@
     <h5 class="text-xl font-semibold mr-60">Employee Transfer Status List</h5>
 
 
-<mat-form-field
+
+
+  <!-- Buttons (right aligned) -->
+
+</div>
+
+    
+ <div
+  
+  class="flex flex-wrap items-center gap-3  py-3 "
+>
+
+
+
+    <div class="flex flex-wrap items-center gap-4 ">
+       
+
+  <!-- Search By -->
+  <div class="w-58">
+    <label class="block text-sm font-medium text-gray-700 mb-1">
+      Search By
+    </label>
+
+ <select
+  class="w-full h-10 px-3 mb-2 border border-sky-500 rounded-md bg-white
+         focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+  [(ngModel)]="searchType"
+  (change)="onSearchTypeChange()">
+
+  <option value="empId">Employee ID</option>
+  <option value="empName">Employee Name</option>
+  <!-- <option value="serialNo">Serial No</option> -->
+  <option value="updatedDate">Transfer Date</option>
+  <option value="activity">Activity</option>
+  <option value="deviceName">Device Name</option>
+  <option value="accessGroup">Access Group Name </option>
+  <option value="status">Status</option>
+
+</select>
+  </div>
+      <!-- Search box -->
+
+ <div
+    class="w-72"
+ *ngIf="
+searchType=='activity' ||
+searchType=='deviceName' ||
+searchType=='status' ||
+searchType=='accessGroup'">
+
+<label class="block text-sm font-medium text-gray-700 mb-1">
+  Filter
+</label>
+
+<select
+  class="w-full h-10 px-3 border border-sky-500 rounded-md bg-white mb-2
+         focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+  [(ngModel)]="selectedValue"
+  (change)="filterDropdown()">
+
+  <option value="">
+    Select {{ getSelectLabel() }}
+  </option>
+
+  <option
+    *ngFor="let item of dropdownList"
+    [value]="item">
+    {{ item }}
+  </option>
+
+</select>
+
+  </div>
+
+ <div
+*ngIf="searchType!='activity'
+&& searchType!='deviceName'
+&& searchType!='status'
+&& searchType!='accessGroup'"
+class="flex items-center mt-4  w-72 overflow-hidden bg-white shadow-sm">
+
+<input
+matInput
+class="w-full h-10 px-3 border border-sky-500 rounded-md bg-white
+focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+[placeholder]="getPlaceholder()"
+(input)="onSearchInput($event)" />
+
+</div>
+
+<div class=" flex gap-4 mt-3" style="margin-left: 112px;
+">
+  <mat-form-field
   appearance="fill"
-  class="w-44 ml-25 custom-field search-field">
+  class="w-44 ml-25 custom-field search-field mt-2">
 
   <mat-label>From</mat-label>
 
@@ -29,13 +121,11 @@
 
 </mat-form-field>
 
-<!-- ========================= -->
-<!-- To Date -->
-<!-- ========================= -->
+
 
 <mat-form-field
   appearance="fill"
-  class="w-44 custom-field search-field">
+  class="w-44 custom-field search-field mt-2">
 
   <mat-label>To</mat-label>
 
@@ -53,219 +143,28 @@
 
 </mat-form-field>
 
-
-  <!-- Buttons (right aligned) -->
-  <div class="flex items-center gap-2 m">
-    <button style="cursor: pointer;"
-      type="button"
-  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
-
-   (click)="AuditReport() "
-    >
-      View Data
-    </button>
-  
 </div>
-</div>
-
-    
- <div
-  
-  class="flex flex-wrap items-center gap-3 px-3 py-3 "
->
-
-
-
-    <div class="flex flex-wrap items-center gap-4 ">
-       
-
-  <!-- Search By -->
-  <div class="w-52">
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-      Search By
-    </label>
-
-    <select
-      class="w-full h-10 px-3 mb-2 border border-sky-500 rounded-md bg-white
-             focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-      [(ngModel)]="searchType"
-      (change)="onSearchTypeChange()">
-
-      <option value="empId">Employee ID</option>
-      <option value="empName">Employee Name</option>
-      <option value="serialNo">Serial No</option>
-      <option value="updatedDate">Transfer Date</option>
-      <option value="activity">Activity</option>
-      <option value="deviceName">Device Name</option>
-      <option value="status">Status</option>
-
-    </select>
-  </div>
-      <!-- Search box -->
-
- <div
-    class="w-52"
-    *ngIf="searchType=='activity'
-        || searchType=='deviceName'
-        || searchType=='status'">
-
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-      Filter
-    </label>
-
-    <select
-      class="w-full h-10 px-3 border border-sky-500 rounded-md bg-white mb-2
-             focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-      [(ngModel)]="selectedValue"
-      (change)="filterDropdown()">
-
-      <option value="">
-        Select {{ getSelectLabel() }}
-      </option>
-
-      <option
-        *ngFor="let item of dropdownList"
-        [value]="item">
-
-        {{ item }}
-
-      </option>
-
-    </select>
-
-  </div>
-
-      <div *ngIf="searchType!='activity'
-      && searchType!='deviceName'
-      && searchType!='status'"
-        class="flex items-center mt-4 overflow-hidden  bg-white shadow-sm focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-red-100 transition">
-        <input
-          matInput
-          class="w-full h-10 px-3 border border-sky-500 rounded-md bg-white
-             focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-         [placeholder]="getPlaceholder()"
-  (input)="onSearchInput($event)"/>
-
-        
-    
-      </div>
-
-
-<div class="w-52">
-
-<ng-select
-    class="custom-ng-select mt-4"
-    [items]="accessGroupList"
-    bindLabel="accessGroupName"
-    bindValue="accessGroupId"
-    [multiple]="true"
-    [searchable]="true"
-    [closeOnSelect]="false"
-    placeholder="Select Access Group"
-    [(ngModel)]="selectedAccessGroupIds"
-    (ngModelChange)="onAccessGroupChange()">
-
-    <!-- Select All -->
-    <ng-template ng-header-tmp>
-        <div class="px-2 py-2 border-b">
-            <label class="flex items-center cursor-pointer">
-
-                <input
-                    type="checkbox"
-                    [checked]="isAllAccessGroupSelected()"
-                    (click)="$event.stopPropagation()"
-                    (change)="toggleSelectAllAccessGroups()">
-
-                <span class="ml-2">Select All</span>
-
-            </label>
-        </div>
-    </ng-template>
-
-    <!-- Options -->
-    <ng-template
-        ng-option-tmp
-        let-item="item"
-        let-item$="item$">
-
-        <input
-            type="checkbox"
-            [checked]="item$.selected"
-            tabindex="-1"
-            class="mr-2">
-
-        {{ item.accessGroupName }}
-
-    </ng-template>
-
-</ng-select>
-
-</div>
-
-     <div class="mt-4"> <button  type="button"
-  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-5 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn" (click)="ExportTOExcel()"  > Export to Excel</button> </div>
+ 
+      
       <!-- Device select -->
-<div class="flex items-center gap-2 mt-2">
 
-
-
-<!-- 
-  <mat-form-field appearance="fill" class="w-56 !m-0 custom-field">
-    <mat-select
-      placeholder="Select Device"
-      multiple
-    >
-      <mat-select-trigger>
-        <ng-container *ngIf="selectedDeviceIds.length === 0">
-          Select Device
-        </ng-container>
-
-        <ng-container *ngIf="selectedDeviceIds.length === 1">
-          {{ getDeviceName(selectedDeviceIds[0]) }}
-        </ng-container>
-
-        <ng-container *ngIf="selectedDeviceIds.length === 2">
-          {{ getDeviceName(selectedDeviceIds[0]) }},
-          {{ getDeviceName(selectedDeviceIds[1]) }}
-        </ng-container>
-
-        <ng-container *ngIf="selectedDeviceIds.length > 2">
-          {{ getDeviceName(selectedDeviceIds[0]) }},
-          {{ getDeviceName(selectedDeviceIds[1]) }}
-          +{{ selectedDeviceIds.length - 2 }} more
-        </ng-container>
-      </mat-select-trigger>
-
-      <mat-option (click)="$event.stopPropagation()">
-        <mat-checkbox
-          class="select-all-purple"
-          [checked]="isAllSelected"
-          (click)="$event.stopPropagation()"
-          (change)="toggleSelectAll($event)"
-        >
-          Select All
-        </mat-checkbox>
-      </mat-option>
-
-      <mat-option
-        *ngFor="let device of devicesList"
-        (click)="$event.stopPropagation()"
-      >
-        <mat-checkbox
-          [checked]="isSelected(device.id)"
-          (click)="$event.stopPropagation()"
-          (change)="toggleDevice(device.id, $event)"
-        >
-          {{ device.deviceName }}
-        </mat-checkbox>
-      </mat-option>
-    </mat-select>
-  </mat-form-field> -->
-</div>
 
 
      <div class=""></div>
     </div>
+<div class="flex items-center gap-2 ml-auto"  style="margin-top:-17px" >
+
+  <button  (click)="AuditReport ()"
+    class="bg-[#005177] hover:bg-[#003e5c] text-white px-4 py-2 rounded-md">
+    View Data
+  </button>
+
+  <button  (click)="ExportTOExcel()"
+    class="bg-[#005177] hover:bg-[#003e5c] text-white px-4 py-2 rounded-md">
+    Export to Excel
+  </button>
+
+</div>
   </div>
   </div>
 

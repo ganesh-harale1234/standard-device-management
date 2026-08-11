@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { NgSelectModule } from '@ng-select/ng-select';
+import * as XLSX from 'xlsx';
 
 
 @Component({
@@ -229,6 +230,38 @@ convertTime(time: string): Date | null {
   return new Date(`${today}T${time}`);
 }
 
+selectlocationId: number | null = null;
+  viewReportDetails() {
+    if (this.selectlocationId == null) {
+      this.toaster.error('Please select a Branch');
+      return;
+    }
+    const employeeText = this.searchTextemp || null;
+    const employeeId = employeeText? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null : null;
+    const fromDate = this.formatDateToYMD(this.fromDate);
+    const toDate = this.formatDateToYMD(this.toDate);
+
+    const requestData = {
+      employeeId: employeeId || null,
+      fromDate: fromDate,
+      toDate: toDate,
+      locationId: this.selectlocationId ? [this.selectlocationId] : []
+    };
+
+    this.dataService.viewmultiplePunchesReportDetails(requestData).subscribe((res: any) => {
+      if (res.code === 100) {
+        this.reportData = res.extend?.punchList;
+        console.log('Report Details:', this.reportData);
+      } else if (res.code === 200) {
+        this.toaster.error(res.msg);
+      } else if (res.code === 500) {
+        this.toaster.error(res.msg);
+      } else {
+        this.toaster.error("Something went wrong!");
+      }
+    });
+
+  }
    
   
 
@@ -279,10 +312,73 @@ onExportPdf() {
   });
 }
 
+
+
+onExportExcel(): void {
+
+  // Check data
+  if (!this.reportData || this.reportData.length === 0) {
+    this.toaster.error('No attendance data available for export');
+    return;
+  }
+
+  // Prepare Excel data
+  const excelData = this.reportData.map((item: any, index: number) => {
+
+    return {
+      'Sr No.': index + 1,
+      'Employee ID': item.enrollId ?? '',
+      'Employee Name': item.employeeName ?? '',
+      'Attendance Date': item.attendanceDate ?? '',
+      'IN / OUT Status': item.ioStatus ?? ''
+    };
+
+  });
+
+  // Create worksheet
+  const worksheet: XLSX.WorkSheet =
+    XLSX.utils.json_to_sheet(excelData);
+
+  // Set column widths
+  worksheet['!cols'] = [
+    { wch: 10 },  // Sr No.
+    { wch: 15 },  // Employee ID
+    { wch: 25 },  // Employee Name
+    { wch: 20 },  // Attendance Date
+    { wch: 20 }   // IN / OUT Status
+  ];
+
+  // Create workbook
+  const workbook: XLSX.WorkBook =
+    XLSX.utils.book_new();
+
+  // Add worksheet
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    'Punch Report'
+  );
+
+  // Generate and download Excel
+  XLSX.writeFile(
+    workbook,
+    'Multiple_Punches_Report.xlsx'
+  );
+}
+
 formatIoStatus(status: string): string {
   if (!status) return '';
 
   return status.replace(/(\d{2}:\d{2}):\d{2}/g, '$1');
 }
+
+selectedLocationName = '';
+
+getSelectedLocationName() {
+  return this.locationList.find(
+    (x: any) => x.locationId === this.selectlocationId
+  )?.locationName;
+}
+
 }
 

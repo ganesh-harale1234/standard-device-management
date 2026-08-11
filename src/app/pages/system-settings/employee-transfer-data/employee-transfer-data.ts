@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Device } from '../../dashboard/dashboard';
@@ -17,7 +17,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
   templateUrl: './employee-transfer-data.html',
   styleUrl: './employee-transfer-data.scss',
 })
-export class EmployeeTransferData {showFormData = false;
+export class EmployeeTransferData implements AfterViewInit {showFormData = false;
 showTableData = true;
 
 form: FormGroup;
@@ -72,6 +72,11 @@ ngOnInit(): void {
 
 }
 
+ngAfterViewInit(): void {
+  this.dataSource.paginator = this.paginator;
+  this.applyPagination();
+}
+
 
 formatDateToYMD(date: Date | null): string | null {
   if (!date) return null;
@@ -104,7 +109,7 @@ const apiUrl:any = ""
 
       this.filterallData = [...this.transferList];
 
-      this.dataSource.data = this.filterallData;
+      this.applyPagination();
 
     });
 }
@@ -134,9 +139,7 @@ getAllempTransferlList() {
 
       this.filterallData = [...this.transferList];
 
-      this.dataSource.data = this.filterallData;
-
-      this.dataSource.paginator = this.paginator;
+      this.applyPagination();
 
     });
 
@@ -285,7 +288,7 @@ getFilterdatDevicewise() {
 
       this.filterallData = [...this.transferList];
 
-      this.dataSource.data = this.filterallData;
+      this.applyPagination();
 
     });
 
@@ -293,29 +296,56 @@ getFilterdatDevicewise() {
 
 //================ Export ==================
 
+// ExportTOExcel() {
+
+//   const ws: XLSX.WorkSheet =
+//     XLSX.utils.table_to_sheet(
+//       this.table.nativeElement
+//     );
+
+//   const wb: XLSX.WorkBook =
+//     XLSX.utils.book_new();
+
+//   XLSX.utils.book_append_sheet(
+//     wb,
+//     ws,
+//     'Sheet1'
+//   );
+
+//   XLSX.writeFile(
+//     wb,
+//     'Employee-transfer.xlsx'
+//   );
+
+// }
+
+
+
+
+
 ExportTOExcel() {
 
-  const ws: XLSX.WorkSheet =
-    XLSX.utils.table_to_sheet(
-      this.table.nativeElement
-    );
+  const excelData = this.transferList.map((item: any) => ({
+    'Employee ID': item.empId,
+    'Employee Name': item.empName,
+    'Activity': item.activity,
+    'Device Name': item.deviceName,
+    'Serial No': item.serialNo,
+    'Access Group': item.accessGroup,
+    'Status': item.status === 1 ? 'Active' : 'Inactive',
+    'Updated Date': item.updatedDate
+      ? new Date(item.updatedDate).toLocaleString()
+      : ''
+  }));
 
-  const wb: XLSX.WorkBook =
-    XLSX.utils.book_new();
+  const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
 
-  XLSX.utils.book_append_sheet(
-    wb,
-    ws,
-    'Sheet1'
-  );
+  const wb: XLSX.WorkBook = XLSX.utils.book_new();
 
-  XLSX.writeFile(
-    wb,
-    'Employee-transfer.xlsx'
-  );
+  XLSX.utils.book_append_sheet(wb, ws, 'Employee Transfer');
 
+  XLSX.writeFile(wb, 'Employee-transfer.xlsx');
 }
-
 
 
 
@@ -330,6 +360,9 @@ searchType: string = 'empId';
 searchText: string = '';
 selectedValue: string = '';
 dropdownList: string[] = [];
+
+
+
 
 // =========================
 // Pagination
@@ -370,6 +403,16 @@ onSearchTypeChange() {
       ];
       break;
 
+    case 'accessGroup':
+      this.dropdownList = [
+        ...new Set(
+          this.accessGroupList
+            .map((x: any) => x.accessGroupName)
+            .filter(Boolean)
+        )
+      ];
+      break;
+
     case 'status':
       this.dropdownList = ['Success', 'Pending'];
       break;
@@ -377,10 +420,11 @@ onSearchTypeChange() {
     default:
       this.dropdownList = [];
       break;
-
   }
 
   this.filterallData = [...this.transferList];
+  this.totalItems = this.filterallData.length;
+  this.pageIndex = 0;
   this.applyPagination();
 
 }
@@ -407,18 +451,24 @@ filterDropdown() {
         case 'deviceName':
           return item.deviceName === this.selectedValue;
 
+    
+
+case 'accessGroup':
+  return item.accessGroup === this.selectedValue;
+
         case 'status':
           return (item.status == 1 ? 'Success' : 'Pending') === this.selectedValue;
 
         default:
           return true;
-
       }
 
     });
 
   }
 
+  this.totalItems = this.filterallData.length;
+  this.pageIndex = 0;
   this.applyPagination();
 
 }
@@ -510,11 +560,18 @@ filterDatas() {
 
 applyPagination() {
 
-  const start = this.pageIndex * this.pageSize;
+  this.totalItems = this.filterallData.length;
 
-  const end = start + this.pageSize;
+  this.pageIndex = Math.max(0, Math.min(this.pageIndex, Math.max(0, Math.ceil(this.totalItems / this.pageSize) - 1)));
 
-  this.dataSource.data = this.filterallData.slice(start, end);
+  this.dataSource.data = this.filterallData;
+
+  if (this.paginator) {
+    this.dataSource.paginator = this.paginator;
+    this.paginator.length = this.totalItems;
+    this.paginator.pageIndex = this.pageIndex;
+    this.paginator.pageSize = this.pageSize;
+  }
 
 }
 

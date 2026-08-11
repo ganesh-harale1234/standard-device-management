@@ -7,6 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { CommonModule } from '@angular/common';
+import * as XLSX from 'xlsx';
 import { NgSelectModule } from '@ng-select/ng-select';
 @Component({
   selector: 'app-entry-exit-status-report',
@@ -274,11 +275,154 @@ isAllLocationSelected(): boolean {
 
 }
 
+onExportExcel(): void {
 
+  if (!this.reportData || this.reportData.length === 0) {
+    this.toaster.error('No  data available for export');
+    return;
+  }
+
+  // Excel data
+  const excelData = this.reportData.map((item: any, index: number) => {
+
+    return [
+      index + 1,
+      item.employeeName ?? '',
+      item.designation ?? '',
+      item.locationName ?? '',
+      item.attendanceDate ?? '',
+      item.entryCount ?? 0,
+      item.exitCount ?? 0,
+      item.totalCount ?? 0,
+      item.inCampusDuration ?? '',
+      item.outCampusDuration ?? ''
+    ];
+
+  });
+
+  // Header rows
+  const headerRows = [
+    [
+      'SR. NO.',
+      'NAME OF EMPLOYEE',
+      'DESIGNATION',
+      'Branch Name',
+      'Date',
+      'COUNT',
+      '',
+      '',
+      'WORKING DURATION (HOURS)',
+      ''
+    ],
+    [
+      '',
+      '',
+      '',
+      '',
+      '',
+      'ENTRY',
+      'EXITS',
+      'TOTAL',
+      'IN CAMPUS',
+      'OUT CAMPUS'
+    ]
+  ];
+
+  // Combine header + data
+  const sheetData = [
+    ...headerRows,
+    ...excelData
+  ];
+
+  // Create worksheet
+  const worksheet: XLSX.WorkSheet =
+    XLSX.utils.aoa_to_sheet(sheetData);
+
+  // Merge COUNT
+  worksheet['!merges'] = [
+    {
+      s: { r: 0, c: 5 },
+      e: { r: 0, c: 7 }
+    },
+
+    // Merge WORKING DURATION
+    {
+      s: { r: 0, c: 8 },
+      e: { r: 0, c: 9 }
+    },
+
+    // Merge vertical headers
+    {
+      s: { r: 0, c: 0 },
+      e: { r: 1, c: 0 }
+    },
+    {
+      s: { r: 0, c: 1 },
+      e: { r: 1, c: 1 }
+    },
+    {
+      s: { r: 0, c: 2 },
+      e: { r: 1, c: 2 }
+    },
+    {
+      s: { r: 0, c: 3 },
+      e: { r: 1, c: 3 }
+    },
+    {
+      s: { r: 0, c: 4 },
+      e: { r: 1, c: 4 }
+    }
+  ];
+
+  // Column widths
+  worksheet['!cols'] = [
+    { wch: 10 }, // SR NO.
+    { wch: 25 }, // NAME OF EMPLOYEE
+    { wch: 25 }, // DESIGNATION
+    { wch: 18 }, // Branch Name
+    { wch: 15 }, // Date
+    { wch: 12 }, // ENTRY
+    { wch: 12 }, // EXITS
+    { wch: 12 }, // TOTAL
+    { wch: 20 }, // IN CAMPUS
+    { wch: 20 }  // OUT CAMPUS
+  ];
+
+  // Create workbook
+  const workbook: XLSX.WorkBook =
+    XLSX.utils.book_new();
+
+  // Add worksheet
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    'Attendance Report'
+  );
+
+  // Download Excel
+  XLSX.writeFile(
+    workbook,
+    'Entry_Exit_Status_Report.xlsx'
+  );
+}
 
 AttendencesReport() {
 
   this.reportData = [];
+
+  // Branch Mandatory
+  if (!this.selectedLocationIds) {
+    this.toaster.error('Please select Branch');
+    return;
+  }
+
+
+if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
+  this.toaster.error('Please select one category...!');
+  return;
+}
+
+  
 
   const fromDate = this.formatDateToYMD(this.fromDate);
   const toDate = this.formatDateToYMD(this.toDate);
@@ -335,34 +479,17 @@ AttendencesReport() {
   }
 
   // Category + Location
-  if (this.selectedCategoryIds?.length > 0 && this.selectedLocationIds) {
-
-    const categoryIds = this.selectedCategoryIds.join(',');
-    const locationIds = this.selectedLocationIds;
-
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}&locationIds=${locationIds}`;
-  }
-
-  // Category Only
-  else if (this.selectedCategoryIds?.length > 0) {
+  if (this.selectedCategoryIds?.length > 0) {
 
     const categoryIds = this.selectedCategoryIds.join(',');
 
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}`;
+    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}&locationIds=${this.selectedLocationIds}`;
   }
 
   // Location Only
-  else if (this.selectedLocationIds) {
-
-    const locationIds = this.selectedLocationIds;
-
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&locationIds=${locationIds}`;
-  }
-
-  // Date Only
   else {
 
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}`;
+    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&locationIds=${this.selectedLocationIds}`;
   }
 
   this.dataService.getAllData(apiUrl).subscribe({
@@ -375,7 +502,6 @@ AttendencesReport() {
   });
 
 }
-
 
 
 
@@ -409,6 +535,14 @@ onExportPdf() {
   });
 }
 
+selectlocationId: number | null = null;
+selectedLocationName = '';
+
+getSelectedLocationName() {
+  return this.locationLists.find(
+    (x: any) => x.locationId === this.selectedLocationIds
+  )?.locationName;
+}
 
 
 }

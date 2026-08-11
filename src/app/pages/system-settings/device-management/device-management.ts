@@ -58,8 +58,8 @@ displayedColumns: string[] = [
       deviceName:['', Validators.required],
       ioStatus:['', Validators.required],
       locationId:['', Validators.required],
-      authorizedDevice:['',Validators.required],
-      accessGroupId:['', Validators.required],
+      // authorizedDevice:['',Validators.required],
+  accessGroupId: [null, Validators.required]
 
 
     }))
@@ -146,7 +146,7 @@ getDeviceallList() {
       ioStatus:deviceData.ioStatus,
       locationId:deviceData.locationId,
      accessGroupId: Number(deviceData.accessGroupId),
-       authorizedDevice:deviceData.authorizedDevice
+      //  authorizedDevice:deviceData.authorizedDevice
  
        })
      }
@@ -164,36 +164,33 @@ onCancel(){
     this.form.reset()
 }
 
+accessGroupError = false;
+onUpdate() {
 
-onUpdate(){
- if(this.form.valid){
-    var formValue = this.form.value
-
-   
-  const formData = {
-   id:this.deviceId,
-   ...this.form.value,
-  accessGroupId: formValue.accessGroupId,
-
-  }
-  this.dataService.updateData('updateDevice', formData).subscribe((res:any)=>{
-
-if(res.code ===100){
-  this.toaster.success('Device Data Updated Successfully !')
-  this.form.reset();
-  this.backtoList();
-  this.getDeviceallList();
-  this.backtoList()
-}else{
-  this.toaster.error('Something went wrong !')
-}
-  
-  })
- }else{
   this.form.markAllAsTouched();
-  this.toaster.error('Please fill all fields required !')
- }
 
+  if (this.form.invalid) {
+    this.toaster.error('Access Group is required!');
+    return;
+  }
+
+  const formData = {
+    id: this.deviceId,
+    ...this.form.value
+  };
+
+  this.dataService.updateData('updateDevice', formData).subscribe((res: any) => {
+
+    if (res.code === 100) {
+      this.toaster.success('Device Data Updated Successfully!');
+      this.form.reset();
+      this.backtoList();
+      this.getDeviceallList();
+    } else {
+      this.toaster.error('Something went wrong!');
+    }
+
+  });
 }
 
 

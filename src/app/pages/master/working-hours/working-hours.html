@@ -49,7 +49,8 @@
          Start Working Time
           </th>
           <td mat-cell *matCellDef="let row">
-            {{ row.inTime | slice:0:5  }}
+            <!-- {{ row.inTime | slice:0:5  }} -->
+            {{ formatTime(row.inTime) }}
           </td>
         </ng-container>
         
@@ -58,7 +59,9 @@
         End Working Time
           </th>
           <td mat-cell *matCellDef="let row">
-           {{ row.outTime | slice:0:5 }}
+           <!-- {{ row.outTime | slice:0:5 }} -->
+                       {{ formatTime(row.outTime) }}
+
           </td>
         </ng-container>
 

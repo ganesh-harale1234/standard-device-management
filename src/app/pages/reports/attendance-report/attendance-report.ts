@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { NgSelectModule } from '@ng-select/ng-select';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-attendance-report',
@@ -47,6 +48,10 @@ RoleName:any;
 showDropdown: boolean = false;
 searchEmpTimer: any;
 
+
+onLocationChange(event: any) {
+  this.selectedLocationName = event.locationName;
+}
 onSearchEmp(event: any) {
   const trimmed = event.target.value.trim();
   this.searchTextemp = trimmed;
@@ -237,59 +242,44 @@ if(res.code==100){
 }
 
 
+selectlocationId: number | null = null;
+  viewReportDetails() {
+    if (this.selectlocationId == null) {
+      this.toaster.error('Please select a Branch');
+      return;
+    }
+    const employeeText = this.searchTextemp || null;
+    const employeeId = employeeText? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null : null;
+    const fromDate = this.formatDateToYMD(this.fromDate);
+    const toDate = this.formatDateToYMD(this.toDate);
+
+    const requestData = {
+      employeeId: employeeId || null,
+      fromDate: fromDate,
+      toDate: toDate,
+      locationId: this.selectlocationId ? [this.selectlocationId] : []
+    };
+
+    this.dataService.viewattendanceReportDetails(requestData).subscribe((res: any) => {
+      if (res.code === 100) {
+        this.reportData = res.extend?.attendanceList;
+        console.log('Report Details:', this.reportData);
+      } else if (res.code === 200) {
+        this.toaster.error(res.msg);
+      } else if (res.code === 500) {
+        this.toaster.error(res.msg);
+      } else {
+        this.toaster.error("Something went wrong!");
+      }
+    });
+
+  }
+
+
 
 @ViewChild('contentToConvert', { static: false })
 contentToConvert!: ElementRef;
 
-
-
-// onExportPdf() {
-
-//   console.log('Clicked');
-
-//   const DATA = document.getElementById('contentToConvert');
-//   console.log(DATA);
-
-//   html2canvas(DATA!)
-//     .then(canvas => {
-//       console.log('Canvas Success');
-//     })
-//     .catch(err => {
-//       console.error(err);
-//     });
-
-// }
-   
-  
-// onExportPdf() {
-// console.log("helllo......")
-//   const data = document.getElementById('contentToConvert');
-
-//   if (!data) {
-//     console.error('Element not found');
-//     return;
-//   }
-
-//   html2canvas(data).then(canvas => {
-
-//     const imgWidth = 210;
-//     const pageHeight = 295;
-
-//     const imgHeight = canvas.height * imgWidth / canvas.width;
-
-//     const heightLeft = imgHeight;
-
-//     const contentDataURL = canvas.toDataURL('image/png');
-
-//     const pdf = new jsPDF('p', 'mm', 'a4');
-
-//     pdf.addImage(contentDataURL, 'PNG', 0, 0, imgWidth, imgHeight);
-
-//     pdf.save('Attendance Report.pdf');
-
-//   });
-
-// }
 
 
 onExportPdf() {
@@ -381,62 +371,62 @@ element.style.paddingBottom = '50px';
 
 }
 
-// onExportPdf() {
 
-//   const element = this.contentToConvert.nativeElement;
 
-//   html2canvas(element, {
+onExportExcel(): void {
 
-//     scale: 2,
+  if (!this.reportData || this.reportData.length === 0) {
+    this.toaster.error('No attendance data available for export');
+    return;
+  }
 
-//     useCORS: true,
+  const excelData = this.reportData.map((item: any, index: number) => {
 
-//     allowTaint: true,
+    return {
+      'Sr No.': index + 1,
+      'Employee ID': item.employeeId ?? '',
+      'Employee Name': item.employeeName ?? '',
+      'Attendance Date': item.attendanceDate ?? '',
+      'Punch In': item.punchIn ?? '',
+      'Punch Out': item.punchOut ?? '',
+    };
 
-//     backgroundColor: '#ffffff'
+  });
 
-//   }).then(canvas => {
+  const worksheet: XLSX.WorkSheet =
+    XLSX.utils.json_to_sheet(excelData);
 
-//     const imgData = canvas.toDataURL('image/png');
+  worksheet['!cols'] = [
+    { wch: 10 },
+    { wch: 15 },
+    { wch: 25 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 20 }
+  ];
 
-//     const pdf = new jsPDF('p', 'mm', 'a4');
+  const workbook: XLSX.WorkBook =
+    XLSX.utils.book_new();
 
-//     const pageWidth = pdf.internal.pageSize.getWidth();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    'Attendance Report'
+  );
 
-//     const pageHeight = pdf.internal.pageSize.getHeight();
+  XLSX.writeFile(
+    workbook,
+    'Attendance_Report.xlsx'
+  );
+}
 
-//     const imgWidth = pageWidth;
+selectedLocationName = '';
 
-//     const imgHeight = canvas.height * imgWidth / canvas.width;
+getSelectedLocationName() {
+  return this.locationList.find(
+    (x: any) => x.locationId === this.selectlocationId
+  )?.locationName;
+}
 
-//     let heightLeft = imgHeight;
-
-//     let position = 0;
-
-//     pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-
-//     heightLeft -= pageHeight;
-
-//     while (heightLeft > 0) {
-
-//       position = heightLeft - imgHeight;
-
-//       pdf.addPage();
-
-//       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-
-//       heightLeft -= pageHeight;
-
-//     }
-
-//     pdf.save('Attendance_Report.pdf');
-
-//   }).catch(err => {
-
-//     console.error(err);
-
-//   });
-
-// }
 
 }
