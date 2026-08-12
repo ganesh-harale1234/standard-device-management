@@ -1,173 +1,307 @@
   <div class="p-4" *ngIf="showTableData">
 
-  <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4  ">
+<!-- ================= HEADER ================= -->
+<div class="w-full px-4 sm:px-6 lg:px-0">
 
-
-<div class="flex flex-wrap items-center  rounded-sm gap-4">
-
-
-    <h5 class="text-xl font-semibold mr-60">Employee Transfer Status List</h5>
-
-
-
-
-  <!-- Buttons (right aligned) -->
-
-</div>
-
-    
- <div
-  
-  class="flex flex-wrap items-center gap-3  py-3 "
->
-
-
-
-    <div class="flex flex-wrap items-center gap-4 ">
-       
-
-  <!-- Search By -->
-  <div class="w-58">
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-      Search By
-    </label>
-
- <select
-  class="w-full h-10 px-3 mb-2 border border-sky-500 rounded-md bg-white
-         focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-  [(ngModel)]="searchType"
-  (change)="onSearchTypeChange()">
-
-  <option value="empId">Employee ID</option>
-  <option value="empName">Employee Name</option>
-  <!-- <option value="serialNo">Serial No</option> -->
-  <option value="updatedDate">Transfer Date</option>
-  <option value="activity">Activity</option>
-  <option value="deviceName">Device Name</option>
-  <option value="accessGroup">Access Group Name </option>
-  <option value="status">Status</option>
-
-</select>
-  </div>
-      <!-- Search box -->
-
- <div
-    class="w-72"
- *ngIf="
-searchType=='activity' ||
-searchType=='deviceName' ||
-searchType=='status' ||
-searchType=='accessGroup'">
-
-<label class="block text-sm font-medium text-gray-700 mb-1">
-  Filter
-</label>
-
-<select
-  class="w-full h-10 px-3 border border-sky-500 rounded-md bg-white mb-2
-         focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-  [(ngModel)]="selectedValue"
-  (change)="filterDropdown()">
-
-  <option value="">
-    Select {{ getSelectLabel() }}
-  </option>
-
-  <option
-    *ngFor="let item of dropdownList"
-    [value]="item">
-    {{ item }}
-  </option>
-
-</select>
-
+  <div class="mb-4">
+    <h5 class="text-xl font-semibold text-gray-900">
+      Employee Transfer Status List
+    </h5>
   </div>
 
- <div
-*ngIf="searchType!='activity'
-&& searchType!='deviceName'
-&& searchType!='status'
-&& searchType!='accessGroup'"
-class="flex items-center mt-4  w-72 overflow-hidden bg-white shadow-sm">
 
-<input
-matInput
-class="w-full h-10 px-3 border border-sky-500 rounded-md bg-white
-focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-[placeholder]="getPlaceholder()"
-(input)="onSearchInput($event)" />
+  <!-- ================= FILTER SECTION ================= -->
+  <div class="w-full py-3">
 
-</div>
+    <div
+      class="
+        grid
+        grid-cols-1
+        sm:grid-cols-2
+        lg:grid-cols-12
+        gap-x-4
+        gap-y-3
+        items-end
+        w-full
+      "
+    >
 
-<div class=" flex gap-4 mt-3" style="margin-left: 112px;
-">
-  <mat-form-field
-  appearance="fill"
-  class="w-44 ml-25 custom-field search-field mt-2">
+      <!-- ================= SEARCH TYPE ================= -->
+      <div class="w-full lg:col-span-3">
 
-  <mat-label>From</mat-label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Search By
+        </label>
 
-  <input
-    matInput
-    [matDatepicker]="fromPicker"
-    [(ngModel)]="fromDate" />
+        <select
+          class="
+            w-full
+            h-10
+            px-3
+            border
+            border-sky-500
+            rounded-md
+            bg-white
+            focus:outline-none
+            focus:ring-2
+            focus:ring-sky-500
+            focus:border-sky-500
+          "
+          [(ngModel)]="searchType"
+          (change)="onSearchTypeChange()"
+        >
 
-  <mat-datepicker-toggle
-    matSuffix
-    [for]="fromPicker">
-  </mat-datepicker-toggle>
+          <option value="empId">
+            Employee ID
+          </option>
 
-  <mat-datepicker #fromPicker></mat-datepicker>
+          <option value="empName">
+            Employee Name
+          </option>
 
-</mat-form-field>
+          <option value="updatedDate">
+            Transfer Date
+          </option>
 
+          <option value="activity">
+            Activity
+          </option>
 
+          <option value="deviceName">
+            Device Name
+          </option>
 
-<mat-form-field
-  appearance="fill"
-  class="w-44 custom-field search-field mt-2">
+          <option value="accessGroup">
+            Access Group Name
+          </option>
 
-  <mat-label>To</mat-label>
+          <option value="status">
+            Status
+          </option>
 
-  <input
-    matInput
-    [matDatepicker]="toPicker"
-    [(ngModel)]="toDate" />
+        </select>
 
-  <mat-datepicker-toggle
-    matSuffix
-    [for]="toPicker">
-  </mat-datepicker-toggle>
-
-  <mat-datepicker #toPicker></mat-datepicker>
-
-</mat-form-field>
-
-</div>
- 
-      
-      <!-- Device select -->
+      </div>
 
 
+      <!-- ================= SEARCH INPUT ================= -->
+      <div
+        class="w-full lg:col-span-4"
+        *ngIf="
+          searchType !== 'activity' &&
+          searchType !== 'deviceName' &&
+          searchType !== 'status' &&
+          searchType !== 'accessGroup'
+        "
+      >
 
-     <div class=""></div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          &nbsp;
+        </label>
+
+        <input
+          matInput
+          class="
+            w-full
+            h-10
+            px-3
+            border
+            border-sky-500
+            rounded-md
+            bg-white
+            focus:outline-none
+            focus:ring-2
+            focus:ring-sky-500
+            focus:border-sky-500
+          "
+          [placeholder]="getPlaceholder()"
+          (input)="onSearchInput($event)"
+        />
+
+      </div>
+
+
+      <!-- ================= DROPDOWN FILTER ================= -->
+      <div
+        class="w-full lg:col-span-4"
+        *ngIf="
+          searchType === 'activity' ||
+          searchType === 'deviceName' ||
+          searchType === 'status' ||
+          searchType === 'accessGroup'
+        "
+      >
+
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Filter
+        </label>
+
+        <select
+          class="
+            w-full
+            h-10
+            px-3
+            border
+            border-sky-500
+            rounded-md
+            bg-white
+            focus:outline-none
+            focus:ring-2
+            focus:ring-sky-500
+            focus:border-sky-500
+          "
+          [(ngModel)]="selectedValue"
+          (change)="filterDropdown()"
+        >
+
+          <option value="">
+            Select {{ getSelectLabel() }}
+          </option>
+
+          <option
+            *ngFor="let item of dropdownList"
+            [value]="item"
+          >
+            {{ item }}
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- EXTRA SPACE BETWEEN FILTER AND DATE              -->
+      <!-- ================================================= -->
+
+      <div class="hidden lg:block lg:col-span-1"></div>
+
+
+      <!-- ================= FROM DATE ================= -->
+      <div class="w-full lg:col-span-2">
+
+        <mat-form-field
+          appearance="fill"
+          class="w-full custom-field search-field"
+        >
+
+          <mat-label>
+            From
+          </mat-label>
+
+          <input
+            matInput
+            [matDatepicker]="fromPicker"
+            [(ngModel)]="fromDate"
+          />
+
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="fromPicker"
+          >
+          </mat-datepicker-toggle>
+
+          <mat-datepicker
+            #fromPicker
+          >
+          </mat-datepicker>
+
+        </mat-form-field>
+
+      </div>
+
+
+      <!-- ================= TO DATE ================= -->
+      <div class="w-full lg:col-span-2">
+
+        <mat-form-field
+          appearance="fill"
+          class="w-full custom-field search-field"
+        >
+
+          <mat-label>
+            To
+          </mat-label>
+
+          <input
+            matInput
+            [matDatepicker]="toPicker"
+            [(ngModel)]="toDate"
+          />
+
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="toPicker"
+          >
+          </mat-datepicker-toggle>
+
+          <mat-datepicker
+            #toPicker
+          >
+          </mat-datepicker>
+
+        </mat-form-field>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- BUTTONS - SEPARATE ROW                            -->
+      <!-- ================================================= -->
+
+      <div
+        class="
+          col-span-1
+          sm:col-span-2
+          lg:col-span-12
+          flex
+          justify-end
+          items-center
+          gap-2
+          mt-0
+        "
+      >
+
+        <button
+          type="button"
+          (click)="AuditReport()"
+          class="
+            bg-[#005177]
+            hover:bg-[#003e5c]
+            text-white
+            px-4
+            py-2
+            rounded-md
+            whitespace-nowrap
+          "
+        >
+          View Data
+        </button>
+
+
+        <button
+          type="button"
+          (click)="ExportTOExcel()"
+          class="
+            bg-[#005177]
+            hover:bg-[#003e5c]
+            text-white
+            px-4
+            py-2
+            rounded-md
+            whitespace-nowrap
+          "
+        >
+          Export to Excel
+        </button>
+
+      </div>
+
     </div>
-<div class="flex items-center gap-2 ml-auto"  style="margin-top:-17px" >
 
-  <button  (click)="AuditReport ()"
-    class="bg-[#005177] hover:bg-[#003e5c] text-white px-4 py-2 rounded-md">
-    View Data
-  </button>
-
-  <button  (click)="ExportTOExcel()"
-    class="bg-[#005177] hover:bg-[#003e5c] text-white px-4 py-2 rounded-md">
-    Export to Excel
-  </button>
+  </div>
 
 </div>
-  </div>
-  </div>
-
 
 
 

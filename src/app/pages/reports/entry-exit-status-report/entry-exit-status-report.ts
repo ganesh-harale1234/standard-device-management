@@ -446,6 +446,18 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
     this.dataService.addData(apiUrl, requestData).subscribe({
       next: (res: any) => {
         this.reportData = res || [];
+         if (res.code === 100) {
+            this.reportData = res.extend.campusAttendance || [];
+        } else if(res.code ===200) {
+                                          this.toaster.error(res.msg);
+
+            this.reportData = [];
+
+        }else{
+                    this.toaster.error(res.msg || 'Something went wrong!');
+
+        }
+        
       },
       error: (err) => {
         this.toaster.error(err.error?.msg || 'Server Error');
@@ -469,6 +481,20 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
     this.dataService.addData(apiUrl, requestData).subscribe({
       next: (res: any) => {
         this.reportData = res || [];
+
+          if (res.code === 100) {
+             this.reportData = res.extend.campusAttendance || [];
+        } else if(res.code ===200) {
+                                          this.toaster.error(res.msg);
+
+            this.reportData = [];
+
+        }else{
+                    this.toaster.error(res.msg || 'Something went wrong!');
+
+        }
+
+
       },
       error: (err) => {
         this.toaster.error(err.error?.msg || 'Server Error');
@@ -495,6 +521,19 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
   this.dataService.getAllData(apiUrl).subscribe({
     next: (res: any) => {
       this.reportData = res || [];
+       if (res.code === 100) {
+      
+          this.reportData = res.extend.campusAttendance || [];
+        } else if(res.code ===200) {
+                                          this.toaster.error(res.msg);
+
+            this.reportData = [];
+
+        }else{
+                    this.toaster.error(res.msg || 'Something went wrong!');
+
+        }
+
     },
     error: (err) => {
       this.toaster.error(err.error?.msg || 'Server Error');

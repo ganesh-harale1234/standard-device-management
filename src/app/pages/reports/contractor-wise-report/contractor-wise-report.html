@@ -206,12 +206,12 @@
         <th>Employee Id</th>
         <th>Employee Name</th>
         <th>Contractor Name</th>
+         <th>Date</th>
            <th>Punch In </th>
                  <th>Punch Out </th>
 
       </tr>
     </thead>
-
 
     <tbody>
 
@@ -229,13 +229,17 @@
 
         <td>
           {{ row.contractorName }}
-        </td>
+        </td>  
    <td>
+        {{row.punchDate}}
+        </td> 
         
-        </td>   <td>
-        
-        </td>
-   
+       <td>
+        {{row.punchIn}}
+        </td> 
+          <td>
+        {{row.punchOut}}
+        </td> 
 
       </tr>
 <!-- 

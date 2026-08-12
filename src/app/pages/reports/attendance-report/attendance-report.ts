@@ -8,6 +8,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-attendance-report',
@@ -30,7 +31,8 @@ selectedEmployeeId: string | null = null;
   now: Date = new Date();
 
   reportData :any[] = [];
- dataSource: any
+ dataSource: any;
+  SearchValueSubject = new Subject()
 constructor(private dataService:DataService, private toaster:ToastrService){
 
 }
@@ -43,6 +45,8 @@ RoleName:any;
   this.getallDataLocation();
   this.roleId = sessionStorage.getItem('rollId')
 
+  // this.SearchValueSubject.subscribe(())
+
   }
 
 showDropdown: boolean = false;
@@ -52,9 +56,12 @@ searchEmpTimer: any;
 onLocationChange(event: any) {
   this.selectedLocationName = event.locationName;
 }
+
 onSearchEmp(event: any) {
   const trimmed = event.target.value.trim();
   this.searchTextemp = trimmed;
+
+  console.log(this.searchTextemp, "user type input")
 
   // clear previous timer
   if (this.searchEmpTimer) {
@@ -78,7 +85,7 @@ onSearchEmp(event: any) {
     this.showDropdown = true;
     this.employeeList = [];
     this.selectedEmployeeId = null;
-
+    
     this.dataService.getAllData(`searchByNameOrId/${trimmed}`).subscribe(
       (res: any) => {
         this.isEmpLoading = false;
@@ -192,7 +199,7 @@ isAllLocationSelected(): boolean {
 
 
 AttendencesReport() {
-   this.reportData = [];
+  this.reportData = [];
    
   const fromDate = this.formatDateToYMD(this.fromDate);
   const toDate   = this.formatDateToYMD(this.toDate);
@@ -265,6 +272,8 @@ selectlocationId: number | null = null;
         this.reportData = res.extend?.attendanceList;
         console.log('Report Details:', this.reportData);
       } else if (res.code === 200) {
+          this.reportData = [];
+
         this.toaster.error(res.msg);
       } else if (res.code === 500) {
         this.toaster.error(res.msg);

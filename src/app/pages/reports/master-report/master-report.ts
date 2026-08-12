@@ -221,6 +221,7 @@ if(res.code==100){
     this.reportData = res.extend?.masterReportList;
 }else if(res.code == 200){
         this.toaster.error(res.msg);
+         this.reportData = [];
 }
     else if (res.code === 500) {
           this.toaster.error(res.msg);
@@ -273,6 +274,7 @@ if(res.code==100){
         this.reportData = res.extend?.masterReportList;
         console.log('Report Details:', this.reportData);
       } else if (res.code === 200) {
+         this.reportData = [];
         this.toaster.error(res.msg);
       } else if (res.code === 500) {
         this.toaster.error(res.msg);

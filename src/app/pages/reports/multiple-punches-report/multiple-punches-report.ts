@@ -215,6 +215,7 @@ if(res.code==100){
     this.reportData = res.extend?.punchList;
 }else if(res.code == 200){
         this.toaster.error(res.msg);
+          this.reportData = [];
 }
     else if (res.code === 500) {
           this.toaster.error(res.msg);
@@ -242,10 +243,10 @@ selectlocationId: number | null = null;
     const toDate = this.formatDateToYMD(this.toDate);
 
     const requestData = {
-      employeeId: employeeId || null,
+      id: employeeId || null,
       fromDate: fromDate,
       toDate: toDate,
-      locationId: this.selectlocationId ? [this.selectlocationId] : []
+      locationIdList: this.selectlocationId ? [this.selectlocationId] : []
     };
 
     this.dataService.viewmultiplePunchesReportDetails(requestData).subscribe((res: any) => {
@@ -253,6 +254,7 @@ selectlocationId: number | null = null;
         this.reportData = res.extend?.punchList;
         console.log('Report Details:', this.reportData);
       } else if (res.code === 200) {
+        this.reportData = [];
         this.toaster.error(res.msg);
       } else if (res.code === 500) {
         this.toaster.error(res.msg);

@@ -248,7 +248,7 @@ AuditReport() {
   const requestData = {
     fromDate,
     toDate,
-    locationIdList: this.selectlocationId
+    locationId: this.selectlocationId
   };
 
   this.dataService
@@ -258,8 +258,15 @@ AuditReport() {
 
         if (res.code === 100) {
           this.reportData = res.extend?.auditReport || [];
-        } else {
-          this.toaster.error(res.msg || 'Something went wrong!');
+                                          // this.toaster.error(res.msg );
+
+        } else if(res.code ===200) {
+            this.reportData = [];
+                                this.toaster.error(res.msg );
+
+        }else{
+                    this.toaster.error(res.msg || 'Something went wrong!');
+
         }
 
       },

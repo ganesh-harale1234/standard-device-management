@@ -152,7 +152,7 @@ selectedDeviceIds: string[] = [];
   @ViewChild('excelFileInput') excelFileInput!: ElementRef<HTMLInputElement>;
  showLoginFields = false;
   pageIndex = 0;
-  pageSize = 10;                               // 5 per page
+  pageSize = 500;                               // 5 per page
   pageStart = 0;
   pageEnd = 0;
   totalItems = 0;
@@ -1238,15 +1238,17 @@ onUpdate() {
 
 
 
-  // 🔹 pagination logic
-  applyPagination(): void {
-    const start = this.pageIndex * this.pageSize;
-    const end = start + this.pageSize;
-    // this.dataSource.data = this.getAllList.slice(start, end);
-        this.dataSource.data = this.filterallData.slice(start, end);
-    this.pageStart = this.totalItems ? start + 1 : 0;
-    this.pageEnd = Math.min(end, this.totalItems);
-  }
+applyPagination(): void {
+
+  const start = this.pageIndex * this.pageSize;
+  const end = start + this.pageSize;
+
+  this.dataSource.data = this.filterallData.slice(start, end);
+
+  this.pageStart = this.totalItems ? start + 1 : 0;
+  this.pageEnd = Math.min(end, this.totalItems);
+}
+
 
   nextPage(): void {
     if ((this.pageIndex + 1) * this.pageSize < this.totalItems) {
@@ -2391,11 +2393,60 @@ onSearchTypeChange() {
   this.pageIndex = 0;
 
   this.applyPagination();
+    this.totalItems = this.filterallData.length;
+  this.pageIndex = 0;
+  this.applyPagination();
 }
 
-filterDropdown() {
+// filterDropdown() {
 
-  console.log('Selected Contractor:', this.selectedValue);
+//   console.log('Selected Contractor:', this.selectedValue);
+
+//   if (!this.selectedValue) {
+
+//     this.filterallData = [...this.getAllList];
+
+//   } else {
+
+//     this.filterallData = this.getAllList.filter((emp: any) => {
+
+//       switch (this.searchType) {
+
+//         case 'deptName':
+//           return emp.deptName === this.selectedValue;
+
+//         case 'categoryName':
+//           return emp.categoryName === this.selectedValue;
+
+//         case 'conName':
+//           return emp.conName === this.selectedValue;
+
+//         case 'accessGroupName':
+//           return (emp.accessGroupName || '')
+//             .toLowerCase()
+//             .split(',')
+//             .map((x: string) => x.trim())
+//             .includes(this.selectedValue.toLowerCase());
+
+//         default:
+//           return true;
+//       }
+
+//     });
+//   }
+
+//   console.log('Filtered Data:', this.filterallData);
+
+//   this.totalItems = this.filterallData.length;
+//   this.pageIndex = 0;
+
+//   this.applyPagination();
+//     this.totalItems = this.filterallData.length;
+//   this.pageIndex = 0;
+//   this.applyPagination();
+// }
+
+filterDropdown() {
 
   if (!this.selectedValue) {
 
@@ -2407,6 +2458,13 @@ filterDropdown() {
 
       switch (this.searchType) {
 
+        case 'accessGroupName':
+          return (emp.accessGroupName || '')
+            .toLowerCase()
+            .split(',')
+            .map((x: string) => x.trim())
+            .includes(this.selectedValue.toLowerCase());
+
         case 'deptName':
           return emp.deptName === this.selectedValue;
 
@@ -2416,13 +2474,6 @@ filterDropdown() {
         case 'conName':
           return emp.conName === this.selectedValue;
 
-        case 'accessGroupName':
-          return (emp.accessGroupName || '')
-            .toLowerCase()
-            .split(',')
-            .map((x: string) => x.trim())
-            .includes(this.selectedValue.toLowerCase());
-
         default:
           return true;
       }
@@ -2430,27 +2481,138 @@ filterDropdown() {
     });
   }
 
-  console.log('Filtered Data:', this.filterallData);
-
+  // किती records filter झाले
   this.totalItems = this.filterallData.length;
+
+  // नवीन filter असल्यामुळे first page
   this.pageIndex = 0;
 
+  // First 10 records
   this.applyPagination();
 }
-
 searchText: string = '';
+
+// onSearchInput(event: any) {
+
+//   let value = event.target.value;
+
+//   // Employee Name / Status => Only Characters
+//   if (this.searchType === 'name' || this.searchType === 'empStatus') {
+//     value = value.replace(/[^a-zA-Z\s]/g, '');
+//   }
+
+//   // BioID => Only Numbers
+//   else if (this.searchType === 'userId') {
+//     value = value.replace(/[^0-9]/g, '');
+//   }
+
+//   this.searchText = value;
+//   event.target.value = value;
+
+//   this.filterData();
+//     this.totalItems = this.filterallData.length;
+//   this.pageIndex = 0;
+//   this.applyPagination();
+// }
+
+// onSearchInput(event: any) {
+
+//   let value = event.target.value;
+
+//   if (this.searchType === 'name' ||
+//       this.searchType === 'empStatus') {
+
+//     value = value.replace(/[^a-zA-Z\s]/g, '');
+
+//   } else if (this.searchType === 'userId') {
+
+//     value = value.replace(/[^0-9]/g, '');
+//   }
+
+//   this.searchText = value;
+//   event.target.value = value;
+
+//   this.filterData();
+// }
+
+
+
+// filterData() {
+
+//   this.filterallData = this.getAllList.filter((emp: any) => {
+
+//     switch (this.searchType) {
+
+//       case 'name':
+//         return emp.name?.toLowerCase().includes(this.searchText.toLowerCase());
+
+//       case 'empStatus':
+//         return emp.empStatus?.toLowerCase().includes(this.searchText.toLowerCase());
+
+//       case 'userId':
+//         return emp.userId?.toString().includes(this.searchText);
+
+//       default:
+//         return true;
+//     }
+
+//   });
+
+//   this.totalItems = this.filterallData.length;
+//   this.pageIndex = 0;
+//   this.applyPagination();
+// }
+
+// filterData() {
+
+//   this.filterallData = this.getAllList.filter((emp: any) => {
+
+//     switch (this.searchType) {
+
+//       case 'name':
+//         return (emp.name || '')
+//           .toLowerCase()
+//           .includes(this.searchText.toLowerCase());
+
+//       case 'empStatus':
+//         return (emp.empStatus || '')
+//           .toLowerCase()
+//           .includes(this.searchText.toLowerCase());
+
+//       case 'userId':
+//         return (emp.userId || '')
+//           .toString()
+//           .includes(this.searchText);
+
+//       default:
+//         return true;
+//     }
+
+//   });
+
+//   // IMPORTANT
+//   this.totalItems = this.filterallData.length;
+
+//   // Search change/clear झाल्यावर first page
+//   this.pageIndex = 0;
+
+//   this.applyPagination();
+// }
+
+
+
 
 onSearchInput(event: any) {
 
   let value = event.target.value;
 
-  // Employee Name / Status => Only Characters
-  if (this.searchType === 'name' || this.searchType === 'empStatus') {
+  if (
+    this.searchType === 'name' ||
+    this.searchType === 'empStatus'
+  ) {
     value = value.replace(/[^a-zA-Z\s]/g, '');
-  }
 
-  // BioID => Only Numbers
-  else if (this.searchType === 'userId') {
+  } else if (this.searchType === 'userId') {
     value = value.replace(/[^0-9]/g, '');
   }
 
@@ -2461,8 +2623,6 @@ onSearchInput(event: any) {
 }
 
 
-
-
 filterData() {
 
   this.filterallData = this.getAllList.filter((emp: any) => {
@@ -2470,25 +2630,33 @@ filterData() {
     switch (this.searchType) {
 
       case 'name':
-        return emp.name?.toLowerCase().includes(this.searchText.toLowerCase());
+        return (emp.name || '')
+          .toLowerCase()
+          .includes(this.searchText.toLowerCase());
 
       case 'empStatus':
-        return emp.empStatus?.toLowerCase().includes(this.searchText.toLowerCase());
+        return (emp.empStatus || '')
+          .toLowerCase()
+          .includes(this.searchText.toLowerCase());
 
       case 'userId':
-        return emp.userId?.toString().includes(this.searchText);
+        return (emp.userId || '')
+          .toString()
+          .includes(this.searchText);
 
       default:
         return true;
     }
-
   });
 
+  // IMPORTANT
   this.totalItems = this.filterallData.length;
+
+  // Search/clear झाल्यावर first page
   this.pageIndex = 0;
+
   this.applyPagination();
 }
-
 
 actionType = 'transfer';
 empTransfer() {
@@ -2518,6 +2686,11 @@ getSelectLabel(): string {
       return '';
   }
 }
+
+
+
+
+
 
 getPlaceholder(): string {
   switch (this.searchType) {
