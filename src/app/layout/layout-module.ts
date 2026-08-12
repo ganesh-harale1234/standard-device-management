@@ -151,6 +151,14 @@ export const routes: Routes = [
         , canActivate:[authGuard]
      },
 
+
+    {
+        path:'cumulative-duration-report',
+        loadComponent:()=> import('../pages/reports/cumulative-duration-report/cumulative-duration-report').then((m)=> m.CumulativeDurationReport)
+        , canActivate:[authGuard]
+     },
+
+
      {
       path:'master-report',
       loadComponent:()=> import('../pages/reports/master-report/master-report').then((m)=> m.MasterReport)
