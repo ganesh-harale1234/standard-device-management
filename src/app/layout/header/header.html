@@ -63,13 +63,13 @@
             <mat-menu #menu="matMenu" class="mt-2 w-full" [overlapTrigger]="false" xPosition='before'>
             <!-- Change Password Button -->
 <!-- Change Password -->
-<div
+<div (click)="openPasswordModal()"
   mat-menu-item
   
   class="cursor-pointer">
 
   <mat-icon>lock_reset</mat-icon>
-  <span (click)="openPasswordModal()">Change Password</span>
+  <span >Change Password</span>
 
 </div>
 
@@ -134,8 +134,18 @@
                 <mat-expansion-panel-header>
 
                     <button mat-button class="menu-button nav-link">
-<mat-icon>folder</mat-icon>               
-         <span class="text-sm font-medium">Masters</span>
+
+<span style="display: flex;align-items: center; gap:18; " >
+      <span class="icon">
+    <img class="green-icon mr-2 h-4" src="assets/images/mage_file-fill.png">
+    <img class="white-icon mr-2 h-4" src="assets/images/Vector (16).png">
+  </span>
+
+  <span class="text-sm font-medium">
+  Masters
+  </span>
+</span>
+
                     </button>
                 </mat-expansion-panel-header>
   <a mat-button class="menu-button nav-link" routerLink="/add-company" routerLinkActive="active">
@@ -182,8 +192,20 @@
     </div>
 
        <button mat-button class="menu-button nav-link" routerLink="staff-management" routerLinkActive="active">
-                <mat-icon style="font-size: 18px;">supervisor_account</mat-icon>
-                <span class="text-sm font-medium"> Employee Management</span>
+        
+<span style="display: flex;align-items: center; gap:18; " >
+      <span class="icon">
+    <img class="green-icon mr-2 h-4" src="assets/images/famicons_people.png">
+    <img class="white-icon mr-2 h-4" src="assets/images/Vector (17).png">
+  </span>
+
+  <span class="text-sm font-medium">
+  Employee Management
+  </span>
+
+</span>       
+        
+    
             </button>
             <!-- <div href="">
   <mat-accordion>
@@ -294,6 +316,7 @@
     Employee Transfer Status
   </span>
 </span>
+
 </button>
 
     </div>
@@ -359,8 +382,21 @@
     </div>
 
             <a mat-button class="menu-button nav-link" routerLink="/help" routerLinkActive="active">
-                <mat-icon>library_books</mat-icon>
-                <span class="text-sm font-medium">Help</span>
+
+
+              
+<span style="display: flex;align-items: center; gap:18; " >
+      <span class="icon">
+    <img class="green-icon mr-2 h-4" src="assets/images/material-symbols_help-rounded.png">
+    <img class="white-icon mr-2 h-4" src="assets/images/Vector (16).png">
+  </span>
+
+  <span class="text-sm font-medium">
+   Help
+  </span>
+</span>
+
+             
             </a>
           
          
@@ -378,20 +414,22 @@
 </mat-sidenav-container>
 
 
-<!-- 
 <ngx-spinner
-  bdColor="rgba(0, 0, 0, 0.2)"
+  bdColor="rgba(0, 0, 0, 0.6)"
   size="medium"
-  color="#fff"
-  type="ball-scale-multiple"
   [fullScreen]="true">
-  <p class="text-white text-lg mt-4">Please wait sometime...</p>
-</ngx-spinner> -->
+
+  <div class="custom-loader"></div>
+
+  <!-- <p class="loader-text">Please wait sometime...</p> -->
+
+</ngx-spinner>
 
 
 <!-- ================= Modal ================= -->
+ 
 <div class="password-modal" *ngIf="showChangePasswordModal">
-<form [formGroup]="changePasswordForm" (ngSubmit)="updatePassword()">
+<form [formGroup]="changePasswordForm">
 
     <div class="password-modal-box">
 
@@ -405,67 +443,97 @@
 
         </div>
 
-        
-
         <!-- Old Password -->
-        <mat-form-field appearance="fill" class="full-width">
-            <mat-label>Old Password</mat-label>
-        <input matInput [type]="showpassword ? 'password' : 'text' " formControlName="oldPassword" placeholder="Enter old your password">
-        <button mat-icon-button matSuffix>
-          <mat-icon (click)="showPassword()" >visibility</mat-icon>
-        </button>
-            <!-- <input
-                matInput
-                type="password"
-                formControlName="oldPassword"> -->
+<div class="w-full">
+  <label class="block text-sm font-medium text-gray-700 mb-1">
+    Old Password
+  </label>
 
-            <mat-error
-                *ngIf="changePasswordForm.get('oldPassword')?.hasError('required')">
-                Old Password is required
-            </mat-error>
-        </mat-form-field>
+  <div class="relative">
+    <input
+      [type]="showpassword ? 'password' : 'text'"
+      formControlName="oldPassword"
+      placeholder="Enter your old password"
+      class="w-full px-3 py-2 pr-10 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm"
+    />
 
-        <!-- New Password -->
-        <mat-form-field appearance="fill" class="full-width">
-            <mat-label>New Password</mat-label>
-           
+    <button
+      type="button"
+      (click)="showPassword()"
+      class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+    >
+      <span class="text-sm">👁</span>
+    </button>
+  </div>
 
-                 <input matInput [type]="showpasswordNeW ? 'password' : 'text' " formControlName="password" placeholder="Enter new your password">
-        <button mat-icon-button matSuffix>
-          <mat-icon (click)="showPasswordNew()" >visibility</mat-icon>
-        </button>
+  <p
+    *ngIf="changePasswordForm.get('oldPassword')?.hasError('required') &&
+           changePasswordForm.get('oldPassword')?.touched"
+    class="text-red-500 text-xs mt-1"
+  >
+    Old Password is required
+  </p>
+</div>
 
-            <mat-error
-                *ngIf="changePasswordForm.get('password')?.hasError('required')">
-                New Password is required
-            </mat-error>
 
-            <!-- <mat-error
-                *ngIf="changePasswordForm.get('password')?.hasError('minlength')">
-                Password must be at least 6 characters
-            </mat-error> -->
-        </mat-form-field>
+<!-- New Password -->
+<div class="w-full mt-4">
+  <label class="block text-sm font-medium text-gray-700 mb-1">
+    New Password
+  </label>
 
-        <div class="modal-footer">
+  <div class="relative">
+    <input
+      [type]="showpasswordNeW ? 'password' : 'text'"
+      formControlName="password"
+      placeholder="Enter your new password"
+      class="w-full px-3 py-2 pr-10 border border-sky-500 rounded-md focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm"
+    />
 
-            <button
-                type="button"
-                mat-stroked-button
-                color="warn"
-                (click)="closeModal()">
-                Cancel
-            </button>
+    <button
+      type="button"
+      (click)="showPasswordNew()"
+      class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+    >
+      <span class="text-sm">👁</span>
+    </button>
+  </div>
 
-            <button
-                type="submit"
-                mat-raised-button
-                color="primary">
+  <p
+    *ngIf="changePasswordForm.get('password')?.hasError('required') &&
+           changePasswordForm.get('password')?.touched"
+    class="text-red-500 text-xs mt-1"
+  >
+    New Password is required
+  </p>
+</div>
 
-                Update Password
 
-            </button>
+      <div class="modal-footer">
+  <div class="flex items-center justify-start gap-3 pt-4 border-t border-gray-100">
+      <button
+        type="button"
+      (click)="closeModal()"
+        class="bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium px-6 py-2 rounded-md text-sm transition duration-150"
+      >
+        Cancel
+      </button>
 
-        </div>
+      <button
+      
+        (click)="updatePassword()"
+    
+        class="bg-sky-500 text-white hover:bg-sky-600 font-semibold px-6 py-2 rounded-md text-sm shadow-sm transition duration-150"
+      >
+        Update Password
+      </button>
+
+    
+    </div>
+    </div>
+
+
+  
 
     </div>
 

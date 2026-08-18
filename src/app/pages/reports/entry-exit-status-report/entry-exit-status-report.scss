@@ -548,3 +548,27 @@ font-weight: 500;
 .pdf-table td:nth-child(3) {
   text-align: left;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #contentToConvert, #contentToConvert * {
+    visibility: visible;
+  }
+  #contentToConvert {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  
+  thead {
+    display: table-header-group;
+  }
+}

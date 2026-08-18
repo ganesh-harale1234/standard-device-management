@@ -54,8 +54,6 @@ this.roleName =  sessionStorage.getItem('roleName');
 this.userName =  sessionStorage.getItem('userName');
 this.locationName =  sessionStorage.getItem('locationName');
 
-
-
   }
 
   ngAfterViewInit() {
@@ -102,42 +100,37 @@ closeModal() {
 
 
 
+
 updatePassword(): void {
-
   if (this.changePasswordForm.invalid) {
-
     this.changePasswordForm.markAllAsTouched();
     return;
-
   }
 
-  const payload =  {
+  console.log("update call method")
+  const payload = {
     ...this.changePasswordForm.value,
-    userName:this.userName
-  } 
+    userName: this.userName
+  };
 
-  this.dataService.addData('changePassword', payload).subscribe({
+this.dataService.addData('changePassword', payload).subscribe({
+  next: (res: any) => {
 
-    next: (res: any) => {
+    if (res.code === 100) {
+      console.log('Password updated successfully');
+      this.showChangePasswordModal = false;
 
-      this.toaster.success(res.message || 'Password updated successfully');
-
-      this.changePasswordForm.reset();
-
-      this.closeModal();
-
-    },
-
-    error: (err: any) => {
-
-      this.toaster.error(
-        err?.error?.message || 'Failed to update password.'
-      );
-
+      this.toaster.success('Password updated successfully');
+    } else {
+      this.toaster.error(res.msg || 'Something went wrong');
     }
 
-  });
-
+  },
+  error: (err) => {
+    console.error(err);
+    this.toaster.error('Something went wrong');
+  }
+});
 }
 
 // get f() {

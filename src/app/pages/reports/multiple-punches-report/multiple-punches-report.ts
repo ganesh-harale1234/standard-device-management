@@ -8,7 +8,9 @@ import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { NgSelectModule } from '@ng-select/ng-select';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 
 @Component({
@@ -34,7 +36,7 @@ selectedEmployeeId: string | null = null;
 reportData:any[] = [];
  data: any[] = [];
  dataSource: any
-constructor(private dataService:DataService, private toaster:ToastrService){
+constructor(private dataService:DataService, private toaster:ToastrService, private spinner:NgxSpinnerService,){
 
 }
 
@@ -177,53 +179,139 @@ isAllLocationSelected(): boolean {
 
 }
 
+// MultiplePunchesReport() {
+//      this.reportData = [];
+//   const fromDate = this.formatDateToYMD(this.fromDate);
+//   const toDate   = this.formatDateToYMD(this.toDate);
+
+//   let apiUrl: string;
+//   let requestData: any = { fromDate, toDate };
+
+// // All select Fields Send api
+
+// if (Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0 && this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
+//   apiUrl = 'getEmpWiseMultiplePunchReport';
+//    requestData.locationIdList = this.selectedLocationIds;
+//     requestData. id = this.selectedEmployeeId; 
+// }
+
+//   // EMPLOYEE 
+//   else if (this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
+//     apiUrl = 'getEmpWiseMultiplePunchReport';
+//     requestData.id = this.selectedEmployeeId;
+//     // requestData.rollId = this.roleId;
+//   }
+//   else if(Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0){
+//     apiUrl = 'getMultiplePunchesLocationDateReport';
+//     requestData.locationIdList = this.selectedLocationIds;
+//   }
+
+//   //  date-based call
+//   else {
+//     apiUrl = 'getMultiplePunchesReportWithDate';
+//   }
+
+//   this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
+
+// if(res.code==100){
+//     this.reportData = res.extend?.punchList;
+// }else if(res.code == 200){
+//         this.toaster.error(res.msg);
+//           this.reportData = [];
+// }
+//     else if (res.code === 500) {
+//           this.toaster.error(res.msg);
+//     }else{
+//       this.toaster.error("Something went wrong !..")
+//     }
+//   });;
+// }
+
+
 MultiplePunchesReport() {
-     this.reportData = [];
+  this.reportData = [];
+
   const fromDate = this.formatDateToYMD(this.fromDate);
-  const toDate   = this.formatDateToYMD(this.toDate);
+  const toDate = this.formatDateToYMD(this.toDate);
 
   let apiUrl: string;
   let requestData: any = { fromDate, toDate };
 
-// All select Fields Send api
+  // All select Fields Send api
+  if (
+    Array.isArray(this.selectedLocationIds) &&
+    this.selectedLocationIds.length > 0 &&
+    this.selectedEmployeeId != null &&
+    this.selectedEmployeeId !== ''
+  ) {
+    apiUrl = 'getEmpWiseMultiplePunchReport';
+    requestData.locationIdList = this.selectedLocationIds;
+    requestData.id = this.selectedEmployeeId;
+  }
 
-if (Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0 && this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
-  apiUrl = 'getEmpWiseMultiplePunchReport';
-   requestData.locationIdList = this.selectedLocationIds;
-    requestData. id = this.selectedEmployeeId; 
-}
-
-  // EMPLOYEE 
-  else if (this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
+  // EMPLOYEE
+  else if (
+    this.selectedEmployeeId != null &&
+    this.selectedEmployeeId !== ''
+  ) {
     apiUrl = 'getEmpWiseMultiplePunchReport';
     requestData.id = this.selectedEmployeeId;
     // requestData.rollId = this.roleId;
   }
-  else if(Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0){
+
+  else if (
+    Array.isArray(this.selectedLocationIds) &&
+    this.selectedLocationIds.length > 0
+  ) {
     apiUrl = 'getMultiplePunchesLocationDateReport';
     requestData.locationIdList = this.selectedLocationIds;
   }
 
-  //  date-based call
+  // date-based call
   else {
     apiUrl = 'getMultiplePunchesReportWithDate';
   }
 
-  this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
+  this.spinner.show();
 
-if(res.code==100){
-    this.reportData = res.extend?.punchList;
-}else if(res.code == 200){
+  this.dataService.addData(apiUrl, requestData).subscribe(
+    (res: any) => {
+
+      this.spinner.hide();
+
+      if (res.code == 100) {
+        this.reportData = res.extend?.punchList;
+            this.spinner.hide();
+      }
+      else if (res.code == 200) {
         this.toaster.error(res.msg);
-          this.reportData = [];
-}
-    else if (res.code === 500) {
-          this.toaster.error(res.msg);
-    }else{
-      this.toaster.error("Something went wrong !..")
+            this.spinner.hide();
+        this.reportData = [];
+      }
+      else if (res.code === 500) {
+        this.toaster.error(res.msg);
+            this.spinner.hide();
+      }
+      else {
+        this.toaster.error("Something went wrong !..");
+      }
+    },
+    (error: any) => {
+
+      this.spinner.hide();
+
+      console.error('Multiple Punches Report API Error:', error);
+
+      this.toaster.error(
+        'Unable to fetch multiple punches report. Please try again later.'
+      );
+
+      this.reportData = [];
     }
-  });;
+  );
 }
+
+
 convertTime(time: string): Date | null {
   if (!time) return null;
 
@@ -233,20 +321,25 @@ convertTime(time: string): Date | null {
 
 selectlocationId: number | null = null;
   viewReportDetails() {
-    if (this.selectlocationId == null) {
-      this.toaster.error('Please select a Branch');
-      return;
-    }
+  if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
+  this.toaster.error('Please select a Branch');
+  return;
+}
     const employeeText = this.searchTextemp || null;
     const employeeId = employeeText? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null : null;
     const fromDate = this.formatDateToYMD(this.fromDate);
     const toDate = this.formatDateToYMD(this.toDate);
 
+const locationId =
+  this.RoleName === 'Branch Admin'
+    ? this.locationID
+    : this.selectlocationId;
+
     const requestData = {
       id: employeeId || null,
       fromDate: fromDate,
       toDate: toDate,
-      locationIdList: this.selectlocationId ? [this.selectlocationId] : []
+      locationIdList: locationId ? [locationId] : []
     };
 
     this.dataService.viewmultiplePunchesReportDetails(requestData).subscribe((res: any) => {
@@ -267,51 +360,105 @@ selectlocationId: number | null = null;
    
   
 
-  // onExportPdf() {
-
-  // const DATA: any = document.getElementById('contentToConvert');
-
-  // html2canvas(DATA).then(canvas => {
-  //   const fileWidth = 208;
-  //   const fileHeight = (canvas.height * fileWidth) / canvas.width;
-
-  //   const FILEURI = canvas.toDataURL('image/png');
-  //   let PDF = new jsPDF('p', 'mm', 'a4');
-  //   let position = 0;
-
-  //   PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
-  //   PDF.save('Multiple Punches Report.pdf');
-  // });
-
-
-  // }
 
 onExportPdf() {
-  const DATA: any = document.getElementById('contentToConvert');
+  if (!this.reportData || this.reportData.length === 0) {
+    this.toaster.error('No multiple punches data available to export');
+    return;
+  }
 
-  html2canvas(DATA, {
-    scale: 2,            
-    useCORS: true
-  }).then((canvas) => {
+  const doc = new jsPDF('l', 'mm', 'a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
 
-    const imgData = canvas.toDataURL('image/png');
-
-    const pdf = new jsPDF('p', 'mm', 'a4');
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    pdf.addImage(
-      imgData,
-      'PNG',
-      0,
-      0,
-      pdfWidth,    
-      pdfHeight
-    );
-
-    pdf.save('Multiple Punches Report.pdf');
+  const branchName = this.getSelectedLocationName() || 'All';
+  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
+  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
+  const fDate = fromDateValue || 'N/A';
+  const tDate = toDateValue || 'N/A';
+  const reportTime = new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
   });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('Multiple Punches Report', pageWidth / 2, 10, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`From Date: ${fDate} to ${tDate}`, pageWidth / 2, 15, { align: 'center' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Branch Name: ', 10, 20);
+  doc.setFont('helvetica', 'normal');
+  doc.text(branchName, 32, 20);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Report Time: ', pageWidth - 70, 20);
+  doc.setFont('helvetica', 'normal');
+  doc.text(reportTime, pageWidth - 49, 20);
+
+  const head = [[
+    { content: 'Sr No.' },
+    { content: 'Employee Id' },
+    { content: 'Employee Name' },
+    { content: 'Attendance Date' },
+    { content: 'Punches' }
+  ]];
+
+  const body = this.reportData.map((item: any, index: number) => [
+    index + 1,
+    item.enrollId ?? '-',
+    item.employeeName ?? '-',
+    item.attendanceDate ?? '-',
+    item.ioStatus ? this.formatIoStatus(item.ioStatus) : '-'
+  ]);
+
+  autoTable(doc, {
+    head: head as any,
+    body: body,
+    startY: 25,
+    theme: 'grid',
+    tableWidth: 'auto',
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      overflow: 'linebreak',
+      valign: 'middle',
+      halign: 'center',
+      lineWidth: 0.1,
+      lineColor: [200, 200, 200]
+    },
+    headStyles: {
+      fillColor: [0, 150, 220],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'center',
+      valign: 'middle',
+      lineWidth: 0.2,
+      lineColor: [0, 100, 160]
+    },
+    margin: {
+      top: 25,
+      right: 10,
+      bottom: 15,
+      left: 10
+    },
+    showHead: 'firstPage',
+    didDrawPage: () => {
+      const pageNumber = doc.getNumberOfPages();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.setFontSize(8);
+      doc.text(`Page ${pageNumber}`, pageWidth - 10, pageHeight - 5, { align: 'right' });
+    }
+  });
+
+  doc.save('Multiple_Punches_Report.pdf');
 }
 
 
@@ -332,7 +479,7 @@ onExportExcel(): void {
       'Employee ID': item.enrollId ?? '',
       'Employee Name': item.employeeName ?? '',
       'Attendance Date': item.attendanceDate ?? '',
-      'IN / OUT Status': item.ioStatus ?? ''
+      'Punches': item.ioStatus ?? ''
     };
 
   });

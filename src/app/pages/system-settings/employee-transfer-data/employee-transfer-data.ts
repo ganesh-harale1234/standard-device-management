@@ -10,6 +10,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { ToastrService } from 'ngx-toastr';
+
 
 @Component({
   selector: 'app-employee-transfer-data',
@@ -57,7 +60,7 @@ dataSource = new MatTableDataSource<any>();
 
 constructor(
   private fb: FormBuilder,
-  private dataService: DataService
+  private dataService: DataService, private toastr:ToastrService, private spinner:NgxSpinnerService,
 ) {
   this.form = this.fb.group({});
 }
@@ -90,30 +93,45 @@ formatDateToYMD(date: Date | null): string | null {
   return `${year}-${month}-${day}`;
 }
 
-
 AuditReport() {
+
+  this.spinner.show();
+
   const fromDate = this.formatDateToYMD(this.fromDate);
-  const toDate   = this.formatDateToYMD(this.toDate);
+  const toDate = this.formatDateToYMD(this.toDate);
 
   let requestData: any = { fromDate, toDate };
 
-// All select Fields Send api
+  // All select Fields Send api
 
-const apiUrl:any = ""
+  const apiUrl: any = "";
 
+  this.dataService
+    .getAllData(`transferActivityTableDataByDateWise?fromDate=${fromDate}&toDate=${toDate}`)
+    .subscribe(
+      (res: any) => {
 
-  this.dataService.getAllData(`transferActivityTableDataByDateWise?fromDate=${fromDate}&toDate=${toDate}`)
-    .subscribe((res: any) => {
+        this.spinner.hide();
 
-      this.transferList = res?.extend?.data || [];
+        this.transferList = res?.extend?.data || [];
 
-      this.filterallData = [...this.transferList];
+        this.filterallData = [...this.transferList];
 
-      this.applyPagination();
+        this.applyPagination();
 
-    });
+      },
+      (error) => {
+
+        this.spinner.hide();
+
+           this.toastr.error(
+        'Unable to fetch data. Please try again later.'
+      );
+
+  
+      }
+    );
 }
-
 
 //================ Device ==================
 
@@ -131,18 +149,36 @@ getDeviceallList() {
 
 getAllempTransferlList() {
 
+  this.spinner.show();
+
   this.dataService
     .getAllData('transferActivityTableData')
-    .subscribe((res: any) => {
+    .subscribe(
+      (res: any) => {
 
-      this.transferList = res?.extend?.data || [];
+        this.spinner.hide();
 
-      this.filterallData = [...this.transferList];
+        this.transferList = res?.extend?.data || [];
 
-      this.applyPagination();
+        this.filterallData = [...this.transferList];
 
-    });
+        this.applyPagination();
 
+      },
+      (error) => {
+
+        this.spinner.hide();
+
+      
+        this.spinner.hide();
+
+           this.toastr.error(
+        'Unable to fetch data. Please try again later.'
+      );
+
+      
+      }
+    );
 }
 
 //================ Access Group ==================
@@ -369,7 +405,7 @@ dropdownList: string[] = [];
 // =========================
 
 pageIndex = 0;
-pageSize = 10;
+pageSize = 500;
 totalItems = 0;
 
 // =========================

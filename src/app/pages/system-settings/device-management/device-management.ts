@@ -7,10 +7,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { DataService } from '../../../services/data-service';
+import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+
 
 @Component({
   selector: 'app-device-management',
-  imports: [SharedModule, CommonModule],
+  imports: [SharedModule, CommonModule,NgxSpinnerModule,],
   templateUrl: './device-management.html',
   styleUrl: './device-management.scss',
 })
@@ -52,7 +54,7 @@ displayedColumns: string[] = [
   dataSource:any = new MatTableDataSource
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private fb:FormBuilder, private toaster:ToastrService, private dataService:DataService) {
+  constructor(private fb:FormBuilder,private spinner:NgxSpinnerService, private toaster:ToastrService, private dataService:DataService) {
     this.form = this.fb.group(({
      
       deviceName:['', Validators.required],
@@ -104,14 +106,16 @@ RoleName:any;
       }
     }, ((err)=>{
       const errorMsg = err.error.msg || 'Faild to load Location list !'
-      this.toaster.error(errorMsg)
+      // this.toaster.error(errorMsg)
     })
   )
   }
 
 getDeviceallList() {
 
-   let apiUrl = '';
+  this.spinner.show();
+
+  let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
     apiUrl = `device?locationId=${this.locationID}`;
@@ -119,18 +123,24 @@ getDeviceallList() {
     apiUrl = 'device';
   }
 
-  this.dataService.getAllData(apiUrl).subscribe((res: any[]) => {
+  this.dataService.getAllData(apiUrl).subscribe({
+    next: (res: any[]) => {
 
-    this.allDeviceList = res;      // Original Data
+      this.spinner.hide();
 
-    this.dataSource = new MatTableDataSource(res);
+      this.allDeviceList = res;
+      this.dataSource = new MatTableDataSource(res);
+      this.dataSource.paginator = this.paginator;
+      this.totalItems = res.length;
+    },
 
-    this.dataSource.paginator = this.paginator;
+    error: (error) => {
 
-    this.totalItems = res.length;
-
+      this.spinner.hide();
+          this.toaster.error('Unable to fetch data. Please try again later');
+      console.error('Device API Error:', error);
+    }
   });
-
 }
   
     editData(id:any): void {

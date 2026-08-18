@@ -148,6 +148,7 @@ selectedDeviceIds: string[] = [];
   // 🔹 Pagination + table data
   // dataSource = new MatTableDataSource([this.filterallData]);
   dataSource = new MatTableDataSource([]);
+  
 
   @ViewChild('excelFileInput') excelFileInput!: ElementRef<HTMLInputElement>;
  showLoginFields = false;
@@ -265,6 +266,10 @@ addnew(){
   this.onCancel()
 }
 
+trackByEmployee(index: number, row: any): any {
+  return row.enrollId;
+}
+
 backtoList(){
     this.showFormData = false
   this.showTableData = true;
@@ -318,25 +323,26 @@ getStatuswiseEmp(empStatus:any){
     this.dataService.getAllData(apiUrl).subscribe((res: any) => {
 
        if (res.code === 100) {
-        this.getAllList = (res?.extend?.data || []).map((item: any) => {
+        this.getAllList = res?.extend?.data || []
+        // this.getAllList = (res?.extend?.data || []).map((item: any) => {
 
-          if (item.photo === 'Y' && item.image) {
+        //   if (item.photo === 'Y' && item.image) {
 
-            // 🔥 remove unwanted prefix before /9j/
-            const index = item.image.indexOf('/9j/');
-            const cleanBase64 =
-              index !== -1 ? item.image.substring(index) : item.image;
+        //     // 🔥 remove unwanted prefix before /9j/
+        //     const index = item.image.indexOf('/9j/');
+        //     const cleanBase64 =
+        //       index !== -1 ? item.image.substring(index) : item.image;
 
-            return {
-              ...item,
-              img: this.sanitizer.bypassSecurityTrustResourceUrl(
-                `data:image/jpeg;base64,${cleanBase64}`
-              )
-            };
-          }
+        //     return {
+        //       ...item,
+        //       img: this.sanitizer.bypassSecurityTrustResourceUrl(
+        //         `data:image/jpeg;base64,${cleanBase64}`
+        //       )
+        //     };
+        //   }
 
-          return { ...item, img: null };
-        });
+        //   return { ...item, img: null };
+        // });
 
         this.filterallData = this.getAllList;
         this.dataSource = new MatTableDataSource(this.getAllList);
@@ -348,6 +354,9 @@ hidePassword = true;
 userNameLogin:any;
   
   ngOnInit(): void {
+  // this.pageIndex = 0;
+  // this.pageSize = 500;
+
     this.locationID = sessionStorage.getItem('locationId');
     this.RoleName =  sessionStorage.getItem('roleName');
     this.userNameLogin =  sessionStorage.getItem('userName');
@@ -361,7 +370,7 @@ userNameLogin:any;
     this.setRoleValidation(role);
   });
 
-this.getallDataRole();
+// this.getallDataRole();
  this.getallData();
  this.getalllocation();
  this.getallDatadepartment();
@@ -539,13 +548,76 @@ collegeList:any  = []
   }
 
 
-    //  "locationId": 4,
-    //   "name": "Sagar",
-    //    "roleName": "Branch Admin",
+
+
+// getallData() {
+//   this.spinner.show();
+
+//   let apiUrl = '';
+
+//   if (this.RoleName === 'Branch Admin' && this.locationID) {
+//     apiUrl = `employee/findAllEmployees?locationId=${this.locationID}`;
+//   } else {
+//     apiUrl = 'employee/findAllEmployees';
+//   }
+
+//   this.dataService.getAllData(apiUrl).subscribe(
+//     (res: any) => {
+//       this.spinner.hide();
+
+//       if (res.code === 100) {
+//         this.getAllList = (res?.extend?.data || [])
+
+//         // this.getAllList = (res?.extend?.data || []).map((item: any) => {
+
+//         //   if (item.photo === 'Y' && item.image) {
+
+//         //     // Remove unwanted prefix before /9j/
+//         //     const index = item.image.indexOf('/9j/');
+//         //     const cleanBase64 =
+//         //       index !== -1 ? item.image.substring(index) : item.image;
+
+//         //     return {
+//         //       ...item,
+//         //       img: this.sanitizer.bypassSecurityTrustResourceUrl(
+//         //         `data:image/jpeg;base64,${cleanBase64}`
+//         //       )
+//         //     };
+//         //   }
+
+//         //   return {
+//         //     ...item,
+//         //     img: null
+//         //   };
+//         // });
+
+
+
+//         this.filterallData = this.getAllList;
+//         this.dataSource = new MatTableDataSource(this.getAllList);
+//         this.dataSource.paginator = this.paginator;
+//       }
+//     },
+//     (error: any) => {
+//       // Hide spinner when API fails
+//       this.spinner.hide();
+
+//       console.error('Employee API Error:', error);
+
+//       this.toastr.error(
+//         'Unable to fetch data. Please try again later.'
+//       );
+//     }
+//   );
+// }
+
+
+
 
 
 getallData() {
-    // this.spinner.show()
+  this.spinner.show();
+
   let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
@@ -556,75 +628,95 @@ getallData() {
 
   this.dataService.getAllData(apiUrl).subscribe(
     (res: any) => {
-        this.spinner.hide()
+      this.spinner.hide();
 
       if (res.code === 100) {
-
-        this.getAllList = (res?.extend?.data || []).map((item: any) => {
-
-          if (item.photo === 'Y' && item.image) {
-
-            // 🔥 remove unwanted prefix before /9j/
-            const index = item.image.indexOf('/9j/');
-            const cleanBase64 =
-              index !== -1 ? item.image.substring(index) : item.image;
-
-            return {
-              ...item,
-              img: this.sanitizer.bypassSecurityTrustResourceUrl(
-                `data:image/jpeg;base64,${cleanBase64}`
-              )
-            };
-          }
-
-          return { ...item, img: null };
-        });
-
+        this.getAllList = (res?.extend?.data || [])
         this.filterallData = this.getAllList;
         this.dataSource = new MatTableDataSource(this.getAllList);
         this.dataSource.paginator = this.paginator;
       }
+    },
+    (error: any) => {
+      // Hide spinner when API fails
+      this.spinner.hide();
+
+      console.error('Employee API Error:', error);
+
+      this.toastr.error(
+        'Unable to fetch data. Please try again later.'
+      );
     }
   );
 }
 
 
+// Server side pagination use this method
 
 // getallData() {
-// //  this.spinner.show();
-//   this.dataService.getAllData('employee/findAllEmployees').subscribe(
-//     (res: any) => {
-//       // this.spinner.hide();
+
+//   this.spinner.show();
+
+//   let apiUrl = '';
+
+//   const page = this.pageIndex + 1;
+//   const size = this.pageSize;
+
+//   if (this.RoleName === 'Branch Admin' && this.locationID) {
+
+//     apiUrl =
+//       `employee/findAllEmployees` +
+//       `?locationId=${this.locationID}` +
+//       `&page=${page}` +
+//       `&size=${size}`;
+
+//   } else {
+
+//     apiUrl =
+//       `employee/findAllEmployees` +
+//       `?page=${page}` +
+//       `&size=${size}`;
+//   }
+
+//   this.dataService.getAllData(apiUrl).subscribe({
+
+//     next: (res: any) => {
+
+//       this.spinner.hide();
+
 //       if (res.code === 100) {
-//         this.getAllList = res?.extend?.data || [];
-//                this.filterallData = this.getAllList;
-//               this.dataSource = new MatTableDataSource(this.getAllList);
-//       this.dataSource.paginator = this.paginator;
-//         this.getAllList.forEach((item: any) => {
-//           if (item.photo === 'Y' && item.image) {
-//             const imgsrc = item.image; 
 
-//             item.img = this.sanitizer.bypassSecurityTrustResourceUrl(
-//               `data:image/jpeg;base64,${imgsrc}`
-//             );
-//           } else {
-//             item.img = null;
-//           }
-//         });
+//         this.getAllList =
+//           res?.extend?.data || [];
 
-//       } else if (res.code === 500) {
-//         this.toaster.error('Internal server error !');
-//       } else {
-//         this.toaster.error('Something went wrong !');
+//         this.filterallData =
+//           this.getAllList;
+
+//         this.dataSource.data =
+//           this.getAllList;
+
+//         this.totalItems =
+//           res?.extend?.totalItems ||
+//           res?.extend?.totalCount ||
+//           0;
 //       }
 //     },
-//     (err) => {
-//       const errorMsg = err?.error?.msg || 'Faild to load employee list !';
-//       this.toaster.error(errorMsg);
-//     }
-//   );
-// }
 
+//     error: (error: any) => {
+
+//       this.spinner.hide();
+
+//       console.error(
+//         'Employee API Error:',
+//         error
+//       );
+
+//       this.toastr.error(
+//         'Unable to fetch data. Please try again later.'
+//       );
+//     }
+//   });
+// }
 
 // Camera references
 @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
@@ -1619,34 +1711,6 @@ toggleSelectAllemp(event: any): void {
   console.log(this.enrollIdList);
 }
 
-// onPageChange(event: PageEvent) {
-//   this.pageIndex = event.pageIndex;
-//   this.pageSize = event.pageSize;
-
-//   this.isAllSelectedemp = false;
-// }
-
-// onPageChange(event: PageEvent) {
-
-//   const pageSizeChanged = this.pageSize !== event.pageSize;
-
-//   this.pageIndex = event.pageIndex;
-//   this.pageSize = event.pageSize;
-
-//   if (pageSizeChanged) {
-
-//     this.isAllSelectedemp = false;
-
-//     this.selectedEnrollIds = [];
-//     this.enrollIdList = [];
-//     this.selectedRolesText = '';
-
-//     this.dataSource.data.forEach((row: any) => {
-//       row.select = false;
-//     });
-//   }
-// }
-
 
 
 onPageChange(event: PageEvent) {
@@ -1670,23 +1734,41 @@ onPageChange(event: PageEvent) {
     });
   }
 
-  // Pagination data load असेल तर
-  // this.loadEmployees();
 }
 
-// onPageChange(event: PageEvent): void {
-//  this.currentPage = event.pageIndex;
-//  this.pageSize = event.pageSize;
-  
-//   this.isAllSelectedemp = false;
-//   this.selectedEnrollIds = [];
-//   this.enrollIdList = [];
-//   this.selectedRolesText = '';
+// SERVER SIDE PAGINATION USE THIS METHOD....
 
-//   const rows = this.dataSource.data;
+// onPageChange(event: PageEvent) {
 
-//   rows.forEach((row: any) => row.select = false);
+//   const pageChanged =
+//     this.pageIndex !== event.pageIndex;
+
+//   const pageSizeChanged =
+//     this.pageSize !== event.pageSize;
+
+//   this.pageIndex = event.pageIndex;
+//   this.pageSize = event.pageSize;
+
+//   if (pageChanged || pageSizeChanged) {
+
+//     // Reset selection
+//     this.isAllSelectedemp = false;
+
+//     this.selectedEnrollIds = [];
+//     this.enrollIdList = [];
+//     this.selectedRolesText = '';
+
+//     // Unselect current page rows
+//     this.dataSource.data.forEach((row: any) => {
+//       row.select = false;
+//     });
+
+//     // IMPORTANT:
+//     // Server-side pagination API call
+//     this.getallData();
+//   }
 // }
+
 
 // ✅ Individual row
 onRowSelectionChange(row: any): void {
@@ -2347,60 +2429,139 @@ selectedValue: string = '';
 dropdownList: any[] = [];
 
 
-onSearchTypeChange() {
+// onSearchTypeChange() {
+
+//   this.selectedValue = '';
+
+//   switch (this.searchType) {
+
+//     case 'deptName':
+//       this.dropdownList = this.getAllListdepartment.map(
+//         (x: any) => x.deptName
+//       );
+//       break;
+
+//     case 'accessGroupName':
+//       this.dropdownList = this.getAllListgroup.map(
+//         (x: any) => x.accessGroupName
+//       );
+//       break;
+
+//     case 'categoryName':
+//       this.dropdownList = this.getAllListcategory.map(
+//         (x: any) => x.categoryName
+//       );
+//       break;
+
+//     case 'conName':
+//       this.dropdownList = this.getAllList
+//         .filter((x: any) => x.conName)
+//         .map((x: any) => x.conName);
+
+//       this.dropdownList = [...new Set(this.dropdownList)];
+//       break;
+
+//     default:
+//       this.dropdownList = [];
+//       break;
+//   }
+
+//   console.log('Search Type:', this.searchType);
+//   console.log('Contractor Dropdown:', this.dropdownList);
+
+//   this.filterallData = [...this.getAllList];
+
+//   this.totalItems = this.filterallData.length;
+//   this.pageIndex = 0;
+
+//   this.applyPagination();
+//     this.totalItems = this.filterallData.length;
+//   this.pageIndex = 0;
+//   this.applyPagination();
+// }
+
+onSearchTypeChange(): void {
 
   this.selectedValue = '';
+  this.searchText = '';
 
   switch (this.searchType) {
 
     case 'deptName':
-      this.dropdownList = this.getAllListdepartment.map(
-        (x: any) => x.deptName
-      );
+
+      this.dropdownList = this.getAllListdepartment
+        .map((x: any) => x.deptName)
+        .filter((x: any) => x);
+
+      this.dropdownList = [...new Set(this.dropdownList)];
+
       break;
+
 
     case 'accessGroupName':
-      this.dropdownList = this.getAllListgroup.map(
-        (x: any) => x.accessGroupName
-      );
+
+      this.dropdownList = this.getAllListgroup
+        .map((x: any) => x.accessGroupName)
+        .filter((x: any) => x);
+
+      this.dropdownList = [...new Set(this.dropdownList)];
+
       break;
+
 
     case 'categoryName':
-      this.dropdownList = this.getAllListcategory.map(
-        (x: any) => x.categoryName
-      );
+
+      this.dropdownList = this.getAllListcategory
+        .map((x: any) => x.categoryName)
+        .filter((x: any) => x);
+
+      this.dropdownList = [...new Set(this.dropdownList)];
+
       break;
 
+
     case 'conName':
+
       this.dropdownList = this.getAllList
         .filter((x: any) => x.conName)
         .map((x: any) => x.conName);
 
       this.dropdownList = [...new Set(this.dropdownList)];
+
       break;
 
+
+    case 'locationName':
+
+      this.dropdownList = this.getAllListlocation
+        .filter((x: any) => x.locationName)
+        .map((x: any) => x.locationName);
+
+      this.dropdownList = [...new Set(this.dropdownList)];
+
+      break;
+
+
     default:
+
       this.dropdownList = [];
+
       break;
   }
 
-  console.log('Search Type:', this.searchType);
-  console.log('Contractor Dropdown:', this.dropdownList);
-
+  // Reset data
   this.filterallData = [...this.getAllList];
 
   this.totalItems = this.filterallData.length;
+
   this.pageIndex = 0;
 
   this.applyPagination();
-    this.totalItems = this.filterallData.length;
-  this.pageIndex = 0;
-  this.applyPagination();
+
 }
 
-// filterDropdown() {
 
-//   console.log('Selected Contractor:', this.selectedValue);
+// filterDropdown() {
 
 //   if (!this.selectedValue) {
 
@@ -2412,6 +2573,13 @@ onSearchTypeChange() {
 
 //       switch (this.searchType) {
 
+//         case 'accessGroupName':
+//           return (emp.accessGroupName || '')
+//             .toLowerCase()
+//             .split(',')
+//             .map((x: string) => x.trim())
+//             .includes(this.selectedValue.toLowerCase());
+
 //         case 'deptName':
 //           return emp.deptName === this.selectedValue;
 
@@ -2421,13 +2589,6 @@ onSearchTypeChange() {
 //         case 'conName':
 //           return emp.conName === this.selectedValue;
 
-//         case 'accessGroupName':
-//           return (emp.accessGroupName || '')
-//             .toLowerCase()
-//             .split(',')
-//             .map((x: string) => x.trim())
-//             .includes(this.selectedValue.toLowerCase());
-
 //         default:
 //           return true;
 //       }
@@ -2435,18 +2596,17 @@ onSearchTypeChange() {
 //     });
 //   }
 
-//   console.log('Filtered Data:', this.filterallData);
-
+//   // किती records filter झाले
 //   this.totalItems = this.filterallData.length;
+
+//   // नवीन filter असल्यामुळे first page
 //   this.pageIndex = 0;
 
-//   this.applyPagination();
-//     this.totalItems = this.filterallData.length;
-//   this.pageIndex = 0;
+//   // First 10 records
 //   this.applyPagination();
 // }
 
-filterDropdown() {
+filterDropdown(): void {
 
   if (!this.selectedValue) {
 
@@ -2459,145 +2619,54 @@ filterDropdown() {
       switch (this.searchType) {
 
         case 'accessGroupName':
+
           return (emp.accessGroupName || '')
             .toLowerCase()
             .split(',')
             .map((x: string) => x.trim())
             .includes(this.selectedValue.toLowerCase());
 
+
         case 'deptName':
-          return emp.deptName === this.selectedValue;
+
+          return (emp.deptName || '').toLowerCase() ===
+                 this.selectedValue.toLowerCase();
+
 
         case 'categoryName':
-          return emp.categoryName === this.selectedValue;
+
+          return (emp.categoryName || '').toLowerCase() ===
+                 this.selectedValue.toLowerCase();
+
 
         case 'conName':
-          return emp.conName === this.selectedValue;
+
+          return (emp.conName || '').toLowerCase() ===
+                 this.selectedValue.toLowerCase();
+
+
+        case 'locationName':
+
+          return (emp.locationName || '').toLowerCase() ===
+                 this.selectedValue.toLowerCase();
+
 
         default:
+
           return true;
       }
 
     });
   }
 
-  // किती records filter झाले
   this.totalItems = this.filterallData.length;
 
-  // नवीन filter असल्यामुळे first page
   this.pageIndex = 0;
 
-  // First 10 records
   this.applyPagination();
 }
+
 searchText: string = '';
-
-// onSearchInput(event: any) {
-
-//   let value = event.target.value;
-
-//   // Employee Name / Status => Only Characters
-//   if (this.searchType === 'name' || this.searchType === 'empStatus') {
-//     value = value.replace(/[^a-zA-Z\s]/g, '');
-//   }
-
-//   // BioID => Only Numbers
-//   else if (this.searchType === 'userId') {
-//     value = value.replace(/[^0-9]/g, '');
-//   }
-
-//   this.searchText = value;
-//   event.target.value = value;
-
-//   this.filterData();
-//     this.totalItems = this.filterallData.length;
-//   this.pageIndex = 0;
-//   this.applyPagination();
-// }
-
-// onSearchInput(event: any) {
-
-//   let value = event.target.value;
-
-//   if (this.searchType === 'name' ||
-//       this.searchType === 'empStatus') {
-
-//     value = value.replace(/[^a-zA-Z\s]/g, '');
-
-//   } else if (this.searchType === 'userId') {
-
-//     value = value.replace(/[^0-9]/g, '');
-//   }
-
-//   this.searchText = value;
-//   event.target.value = value;
-
-//   this.filterData();
-// }
-
-
-
-// filterData() {
-
-//   this.filterallData = this.getAllList.filter((emp: any) => {
-
-//     switch (this.searchType) {
-
-//       case 'name':
-//         return emp.name?.toLowerCase().includes(this.searchText.toLowerCase());
-
-//       case 'empStatus':
-//         return emp.empStatus?.toLowerCase().includes(this.searchText.toLowerCase());
-
-//       case 'userId':
-//         return emp.userId?.toString().includes(this.searchText);
-
-//       default:
-//         return true;
-//     }
-
-//   });
-
-//   this.totalItems = this.filterallData.length;
-//   this.pageIndex = 0;
-//   this.applyPagination();
-// }
-
-// filterData() {
-
-//   this.filterallData = this.getAllList.filter((emp: any) => {
-
-//     switch (this.searchType) {
-
-//       case 'name':
-//         return (emp.name || '')
-//           .toLowerCase()
-//           .includes(this.searchText.toLowerCase());
-
-//       case 'empStatus':
-//         return (emp.empStatus || '')
-//           .toLowerCase()
-//           .includes(this.searchText.toLowerCase());
-
-//       case 'userId':
-//         return (emp.userId || '')
-//           .toString()
-//           .includes(this.searchText);
-
-//       default:
-//         return true;
-//     }
-
-//   });
-
-//   // IMPORTANT
-//   this.totalItems = this.filterallData.length;
-
-//   // Search change/clear झाल्यावर first page
-//   this.pageIndex = 0;
-
-//   this.applyPagination();
-// }
 
 
 
@@ -2658,6 +2727,9 @@ filterData() {
   this.applyPagination();
 }
 
+
+
+
 actionType = 'transfer';
 empTransfer() {
   console.log('Transfer');
@@ -2668,8 +2740,29 @@ empDelete() {
 }
 
 
+// getSelectLabel(): string {
+//   switch (this.searchType) {
+//     case 'deptName':
+//       return 'Department';
+
+//     case 'accessGroupName':
+//       return 'Access Group';
+
+//     case 'categoryName':
+//       return 'Category';
+
+//     case 'conName':
+//       return 'Contractor';
+
+//     default:
+//       return '';
+//   }
+// }
+
 getSelectLabel(): string {
+
   switch (this.searchType) {
+
     case 'deptName':
       return 'Department';
 
@@ -2682,31 +2775,48 @@ getSelectLabel(): string {
     case 'conName':
       return 'Contractor';
 
+    case 'locationName':
+      return 'Branch';
+
     default:
       return '';
   }
 }
 
 
+// getPlaceholder(): string {
+//   switch (this.searchType) {
+//     case 'userId':
+//       return 'Search Biometric ID';
+//     case 'name':
+//       return 'Search Employee Name';
+//     case 'empStatus':
+//             return 'Search Status';
 
-
+     
+//     default:
+//       return 'Search here...';
+//   }
+// }
 
 
 getPlaceholder(): string {
+
   switch (this.searchType) {
+
     case 'userId':
       return 'Search Biometric ID';
+
     case 'name':
       return 'Search Employee Name';
-    case 'empStatus':
-            return 'Search Status';
 
-     
+    case 'empStatus':
+      return 'Search Status';
+
     default:
       return 'Search here...';
   }
 }
-
 
 onAccessGroupChange(): void {
   const selected = this.form.get('accessGroupId')?.value || [];

@@ -250,6 +250,13 @@ box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     color: white !important;
 }
 
+.ngx-toastr {
+  z-index: 10000000 !important;
+}
+
+.toast-container {
+  z-index: 10000000 !important;
+}
 // .toast-top-right {
 //   top: 1rem;
 //   right: 1rem;

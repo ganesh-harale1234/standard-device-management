@@ -38,3 +38,24 @@ th{
     background-color: rgba(0, 150, 225, 1) !important;
     color: white !important;
 }
+
+.new-device-row {
+  background-color: #cee4f7 !important;
+}
+
+.new-device-row:hover {
+  background-color: #cee4f7 !important;
+}
+
+.new-device-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background-color: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #7dd3fc;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+}

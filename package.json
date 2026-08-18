@@ -37,6 +37,7 @@
     "face-api.js": "^0.22.2",
     "file-saver": "^2.0.5",
     "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.8",
     "ng2-pdf-viewer": "^10.4.0",
     "ngx-extended-pdf-viewer": "^25.6.0-alpha.3",
     "ngx-spinner": "^19.0.0",

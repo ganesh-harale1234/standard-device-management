@@ -16,7 +16,7 @@
 
       <div class="w-full bg-white rounded-2xl border border-sky-100 shadow-xl px-8 py-8 relative">
         
-        <div class="absolute -left-2.5 top-11 w-5 h-5 rounded-full bg-[#0B7FC3] border-4 border-white shadow-sm"></div>
+        <div class="absolute -left-2.5 top-11 w-5 h-5 rounded-full bg-[#0A4F73] border-4 border-[#0A4F73] shadow-sm"></div>
 
         <h2 class="text-2xl md:text-3xl font-bold text-title mb-6 tracking-wide">
           Welcome To DevicePulse
@@ -87,6 +87,101 @@
         </form>
 
       </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- New Device Modal -->
+<div
+  *ngIf="showNewDeviceModal"
+  class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+>
+  <!-- Modal -->
+  <div
+    class="w-full max-w-[460px] mx-4 bg-white rounded-lg shadow-xl border border-gray-200"
+  >
+
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-[#005B96]">
+        New Device Available
+      </h2>
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-5">
+
+      <div class="flex items-start gap-4">
+
+        <!-- Icon -->
+        <div
+          class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-full bg-[#E8F7FD]"
+        >
+          <svg
+            class="w-6 h-6 text-[#009FE3]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z"
+            />
+          </svg>
+        </div>
+
+        <!-- Content -->
+        <div>
+          <p class="text-sm text-gray-700 leading-6">
+            <span class="font-semibold text-gray-900">
+              {{ newDeviceCount }}
+            </span>
+
+            new device
+            <span *ngIf="newDeviceCount > 1">s</span>
+            have been added without an
+            <span class="font-semibold text-gray-900">
+              Access Group
+            </span>
+            assignment.
+          </p>
+
+          <p class="text-sm text-gray-500 mt-2 leading-5">
+            Please assign an Access Group to the new device.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3"
+    >
+
+      <!-- OK -->
+      <button
+        type="button"
+        (click)="closeNewDeviceModal()"
+        class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition"
+      >
+        OK
+      </button>
+
+      <!-- Go To Device List -->
+      <button
+        type="button"
+        (click)="goToDeviceList()"
+        class="px-5 py-2 text-sm font-medium text-white bg-[#009FE3] border border-[#009FE3] rounded-md hover:bg-[#008CC7] transition"
+      >
+        Go to Device List
+      </button>
+
     </div>
 
   </div>

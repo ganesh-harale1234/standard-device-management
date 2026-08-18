@@ -8,8 +8,10 @@ import { SharedModule } from '../../../shared/shared-module';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
+import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 import { NgSelectModule } from '@ng-select/ng-select';
+import autoTable from 'jspdf-autotable';
 @Component({
   selector: 'app-master-report',
   imports: [FormsModule, CommonModule, NgSelectModule, SharedModule],
@@ -34,7 +36,7 @@ selectedEmployeeId: string | null = null;
   reportData:any = [];
  data: any[] = [];
  dataSource: any
-constructor(private dataService:DataService, private toaster:ToastrService){
+constructor(private dataService:DataService, private toaster:ToastrService, private spinner:NgxSpinnerService,){
 
 }
 
@@ -179,8 +181,60 @@ isAllLocationSelected(): boolean {
 }
 
 
+// masterReport() {
+//    this.reportData = [];
+   
+//   const fromDate = this.formatDateToYMD(this.fromDate);
+//   const toDate   = this.formatDateToYMD(this.toDate);
+
+//   let apiUrl: string;
+//   let requestData: any = { fromDate, toDate };
+
+//   // LOCATION 
+
+// // All select Fields Send api
+
+// if (Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0 && this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
+//   apiUrl = 'masterReport';
+//    requestData.locationIdList = this.selectedLocationIds;
+//     requestData.employeeId = this.selectedEmployeeId; 
+// }
+
+//   // EMPLOYEE 
+//   else if (this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
+//     apiUrl = 'masterReport';
+//     requestData.employeeId = this.selectedEmployeeId;
+//     // requestData.rollId = this.roleId;
+//   }
+//   else if(Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0){
+//     apiUrl = 'masterReportWithLocationDate';
+//     requestData.locationId = this.selectedLocationIds;
+//   }
+
+//   //  date-based call
+//   else {
+//     apiUrl = 'masterReportWithDate';
+//   }
+
+//   this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
+
+// if(res.code==100){
+ 
+//     this.reportData = res.extend?.masterReportList;
+// }else if(res.code == 200){
+//         this.toaster.error(res.msg);
+//          this.reportData = [];
+// }
+//     else if (res.code === 500) {
+//           this.toaster.error(res.msg);
+//     }else{
+//       this.toaster.error("Something went wrong !..")
+//     }
+//   });
+// }
+
 masterReport() {
-   this.reportData = [];
+  this.reportData = [];
    
   const fromDate = this.formatDateToYMD(this.fromDate);
   const toDate   = this.formatDateToYMD(this.toDate);
@@ -190,13 +244,13 @@ masterReport() {
 
   // LOCATION 
 
-// All select Fields Send api
+  // All select Fields Send api
 
-if (Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0 && this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
-  apiUrl = 'masterReport';
-   requestData.locationIdList = this.selectedLocationIds;
+  if (Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length > 0 && this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
+    apiUrl = 'masterReport';
+    requestData.locationIdList = this.selectedLocationIds;
     requestData.employeeId = this.selectedEmployeeId; 
-}
+  }
 
   // EMPLOYEE 
   else if (this.selectedEmployeeId != null && this.selectedEmployeeId !== '') {
@@ -209,26 +263,47 @@ if (Array.isArray(this.selectedLocationIds) && this.selectedLocationIds.length >
     requestData.locationId = this.selectedLocationIds;
   }
 
-  //  date-based call
+  // date-based call
   else {
     apiUrl = 'masterReportWithDate';
   }
 
-  this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
+  this.spinner.show();
 
-if(res.code==100){
- 
-    this.reportData = res.extend?.masterReportList;
-}else if(res.code == 200){
+  this.dataService.addData(apiUrl, requestData).subscribe(
+    (res: any) => {
+
+      this.spinner.hide();
+
+      if(res.code==100){
+        this.reportData = res.extend?.masterReportList;
+      }
+      else if(res.code == 200){
         this.toaster.error(res.msg);
-         this.reportData = [];
-}
-    else if (res.code === 500) {
-          this.toaster.error(res.msg);
-    }else{
-      this.toaster.error("Something went wrong !..")
+            this.spinner.hide();
+        this.reportData = [];
+      }
+      else if (res.code === 500) {
+        this.toaster.error(res.msg);
+            this.spinner.hide();
+      }
+      else{
+        this.toaster.error("Something went wrong !..");
+      }
+    },
+    (error: any) => {
+
+      this.spinner.hide();
+
+      console.error('Master Report API Error:', error);
+
+      this.toaster.error(
+        'Unable to fetch master report. Please try again later.'
+      );
+
+      this.reportData = [];
     }
-  });
+  );
 }
 
 // locationid:any[]=[]
@@ -251,10 +326,10 @@ if(res.code==100){
 
   selectlocationId: number | null = null;
   viewReportDetails() {
-    if (this.selectlocationId == null) {
-      this.toaster.error('Please select a Branch');
-      return;
-    }
+if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
+  this.toaster.error('Please select a Branch');
+  return;
+}
     const employeeText = this.searchTextemp || null;
 
     const employeeId = employeeText? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null : null;
@@ -262,12 +337,25 @@ if(res.code==100){
     const fromDate = this.formatDateToYMD(this.fromDate);
     const toDate = this.formatDateToYMD(this.toDate);
 
-    const requestData = {
-      employeeId: employeeId || null,
-      fromDate: fromDate,
-      toDate: toDate,
-      locationId: this.selectlocationId ? [this.selectlocationId] : []
-    };
+    const locationId =
+  this.RoleName === 'Branch Admin'
+    ? this.locationID
+    : this.selectlocationId;
+
+const requestData = {
+  employeeId: employeeId || null,
+  fromDate: fromDate,
+  toDate: toDate,
+  locationId: locationId ? [locationId] : []
+};
+
+
+    // const requestData = {
+    //   employeeId: employeeId || null,
+    //   fromDate: fromDate,
+    //   toDate: toDate,
+    //   locationId: this.selectlocationId ? [this.selectlocationId] : []
+    // };
 
     this.dataService.viewmasterReportDetails(requestData).subscribe((res: any) => {
       if (res.code === 100) {
@@ -286,32 +374,108 @@ if(res.code==100){
   }
 
 
- downloadPDF() {
-  const DATA: any = document.getElementById('contentToConvert');
+downloadPDF() {
+  if (!this.reportData || this.reportData.length === 0) {
+    this.toaster.error('No employee data available for export');
+    return;
+  }
 
-  html2canvas(DATA, {
-    scale: 2,            
-    useCORS: true
-  }).then((canvas) => {
+  const doc = new jsPDF('l', 'mm', 'a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
 
-    const imgData = canvas.toDataURL('image/png');
-
-    const pdf = new jsPDF('p', 'mm', 'a4');
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    pdf.addImage(
-      imgData,
-      'PNG',
-      0,
-      0,
-      pdfWidth,    
-      pdfHeight
-    );
-
-    pdf.save('Master Report.pdf');
+  const branchName = this.getSelectedLocationName() || 'All';
+  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
+  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
+  const fDate = fromDateValue || 'N/A';
+  const tDate = toDateValue || 'N/A';
+  const reportTime = new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
   });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('Master Report', pageWidth / 2, 10, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`From Date: ${fDate} to ${tDate}`, pageWidth / 2, 15, { align: 'center' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Branch Name: ', 10, 20);
+  doc.setFont('helvetica', 'normal');
+  doc.text(branchName, 32, 20);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Report Time: ', pageWidth - 70, 20);
+  doc.setFont('helvetica', 'normal');
+  doc.text(reportTime, pageWidth - 49, 20);
+
+  const head = [[
+    { content: 'Sr No.' },
+    { content: 'Employee Id' },
+    { content: 'Employee Name' },
+    { content: 'Designation' },
+    { content: 'Image' },
+    { content: 'Date' },
+    { content: 'Status' }
+  ]];
+
+  const body = this.reportData.map((item: any, index: number) => [
+    index + 1,
+    item.employeeId ?? '-',
+    item.employeeName ?? '-',
+    item.designation ?? '-',
+    item.image ?? item.imageAvailable ?? '-',
+    item.date ?? item.createdDate ?? '-',
+    item.status ?? '-'
+  ]);
+
+  autoTable(doc, {
+    head: head as any,
+    body: body,
+    startY: 25,
+    theme: 'grid',
+    tableWidth: 'auto',
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      overflow: 'linebreak',
+      valign: 'middle',
+      halign: 'center',
+      lineWidth: 0.1,
+      lineColor: [200, 200, 200]
+    },
+    headStyles: {
+      fillColor: [0, 150, 220],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'center',
+      valign: 'middle',
+      lineWidth: 0.2,
+      lineColor: [0, 100, 160]
+    },
+    margin: {
+      top: 25,
+      right: 10,
+      bottom: 15,
+      left: 10
+    },
+    showHead: 'firstPage',
+    didDrawPage: () => {
+      const pageNumber = doc.getNumberOfPages();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.setFontSize(8);
+      doc.text(`Page ${pageNumber}`, pageWidth - 10, pageHeight - 5, { align: 'right' });
+    }
+  });
+
+  doc.save('Master_Report.pdf');
 }
 
 onExportExcel(): void {
@@ -322,34 +486,32 @@ onExportExcel(): void {
     return;
   }
 
-  // Prepare Excel data
+  // Prepare Excel data - same headings as table
   const excelData = this.reportData.map((item: any, index: number) => {
-
     return {
       'Sr No.': index + 1,
-      'Employee ID': item.employeeId ?? '',
+      'Employee Id': item.employeeId ?? '',
       'Employee Name': item.employeeName ?? '',
       'Designation': item.designation ?? '',
-      'Status': item.status ?? '',
-      'Created Date': item.createdDate ?? '',
-      'Image Available': item.imageAvailable ?? ''
+      'Image': item.image ?? item.imageAvailable ?? '',
+      'Date': item.date ?? item.createdDate ?? '',
+      'Status': item.status ?? ''
     };
-
   });
 
   // Create worksheet
   const worksheet: XLSX.WorkSheet =
     XLSX.utils.json_to_sheet(excelData);
 
-  // Set column widths
+  // Set column widths - same order as table
   worksheet['!cols'] = [
     { wch: 10 }, // Sr No.
-    { wch: 15 }, // Employee ID
+    { wch: 18 }, // Employee Id
     { wch: 25 }, // Employee Name
-    { wch: 30 }, // Designation
-    { wch: 15 }, // Status
-    { wch: 20 }, // Created Date
-    { wch: 20 }  // Image Available
+    { wch: 25 }, // Designation
+    { wch: 15 }, // Image
+    { wch: 18 }, // Date
+    { wch: 15 }  // Status
   ];
 
   // Create workbook

@@ -5,6 +5,7 @@ import { DataService } from '../../../services/data-service';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource } from '@angular/material/table';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import { CommonModule } from '@angular/common';
 import * as XLSX from 'xlsx';
@@ -411,11 +412,10 @@ AttendencesReport() {
   this.reportData = [];
 
   // Branch Mandatory
-  if (!this.selectedLocationIds) {
-    this.toaster.error('Please select Branch');
-    return;
-  }
-
+if (this.RoleName !== 'Branch Admin' && this.selectedLocationIds == null) {
+  this.toaster.error('Please select a Branch');
+  return;
+}
 
 if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
   this.toaster.error('Please select one category...!');
@@ -429,6 +429,10 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
 
   let apiUrl = '';
   let requestData: any = {};
+  const locationId =
+  this.RoleName === 'Branch Admin'
+    ? this.locationID
+    : this.selectedLocationIds;
 
   // Category + Employee
   if (this.selectedCategoryIds?.length > 0 && this.selectedEmployeeId) {
@@ -439,7 +443,7 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
       fromDate,
       toDate,
       categoryIdList: this.selectedCategoryIds,
-      locationId: this.selectedLocationIds,
+      locationId: locationId,
       employeeId: this.selectedEmployeeId
     };
 
@@ -509,13 +513,13 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
 
     const categoryIds = this.selectedCategoryIds.join(',');
 
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}&locationIds=${this.selectedLocationIds}`;
+    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}&locationIds=${locationId}`;
   }
 
   // Location Only
   else {
 
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&locationIds=${this.selectedLocationIds}`;
+    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&locationIds=${locationId}`;
   }
 
   this.dataService.getAllData(apiUrl).subscribe({
@@ -546,36 +550,71 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
 
 
 
-onExportPdf() {
-  const DATA: any = document.getElementById('contentToConvert');
+// onExportPdf() {
+//   const DATA: any = document.getElementById('contentToConvert');
 
-  html2canvas(DATA, {
-    scale: 2,            
-    useCORS: true
-  }).then((canvas) => {
+//   if (!DATA) {
+//     console.error('contentToConvert element not found');
+//     return;
+//   }
 
-    const imgData = canvas.toDataURL('image/png');
+//   html2canvas(DATA, {
+//     scale: 2,
+//     useCORS: true,
+//     allowTaint: true,
+//     backgroundColor: '#ffffff'
+//   }).then((canvas) => {
 
-    const pdf = new jsPDF('p', 'mm', 'a4');
+//     const imgData = canvas.toDataURL('image/png');
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+//     const pdf = new jsPDF('p', 'mm', 'a4');
 
-    pdf.addImage(
-      imgData,
-      'PNG',
-      0,
-      0,
-      pdfWidth,    
-      pdfHeight
-    );
+//     const pdfWidth = pdf.internal.pageSize.getWidth();
+//     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    pdf.save('Entry Exit Status Report.pdf');
-  });
-}
+//     // Canvas image height according to PDF width
+//     const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-selectlocationId: number | null = null;
-selectedLocationName = '';
+//     let heightLeft = imgHeight;
+//     let position = 0;
+
+//     // First page
+//     pdf.addImage(
+//       imgData,
+//       'PNG',
+//       0,
+//       position,
+//       pdfWidth,
+//       imgHeight
+//     );
+
+//     heightLeft -= pdfHeight;
+
+//     // Remaining pages
+//     while (heightLeft > 0) {
+
+//       position = heightLeft - imgHeight;
+
+//       pdf.addPage();
+
+//       pdf.addImage(
+//         imgData,
+//         'PNG',
+//         0,
+//         position,
+//         pdfWidth,
+//         imgHeight
+//       );
+
+//       heightLeft -= pdfHeight;
+//     }
+
+//     pdf.save('Entry Exit Status Report.pdf');
+//   });
+// }
+
+
+
 
 getSelectedLocationName() {
   return this.locationLists.find(
@@ -584,4 +623,155 @@ getSelectedLocationName() {
 }
 
 
+onExportPdfFromJson(apiData: any[], fromDate?: string, toDate?: string, categoryName?: string) {
+
+  if (!apiData || apiData.length === 0) {
+    this.toaster.error('No data available to export');
+    return;
+  }
+
+  // Landscape Mode A4
+  const doc = new jsPDF('l', 'mm', 'a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Dynamic Metadata Values
+  const branchName = apiData[0]?.locationName || 'All';
+  const fDate = fromDate || apiData[0]?.attendanceDate || 'Aug 18, 2026';
+  const tDate = toDate || apiData[0]?.attendanceDate || 'Aug 18, 2026';
+  const category = categoryName || 'Student,Contractor,A,General';
+  const reportTime = new Date().toLocaleString('en-US', { 
+    month: 'short', day: '2-digit', year: 'numeric', 
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
+  });
+
+  // ==============================
+  // 1. TOP HEADER (Title & Subtitles)
+  // ==============================
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('Entry Exit Status Report', pageWidth / 2, 10, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`From Date: ${fDate} to ${tDate}`, pageWidth / 2, 15, { align: 'center' });
+
+  // Branch Name (Left)
+  doc.setFont('helvetica', 'bold');
+  doc.text('Branch Name: ', 10, 20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(branchName, 32, 20);
+
+  // Report Time (Right)
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Report Time: `, pageWidth - 70, 20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(reportTime, pageWidth - 49, 20);
+
+  // ==============================
+  // 2. NESTED TABLE HEADERS ( Exact Match with Screenshot )
+  // ==============================
+  const head = [
+    [
+      { 
+        content: `Category Name : ${category}`, 
+        colSpan: 11, 
+        styles: { halign: 'center', fillColor: [0, 150, 220], fontStyle: 'bold' } 
+      }
+    ],
+    [
+      { content: 'SR. NO', rowSpan: 2 },
+      { content: 'Employee Id', rowSpan: 2 },
+      { content: 'Employee Name', rowSpan: 2 },
+      { content: 'Disignation', rowSpan: 2 },
+      { content: 'Branch Name', rowSpan: 2 },
+      { content: 'Date', rowSpan: 2 },
+      { content: 'Count', colSpan: 3 },
+      { content: 'Working Duration (Hours)', colSpan: 2 }
+    ],
+    [
+      { content: 'Entry' },
+      { content: 'Exits' },
+      { content: 'Total' },
+      { content: 'In Campus' },
+      { content: 'Out Campus' }
+    ]
+  ];
+
+  // ==============================
+  // 3. API DATA MAPPING (Correct API Keys)
+  // ==============================
+  const body = apiData.map((item: any, index: number) => [
+    index + 1,
+    item.empId ?? '-',
+    item.employeeName ?? '-',
+    item.designation ?? '-',
+    item.locationName ?? '-',
+    item.attendanceDate ?? '-',
+    item.entryCount ?? 0,
+    item.exitCount ?? 0,
+    item.totalCount ?? 0,
+    item.inCampusDuration ?? '00:00',
+    item.outCampusDuration ?? '00:00'
+  ]);
+
+  // ==============================
+  // 4. AUTO TABLE SETUP
+  // ==============================
+autoTable(doc, {
+  head: head as any,
+  body: body,
+  startY: 23,
+  theme: 'grid',
+  tableWidth: 'auto',
+
+  styles: {
+    fontSize: 8,
+    cellPadding: 2,
+    overflow: 'linebreak',
+    valign: 'middle',
+    halign: 'center',
+    lineWidth: 0.1,             // Body cells साठी border width
+    lineColor: [200, 200, 200]  // Body cells साठी border color
+  },
+
+  headStyles: {
+    fillColor: [0, 150, 220],
+    textColor: [255, 255, 255],
+    fontStyle: 'bold',
+    halign: 'center',
+    valign: 'middle',
+    lineWidth: 0.2,             // Header borders दिसण्यासाठी width वाढवली आहे
+    lineColor: [0, 100, 160]    // Header grid lines साठी border color (किंवा पांढऱ्या border साठी [255, 255, 255] वापरा)
+  },
+
+  margin: {
+    top: 23,
+    right: 10,
+    bottom: 15,
+    left: 10
+  },
+
+  showHead: 'firstPage',
+
+  didDrawPage: () => {
+    const pageNumber = doc.getNumberOfPages();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    doc.setFontSize(8);
+    doc.text(
+      `Page ${pageNumber}`,
+      pageWidth - 10,
+      pageHeight - 5,
+      { align: 'right' }
+    );
+  }
+});
+  // Download PDF
+  doc.save('Entry_Exit_Status_Report.pdf');
 }
+
+
+
+}
+

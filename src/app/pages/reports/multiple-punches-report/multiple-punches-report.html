@@ -4,7 +4,7 @@
   class="flex flex-wrap items-center gap-3 py-3 "
 >
 
-<div class="w-52">
+<div class="w-52" *ngIf="RoleName !== 'Branch Admin'">
 
 
     <ng-select style="border: 1px solid #2563eb !important;" [items]="locationList" bindLabel="locationName" bindValue="locationId" [clearable]="true"

@@ -1,11 +1,11 @@
 <div class="p-0 ">
  <div
   
-  class="flex flex-wrap items-center gap-3 py-3 "
+  class="flex flex-wrap items-center gap-2 py-3 "
 >
 
 
-<div class="w-52">
+<div *ngIf="RoleName !== 'Branch Admin'" class="w-52">
 
       <ng-select style="border: 1px solid #2563eb !important;
     border-radius: 6px !important;" [items]="locationList" bindLabel="locationName" bindValue="locationId" [clearable]="true"
@@ -108,7 +108,7 @@
 </mat-form-field>
 
   <!-- Buttons (right aligned) -->
-  <div class="flex items-center gap-2 ml-auto">
+  <div class="flex items-center gap-2">
     <button style="cursor: pointer;"
       type="button"
   class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
@@ -141,7 +141,7 @@
 
   <!-- REPORT HEADER AREA -->
 <div id="contentToConvert" class="bg-white rounded-md shadow-sm p-4">
-   <div class="text-center py-2">
+   <div class="text-center">
   
    <!-- Title row -->
        <div class="text-center">

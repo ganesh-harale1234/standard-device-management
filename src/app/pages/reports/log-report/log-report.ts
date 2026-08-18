@@ -8,7 +8,9 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-log-report',
@@ -33,7 +35,7 @@ selectedEmployeeId: string | null = null;
 
   reportData:any[] = [];
  dataSource: any
-constructor(private dataService:DataService, private toaster:ToastrService){
+constructor(private dataService:DataService, private toaster:ToastrService,private spinner:NgxSpinnerService ){
 
 }
 
@@ -232,46 +234,113 @@ onLocationChange(event: any) {
 }
 
 
+// AuditReport() {
+
+//   this.reportData = [];
+
+//   // Branch Mandatory
+//   if (!this.selectlocationId) {
+//     this.toaster.error('Please select Branch');
+//     return;
+//   }
+
+//   const fromDate = this.formatDateToYMD(this.fromDate);
+//   const toDate = this.formatDateToYMD(this.toDate);
+
+//   const requestData = {
+//     fromDate,
+//     toDate,
+//     locationId: this.selectlocationId
+//   };
+
+//   this.dataService
+//     .addData('auditReport', requestData)
+//     .subscribe({
+//       next: (res: any) => {
+
+//         if (res.code === 100) {
+//           this.reportData = res.extend?.auditReport || [];
+//                                           // this.toaster.error(res.msg );
+
+//         } else if(res.code ===200) {
+//             this.reportData = [];
+//                                 this.toaster.error(res.msg );
+
+//         }else{
+//                     this.toaster.error(res.msg || 'Something went wrong!');
+
+//         }
+
+//       },
+//       error: (err) => {
+//         this.toaster.error(err.error?.msg || 'Server Error');
+//       }
+//     });
+
+// }
+
+
 AuditReport() {
 
   this.reportData = [];
 
   // Branch Mandatory
-  if (!this.selectlocationId) {
-    this.toaster.error('Please select Branch');
-    return;
-  }
+if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
+  this.toaster.error('Please select a Branch');
+  return;
+}
 
   const fromDate = this.formatDateToYMD(this.fromDate);
   const toDate = this.formatDateToYMD(this.toDate);
+const locationId =
+  this.RoleName === 'Branch Admin'
+    ? this.locationID
+    : this.selectlocationId;
 
   const requestData = {
     fromDate,
     toDate,
-    locationId: this.selectlocationId
+    locationId: Number(locationId)
   };
+
+  this.spinner.show();
 
   this.dataService
     .addData('auditReport', requestData)
     .subscribe({
       next: (res: any) => {
 
+        this.spinner.hide();
+
         if (res.code === 100) {
           this.reportData = res.extend?.auditReport || [];
-                                          // this.toaster.error(res.msg );
+          // this.toaster.error(res.msg);
 
-        } else if(res.code ===200) {
-            this.reportData = [];
-                                this.toaster.error(res.msg );
+        } else if (res.code === 200) {
+          this.reportData = [];
+          this.toaster.error(res.msg);
+                  this.spinner.hide();
 
-        }else{
-                    this.toaster.error(res.msg || 'Something went wrong!');
+
+        } else {
+          this.reportData = [];
+          this.toaster.error(res.msg || 'Something went wrong!');
+                  this.spinner.hide();
 
         }
 
       },
-      error: (err) => {
-        this.toaster.error(err.error?.msg || 'Server Error');
+      error: (err: any) => {
+
+        this.spinner.hide();
+
+        console.error('Audit Report API Error:', err);
+
+        this.toaster.error(
+          err?.error?.msg || 'Server Error'
+        );
+
+        this.reportData = [];
       }
     });
 
@@ -334,31 +403,103 @@ onExportExcel(): void {
    
   
 onExportPdf() {
-  const DATA: any = document.getElementById('contentToConvert');
+  if (!this.reportData || this.reportData.length === 0) {
+    this.toaster.error('No audit report data available for export');
+    return;
+  }
 
-  html2canvas(DATA, {
-    scale: 2,            
-    useCORS: true
-  }).then((canvas) => {
+  const doc = new jsPDF('l', 'mm', 'a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
 
-    const imgData = canvas.toDataURL('image/png');
-
-    const pdf = new jsPDF('p', 'mm', 'a4');
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    pdf.addImage(
-      imgData,
-      'PNG',
-      0,
-      0,
-      pdfWidth,    
-      pdfHeight
-    );
-
-    pdf.save('Log Report.pdf');
+  const branchName = this.getSelectedLocationName() || 'All';
+  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
+  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
+  const fDate = fromDateValue || 'N/A';
+  const tDate = toDateValue || 'N/A';
+  const reportTime = new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
   });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('Log Report', pageWidth / 2, 10, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`From Date: ${fDate} to ${tDate}`, pageWidth / 2, 15, { align: 'center' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Branch Name: ', 10, 20);
+  doc.setFont('helvetica', 'normal');
+  doc.text(branchName, 32, 20);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Report Time: ', pageWidth - 70, 20);
+  doc.setFont('helvetica', 'normal');
+  doc.text(reportTime, pageWidth - 49, 20);
+
+  const head = [[
+    { content: 'Sr No.' },
+    { content: 'Modified Date' },
+    { content: 'Description' },
+    { content: 'Action' },
+    { content: 'By Whom' }
+  ]];
+
+  const body = this.reportData.map((item: any, index: number) => [
+    index + 1,
+    item.modifiedDate ?? '-',
+    item.description ?? '-',
+    item.action ?? '-',
+    item.byWhom ?? '-'
+  ]);
+
+  autoTable(doc, {
+    head: head as any,
+    body: body,
+    startY: 25,
+    theme: 'grid',
+    tableWidth: 'auto',
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      overflow: 'linebreak',
+      valign: 'middle',
+      halign: 'center',
+      lineWidth: 0.1,
+      lineColor: [200, 200, 200]
+    },
+    headStyles: {
+      fillColor: [0, 150, 220],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'center',
+      valign: 'middle',
+      lineWidth: 0.2,
+      lineColor: [0, 100, 160]
+    },
+    margin: {
+      top: 25,
+      right: 10,
+      bottom: 15,
+      left: 10
+    },
+    showHead: 'firstPage',
+    didDrawPage: () => {
+      const pageNumber = doc.getNumberOfPages();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.setFontSize(8);
+      doc.text(`Page ${pageNumber}`, pageWidth - 10, pageHeight - 5, { align: 'right' });
+    }
+  });
+
+  doc.save('Log_Report.pdf');
 }
 
 

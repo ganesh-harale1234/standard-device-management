@@ -9,6 +9,8 @@ import html2canvas from 'html2canvas';
 import { CommonModule } from '@angular/common';
 import * as XLSX from 'xlsx';
 import { NgSelectModule } from '@ng-select/ng-select';
+import autoTable from 'jspdf-autotable';
+import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-contractor-wise-report',
@@ -33,7 +35,7 @@ selectedEmployeeId: string | null = null;
 
   reportData:any[] = [];
  dataSource: any
-constructor(private dataService:DataService, private toaster:ToastrService){
+constructor(private dataService:DataService, private toaster:ToastrService, private spinner:NgxSpinnerService){
 
 }
 
@@ -240,29 +242,276 @@ onLocationChange(event: any) {
 //   });
 // }
 
-onExportExcel(){
-  
+onExportExcel(): void {
+
+  if (!this.reportData || this.reportData.length === 0) {
+    this.toaster.error('No contractor attendance data available for export');
+    return;
+  }
+
+  const excelData = this.reportData.map((item: any, index: number) => {
+
+    return {
+      'Sr No.': index + 1,
+      'Employee ID': item.employeeId ?? '',
+      'Employee Name': item.employeeName ?? '',
+      'Contractor Name': item.contractorName ?? '',
+      'Location': item.locationName ?? '',
+      'Punch Date': item.punchDate ?? '',
+      'Punch In': item.punchIn ?? '',
+      'Punch Out': item.punchOut ?? ''
+    };
+
+  });
+
+  const worksheet: XLSX.WorkSheet =
+    XLSX.utils.json_to_sheet(excelData);
+
+  worksheet['!cols'] = [
+    { wch: 10 }, // Sr No
+    { wch: 15 }, // Employee ID
+    { wch: 25 }, // Employee Name
+    { wch: 25 }, // Contractor Name
+    { wch: 20 }, // Location
+    { wch: 15 }, // Punch Date
+    { wch: 15 }, // Punch In
+    { wch: 15 }  // Punch Out
+  ];
+
+  const workbook: XLSX.WorkBook =
+    XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    'Contractor Attendance'
+  );
+
+  XLSX.writeFile(
+    workbook,
+    'Contractor_Attendance_Report.xlsx'
+  );
 }
 
+
+
+// AuditReport() {
+
+//   this.reportData = [];
+
+//   // Branch Mandatory
+//   if (!this.selectlocationId) {
+//     this.toaster.error('Please select Branch');
+//     return;
+//   }
+
+//   const fromDate = this.formatDateToYMD(this.fromDate);
+//   const toDate = this.formatDateToYMD(this.toDate);
+
+//   let apiUrl = '';
+//   let requestData: any = {
+//     fromDate,
+//     toDate,
+//     locationId: this.selectlocationId
+//   };
+
+//   // Employee
+//   if (this.selectedEmployeeId) {
+
+//     apiUrl = 'getEmpWiseMultiplePunchReport';
+
+//     requestData = {
+//       fromDate,
+//       toDate,
+//       locationId: this.selectlocationId,
+//       empId: this.selectedEmployeeId
+//     };
+
+//   }
+
+//   // Contractor
+//   else if (this.selectedDeptId) {
+
+//     apiUrl = 'contractorWiseReport';
+
+//     requestData = {
+//       fromDate,
+//       toDate,
+//       locationId: this.selectlocationId,
+//       conId: Number(this.selectedDeptId)
+//     };
+
+//   }
+
+//   // Date + Location
+//   else {
+
+//     apiUrl = 'contractorWiseReport';
+
+//     requestData = {
+//       fromDate,
+//       toDate,
+//       locationId: this.selectlocationId
+//     };
+
+//   }
+
+//   this.spinner.show();
+
+//   this.dataService.addData(apiUrl, requestData).subscribe({
+//     next: (res: any) => {
+
+//       this.spinner.hide();
+
+//       if (res.code === 100) {
+//         this.reportData = res.extend?.contractorReportList || [];
+//       } else {
+//         this.toaster.error(res.msg || 'Something went wrong!');
+//         this.reportData = [];
+//       }
+
+//     },
+//     error: (err: any) => {
+
+//       this.spinner.hide();
+
+//       console.error('Audit Report API Error:', err);
+
+//       this.toaster.error(
+//         err?.error?.msg || 'Server side error!'
+//       );
+
+//       this.reportData = [];
+//     }
+//   });
+
+// }
+
+
+
+// AuditReport() {
+
+//   this.reportData = [];
+
+//   // Branch Mandatory
+// if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
+//   this.toaster.error('Please select a Branch');
+//   return;
+// }
+
+//   const fromDate = this.formatDateToYMD(this.fromDate);
+//   const toDate = this.formatDateToYMD(this.toDate);
+// const locationId =
+//   this.RoleName === 'Branch Admin'
+//     ? this.locationID
+//     : this.selectlocationId;
+
+
+//   let apiUrl = '';
+//   let requestData: any = {
+//     fromDate,
+//     toDate,
+//     locationId: locationId ? [locationId] : []
+//   };
+
+//   // Employee
+//   if (this.selectedEmployeeId) {
+
+//     apiUrl = 'getEmpWiseMultiplePunchReport';
+
+//     requestData = {
+//       fromDate,
+//       toDate,
+//       locationId: locationId ? [locationId] : [],
+//       empId: this.selectedEmployeeId
+//     };
+
+//   }
+
+//   // Contractor
+//   else if (this.selectedDeptId) {
+
+//     apiUrl = 'contractorWiseReport';
+
+//     requestData = {
+//       fromDate,
+//       toDate,
+//       locationId: locationId ? [locationId] : [],
+//       conId: Number(this.selectedDeptId)
+//     };
+
+//   }
+
+//   // Date + Location
+//   else {
+
+//     apiUrl = 'contractorWiseReport';
+
+//     requestData = {
+//       fromDate,
+//       toDate,
+//       locationId: this.selectlocationId
+//     };
+
+//   }
+
+//   this.spinner.show();
+
+//   this.dataService.addData(apiUrl, requestData).subscribe({
+//     next: (res: any) => {
+
+//       this.spinner.hide();
+
+//       if (res.code === 100) {
+//         this.reportData = res.extend?.contractorReportList || [];
+//       } else {
+//         this.toaster.error(res.msg || 'Something went wrong!');
+//         this.reportData = [];
+//       }
+
+//     },
+//     error: (err: any) => {
+
+//       this.spinner.hide();
+
+//       console.error('Audit Report API Error:', err);
+
+//       this.toaster.error(
+//         err?.error?.msg || 'Server side error!'
+//       );
+
+//       this.reportData = [];
+//     }
+//   });
+
+// }
 
 AuditReport() {
 
   this.reportData = [];
 
   // Branch Mandatory
-  if (!this.selectlocationId) {
-    this.toaster.error('Please select Branch');
+  if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
+    this.toaster.error('Please select a Branch');
     return;
   }
 
   const fromDate = this.formatDateToYMD(this.fromDate);
   const toDate = this.formatDateToYMD(this.toDate);
 
+  // Branch Admin -> sessionStorage locationId
+  // Other Role -> selected branch locationId
+  const locationId =
+    this.RoleName === 'Branch Admin'
+      ? Number(this.locationID)
+      : Number(this.selectlocationId);
+
   let apiUrl = '';
+
   let requestData: any = {
     fromDate,
     toDate,
-    locationId: this.selectlocationId
+    locationId: locationId
   };
 
   // Employee
@@ -273,7 +522,7 @@ AuditReport() {
     requestData = {
       fromDate,
       toDate,
-      locationId: this.selectlocationId,
+      locationId: locationId,
       empId: this.selectedEmployeeId
     };
 
@@ -287,7 +536,7 @@ AuditReport() {
     requestData = {
       fromDate,
       toDate,
-      locationId: this.selectlocationId,
+      locationId: locationId,
       conId: Number(this.selectedDeptId)
     };
 
@@ -301,55 +550,146 @@ AuditReport() {
     requestData = {
       fromDate,
       toDate,
-      locationId: this.selectlocationId
+      locationId: locationId
     };
 
   }
 
+  this.spinner.show();
+
   this.dataService.addData(apiUrl, requestData).subscribe({
     next: (res: any) => {
+
+      this.spinner.hide();
 
       if (res.code === 100) {
         this.reportData = res.extend?.contractorReportList || [];
       } else {
         this.toaster.error(res.msg || 'Something went wrong!');
+        this.reportData = [];
       }
 
     },
+
     error: (err: any) => {
-      this.toaster.error(err?.error?.msg || 'Server side error!');
+
+      this.spinner.hide();
+
+      console.error('Audit Report API Error:', err);
+
+      this.toaster.error(
+        err?.error?.msg || 'Server side error!'
+      );
+
+      this.reportData = [];
+    }
+  });
+}
+  
+onExportPdf() {
+  if (!this.reportData || this.reportData.length === 0) {
+    this.toaster.error('No contractor attendance data available for export');
+    return;
+  }
+
+  const doc = new jsPDF('l', 'mm', 'a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  const branchName = this.getSelectedLocationName() || 'All';
+  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
+  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
+  const fDate = fromDateValue || 'N/A';
+  const tDate = toDateValue || 'N/A';
+  const reportTime = new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('Contractor Wise Report', pageWidth / 2, 10, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(`From Date: ${fDate} to ${tDate}`, pageWidth / 2, 15, { align: 'center' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Branch Name: ', 10, 20);
+  doc.setFont('helvetica', 'normal');
+  doc.text(branchName, 32, 20);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Report Time: ', pageWidth - 70, 20);
+  doc.setFont('helvetica', 'normal');
+  doc.text(reportTime, pageWidth - 49, 20);
+
+  const head = [[
+    { content: 'Sr No.' },
+    { content: 'Employee Id' },
+    { content: 'Employee Name' },
+    { content: 'Contractor Name' },
+    { content: 'Location' },
+    { content: 'Punch Date' },
+    { content: 'Punch In' },
+    { content: 'Punch Out' }
+  ]];
+
+  const body = this.reportData.map((item: any, index: number) => [
+    index + 1,
+    item.employeeId ?? '-',
+    item.employeeName ?? '-',
+    item.contractorName ?? '-',
+    item.locationName ?? '-',
+    item.punchDate ?? '-',
+    item.punchIn ?? '-',
+    item.punchOut ?? '-'
+  ]);
+
+  autoTable(doc, {
+    head: head as any,
+    body: body,
+    startY: 25,
+    theme: 'grid',
+    tableWidth: 'auto',
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      overflow: 'linebreak',
+      valign: 'middle',
+      halign: 'center',
+      lineWidth: 0.1,
+      lineColor: [200, 200, 200]
+    },
+    headStyles: {
+      fillColor: [0, 150, 220],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'center',
+      valign: 'middle',
+      lineWidth: 0.2,
+      lineColor: [0, 100, 160]
+    },
+    margin: {
+      top: 25,
+      right: 10,
+      bottom: 15,
+      left: 10
+    },
+    showHead: 'firstPage',
+    didDrawPage: () => {
+      const pageNumber = doc.getNumberOfPages();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.setFontSize(8);
+      doc.text(`Page ${pageNumber}`, pageWidth - 10, pageHeight - 5, { align: 'right' });
     }
   });
 
-}
-
-  
-onExportPdf() {
-  const DATA: any = document.getElementById('contentToConvert');
-
-  html2canvas(DATA, {
-    scale: 2,            
-    useCORS: true
-  }).then((canvas) => {
-
-    const imgData = canvas.toDataURL('image/png');
-
-    const pdf = new jsPDF('p', 'mm', 'a4');
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    pdf.addImage(
-      imgData,
-      'PNG',
-      0,
-      0,
-      pdfWidth,    
-      pdfHeight
-    );
-
-    pdf.save('Contractor Wise Report.pdf');
-  });
+  doc.save('Contractor_Wise_Report.pdf');
 }
 
 selectedLocationName = '';
