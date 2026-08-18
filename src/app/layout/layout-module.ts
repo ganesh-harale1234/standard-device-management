@@ -56,6 +56,12 @@ export const routes: Routes = [
           import('../pages/master/add-role/add-role').then(m => m.AddRole)
         // ,canActivate:[authGuard]
       },
+            {
+        path: 'cumulative-duration-report',
+        loadComponent: () =>
+          import('../pages/reports/cumulative-duration-report/cumulative-duration-report').then(m => m.CumulativeDurationReport)
+        , canActivate:[authGuard]
+      },
 
         {
         path: 'emp-transfer-data',
