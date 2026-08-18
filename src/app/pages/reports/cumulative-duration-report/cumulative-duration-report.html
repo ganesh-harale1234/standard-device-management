@@ -6,7 +6,7 @@
   class="flex flex-wrap items-center gap-3 py-3 "
 >
 
-<div class="w-52 search-field">
+<!-- <div class="w-52 search-field">
 
 
     <ng-select style="border: 1px solid #2563eb !important;
@@ -14,12 +14,12 @@
       [(ngModel)]="selectlocationId" placeholder="Select Branch">
     </ng-select>
 
-</div>
+</div> -->
  <!-- ========================= -->
 <!-- Employee Search -->
 <!-- ========================= -->
 
-<div class="relative w-52">
+<!-- <div class="relative w-52">
 
   <mat-form-field
     appearance="fill"
@@ -34,7 +34,6 @@
 
   </mat-form-field>
 
-  <!-- Search Result -->
   <div
     *ngIf="showDropdown && employeeList.length > 0"
     class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
@@ -50,7 +49,6 @@
 
   </div>
 
-  <!-- No Record -->
   <div
     *ngIf="showDropdown && searchDone && employeeList.length === 0 && searchTextemp"
     class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-3 text-sm text-gray-500 z-50">
@@ -59,7 +57,7 @@
 
   </div>
 
-</div>
+</div> -->
 
 <!-- ========================= -->
 <!-- From Date -->
@@ -165,7 +163,7 @@
   <!-- Branch Name -->
   <div>
     <p class="text-[#004A71]">
-      Branch Name:
+      <!-- Branch Name: -->
       <span class="font-semibold">
         {{ getSelectedLocationName() }}
       </span>
@@ -185,52 +183,84 @@
 
 </div>
 
-  <table class="pdf-table">
+<table class="pdf-table">
 
-    <thead>
+  <thead>
+    <tr>
+      <th>Sr No.</th>
+      <th>Employee Id</th>
+      <th>Employee Name</th>
+      <th>Attendance Date</th>
+      <th>In Time</th>
+      <th>Out Time</th>
+      <th>Total In Stamps</th>
+      <th>Total Out Stamps</th>
+      <th>Cumulative Duration</th>
+      <th>Total Hours</th>
+    </tr>
+  </thead>
 
-      <tr>
-        <th>Sr No.</th>
-        <th>Employee Id</th>
-        <th>Employee Name</th>
-        <th>Attendance Date</th>
-        <th>In Time</th>
-        <th>Out Time</th>
-                <th>        Total In
-Stamps</th>
-        <th>Total
-Out
-Stamps</th>
-  <th>Cumulative
-Duration</th> 
-   <th>Total
-Hours</th>
+  <tbody>
 
+    <tr *ngFor="let row of reportData; let i = index">
 
-      </tr>
+      <!-- Sr No -->
+      <td>
+        {{ i + 1 }}
+      </td>
 
-    </thead>
+      <!-- Employee Id -->
+      <td>
+        {{ row.empid }}
+      </td>
 
-    <tbody>
+      <!-- Employee Name -->
+      <td>
+        {{ row.name }}
+      </td>
 
-      <tr *ngFor="let row of reportData; let i=index">
+      <!-- Attendance Date -->
+      <td>
+        {{ row.entryDate | date:'dd-MM-yyyy' }}
+      </td>
 
-        <td>{{i+1}}</td>
-        <td>{{row.employeeId}}</td>
-        <td>{{row.employeeName}}</td>
-        <td>{{row.attendanceDate | date:'dd-MM-yyyy'}}</td>
-        <td>{{row.punchIn?.slice(0, 5)}}</td>
-        <td>{{row.punchOut?.slice(0, 5)}}</td>
-          <td>{{row.punchIn?.slice(0, 5)}}</td>
-        <td>{{row.punchOut?.slice(0, 5)}}</td>  
-        <td>{{row.punchIn?.slice(0, 5)}}</td>
-        <td>{{row.punchOut?.slice(0, 5)}}</td>
+      <!-- In Time -->
+      <td>
+        {{ row.inTime ? (row.inTime | date:'HH:mm:ss') : '-' }}
+      </td>
 
-      </tr>
+      <!-- Out Time -->
+      <td>
+        {{ row.outTime ? (row.outTime | date:'HH:mm:ss') : '-' }}
+      </td>
 
-    </tbody>
+      <!-- Total In Stamps -->
+      <td>
+        {{ row.totalinstamps || '-' }}
+      </td>
 
-  </table>
+      <!-- Total Out Stamps -->
+      <td>
+        {{ row.totaloutstamps || '-' }}
+      </td>
+
+      <!-- Cumulative Duration -->
+      <td>
+        {{ row.cumulativeDuration ?? 0 }}
+      </td>
+
+      <!-- Total Hours -->
+      <td>
+        {{ row.totalhrs || '00:00' }}
+      </td>
+
+    </tr>
+
+    <!-- No Data -->
+  
+  </tbody>
+
+</table>
 
 </div>
 </div>

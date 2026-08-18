@@ -251,39 +251,76 @@ if(res.code==100){
 
 
 selectlocationId: number | null = null;
-  viewReportDetails() {
-    if (this.selectlocationId == null) {
-      this.toaster.error('Please select a Branch');
-      return;
-    }
-    const employeeText = this.searchTextemp || null;
-    const employeeId = employeeText? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null : null;
-    const fromDate = this.formatDateToYMD(this.fromDate);
-    const toDate = this.formatDateToYMD(this.toDate);
 
-    const requestData = {
-      employeeId: employeeId || null,
-      fromDate: fromDate,
-      toDate: toDate,
-      locationId: this.selectlocationId ? [this.selectlocationId] : []
-    };
 
-    this.dataService.viewattendanceReportDetails(requestData).subscribe((res: any) => {
-      if (res.code === 100) {
-        this.reportData = res.extend?.attendanceList;
-        console.log('Report Details:', this.reportData);
-      } else if (res.code === 200) {
-          this.reportData = [];
+viewReportDetails() {
 
-        this.toaster.error(res.msg);
-      } else if (res.code === 500) {
-        this.toaster.error(res.msg);
-      } else {
-        this.toaster.error("Something went wrong!");
-      }
-    });
+  const employeeText = this.searchTextemp || null;
 
+  const employeeId = employeeText
+    ? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null
+    : null;
+
+  const fromDate = this.formatDateToYMD(this.fromDate);
+  const toDate = this.formatDateToYMD(this.toDate);
+
+  // Base params - ALL REPORT
+  const params: any = {
+    fromDate: fromDate,
+    toDate: toDate
+  };
+
+  // Employee selected असल्यासच employeeId पाठवेल
+  if (employeeId) {
+    params.employeeId = employeeId;
   }
+
+  console.log('Cumulative Report Request:', params);
+
+  this.dataService.viewattendanceReportDetails(params).subscribe(
+    (res: any) => {
+
+      if (res.code === 100) {
+
+        // API response:
+        // extend.data
+        this.reportData = res.extend?.data || [];
+
+        console.log('Report Details:', this.reportData);
+
+      } else if (res.code === 200) {
+
+        this.reportData = [];
+        this.toaster.error(res.msg);
+
+      } else if (res.code === 500) {
+
+        this.reportData = [];
+        this.toaster.error(res.msg);
+
+      } else {
+
+        this.reportData = [];
+        this.toaster.error('Something went wrong!');
+
+      }
+    },
+
+    (error: any) => {
+
+      this.reportData = [];
+
+      this.toaster.error(
+        'Server not reachable. Please try again.'
+      );
+
+      console.error(
+        'Cumulative Report API Error:',
+        error
+      );
+    }
+  );
+}
 
 
 
@@ -394,11 +431,28 @@ onExportExcel(): void {
 
     return {
       'Sr No.': index + 1,
-      'Employee ID': item.employeeId ?? '',
-      'Employee Name': item.employeeName ?? '',
-      'Attendance Date': item.attendanceDate ?? '',
-      'Punch In': item.punchIn ?? '',
-      'Punch Out': item.punchOut ?? '',
+
+      'Employee ID': item.empid ?? '',
+
+      'Employee Name': item.name ?? '',
+
+      'Attendance Date': item.entryDate ?? '',
+
+      'In Time': item.inTime
+        ? this.formatExcelDateTime(item.inTime)
+        : '',
+
+      'Out Time': item.outTime
+        ? this.formatExcelDateTime(item.outTime)
+        : '',
+
+      'Total In Stamps': item.totalinstamps ?? '',
+
+      'Total Out Stamps': item.totaloutstamps ?? '',
+
+      'Cumulative Duration': item.cumulativeDuration ?? 0,
+
+      'Total Hours': item.totalhrs ?? '00:00'
     };
 
   });
@@ -406,13 +460,18 @@ onExportExcel(): void {
   const worksheet: XLSX.WorkSheet =
     XLSX.utils.json_to_sheet(excelData);
 
+  // Excel column width
   worksheet['!cols'] = [
-    { wch: 10 },
-    { wch: 15 },
-    { wch: 25 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 20 }
+    { wch: 10 },  // Sr No
+    { wch: 15 },  // Employee ID
+    { wch: 25 },  // Employee Name
+    { wch: 18 },  // Attendance Date
+    { wch: 20 },  // In Time
+    { wch: 20 },  // Out Time
+    { wch: 25 },  // Total In Stamps
+    { wch: 25 },  // Total Out Stamps
+    { wch: 22 },  // Cumulative Duration
+    { wch: 15 }   // Total Hours
   ];
 
   const workbook: XLSX.WorkBook =
@@ -426,7 +485,7 @@ onExportExcel(): void {
 
   XLSX.writeFile(
     workbook,
-    'Attendance_Report.xlsx'
+    'Cumulative_Duration_Report.xlsx'
   );
 }
 
@@ -438,6 +497,28 @@ getSelectedLocationName() {
   )?.locationName;
 }
 
+formatExcelDateTime(dateValue: string): string {
+
+  if (!dateValue) {
+    return '';
+  }
+
+  const date = new Date(dateValue);
+
+  if (isNaN(date.getTime())) {
+    return '';
+  }
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+}
 
 }
 

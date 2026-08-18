@@ -34,10 +34,13 @@ viewmasterReportDetails(requestData: any): Observable<any> {
   return this.http.post(fullUrl, requestData);
 }  
 
-viewattendanceReportDetails(requestData: any): Observable<any> {
-  const fullUrl = `${this.baseUrl}getAttendanceReport`;
-  return this.http.post(fullUrl, requestData);
-}   
+viewattendanceReportDetails(params: any) {
+  return this.http.get(
+    `${this.baseUrl}cumulativeReport`,
+    { params: params }
+  );
+}
+
 
 viewmultiplePunchesReportDetails(requestData: any): Observable<any> {
   const fullUrl = `${this.baseUrl}getEmpWiseMultiplePunchReport`;
