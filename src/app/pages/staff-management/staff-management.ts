@@ -279,6 +279,16 @@ backtoList(){
 selectedStatus: string = 'All';
 
 
+// changeStatus(status: string) {
+
+//   if (status === 'All') {
+//     this.getallData();
+//     return;
+//   }
+
+//   this.getStatuswiseEmp(status);
+// }
+
 changeStatus(status: string) {
 
   if (status === 'All') {
@@ -286,8 +296,22 @@ changeStatus(status: string) {
     return;
   }
 
+  if (status === 'new') {
+
+    this.filterallData = this.getAllList.filter(
+      (employee: any) => employee.transferStatus === null
+    );
+
+    this.dataSource = new MatTableDataSource(this.filterallData);
+    this.dataSource.paginator = this.paginator;
+
+    return;
+  }
+
   this.getStatuswiseEmp(status);
 }
+
+
 allEmpShow(){
   this.getallData();
 }
@@ -2429,61 +2453,93 @@ selectedValue: string = '';
 dropdownList: any[] = [];
 
 
-// onSearchTypeChange() {
+
+// onSearchTypeChange(): void {
 
 //   this.selectedValue = '';
+//   this.searchText = '';
 
 //   switch (this.searchType) {
 
 //     case 'deptName':
-//       this.dropdownList = this.getAllListdepartment.map(
-//         (x: any) => x.deptName
-//       );
+
+//       this.dropdownList = this.getAllListdepartment
+//         .map((x: any) => x.deptName)
+//         .filter((x: any) => x);
+
+//       this.dropdownList = [...new Set(this.dropdownList)];
+
 //       break;
+
 
 //     case 'accessGroupName':
-//       this.dropdownList = this.getAllListgroup.map(
-//         (x: any) => x.accessGroupName
-//       );
+
+//       this.dropdownList = this.getAllListgroup
+//         .map((x: any) => x.accessGroupName)
+//         .filter((x: any) => x);
+
+//       this.dropdownList = [...new Set(this.dropdownList)];
+
 //       break;
+
 
 //     case 'categoryName':
-//       this.dropdownList = this.getAllListcategory.map(
-//         (x: any) => x.categoryName
-//       );
+
+//       this.dropdownList = this.getAllListcategory
+//         .map((x: any) => x.categoryName)
+//         .filter((x: any) => x);
+
+//       this.dropdownList = [...new Set(this.dropdownList)];
+
 //       break;
 
+
 //     case 'conName':
+
 //       this.dropdownList = this.getAllList
 //         .filter((x: any) => x.conName)
 //         .map((x: any) => x.conName);
 
 //       this.dropdownList = [...new Set(this.dropdownList)];
+
 //       break;
 
+
+//     case 'locationName':
+
+//       this.dropdownList = this.getAllListlocation
+//         .filter((x: any) => x.locationName)
+//         .map((x: any) => x.locationName);
+
+//       this.dropdownList = [...new Set(this.dropdownList)];
+
+//       break;
+
+
 //     default:
+
 //       this.dropdownList = [];
+
 //       break;
 //   }
 
-//   console.log('Search Type:', this.searchType);
-//   console.log('Contractor Dropdown:', this.dropdownList);
-
+//   // Reset data
 //   this.filterallData = [...this.getAllList];
 
 //   this.totalItems = this.filterallData.length;
+
 //   this.pageIndex = 0;
 
 //   this.applyPagination();
-//     this.totalItems = this.filterallData.length;
-//   this.pageIndex = 0;
-//   this.applyPagination();
+
 // }
+
 
 onSearchTypeChange(): void {
 
   this.selectedValue = '';
   this.searchText = '';
+  this.dropdownList = [];
 
   switch (this.searchType) {
 
@@ -2542,12 +2598,27 @@ onSearchTypeChange(): void {
       break;
 
 
+    // ==========================================
+    // NEW TRANSFER FILTER
+    // ==========================================
+
+    case 'transfer':
+
+      this.dropdownList = [
+        'Transfer Employee',
+        'Non Transfer Employee'
+      ];
+
+      break;
+
+
     default:
 
       this.dropdownList = [];
 
       break;
   }
+
 
   // Reset data
   this.filterallData = [...this.getAllList];
@@ -2557,11 +2628,10 @@ onSearchTypeChange(): void {
   this.pageIndex = 0;
 
   this.applyPagination();
-
 }
 
 
-// filterDropdown() {
+// filterDropdown(): void {
 
 //   if (!this.selectedValue) {
 
@@ -2574,40 +2644,60 @@ onSearchTypeChange(): void {
 //       switch (this.searchType) {
 
 //         case 'accessGroupName':
+
 //           return (emp.accessGroupName || '')
 //             .toLowerCase()
 //             .split(',')
 //             .map((x: string) => x.trim())
 //             .includes(this.selectedValue.toLowerCase());
 
+
 //         case 'deptName':
-//           return emp.deptName === this.selectedValue;
+
+//           return (emp.deptName || '').toLowerCase() ===
+//                  this.selectedValue.toLowerCase();
+
 
 //         case 'categoryName':
-//           return emp.categoryName === this.selectedValue;
+
+//           return (emp.categoryName || '').toLowerCase() ===
+//                  this.selectedValue.toLowerCase();
+
 
 //         case 'conName':
-//           return emp.conName === this.selectedValue;
+
+//           return (emp.conName || '').toLowerCase() ===
+//                  this.selectedValue.toLowerCase();
+
+
+//         case 'locationName':
+
+//           return (emp.locationName || '').toLowerCase() ===
+//                  this.selectedValue.toLowerCase();
+
 
 //         default:
+
 //           return true;
 //       }
 
 //     });
 //   }
 
-//   // किती records filter झाले
 //   this.totalItems = this.filterallData.length;
 
-//   // नवीन filter असल्यामुळे first page
 //   this.pageIndex = 0;
 
-//   // First 10 records
 //   this.applyPagination();
 // }
 
+
+/**
+ * Dropdown Filter
+ */
 filterDropdown(): void {
 
+  // If nothing selected
   if (!this.selectedValue) {
 
     this.filterallData = [...this.getAllList];
@@ -2618,39 +2708,100 @@ filterDropdown(): void {
 
       switch (this.searchType) {
 
+        // ==========================================
+        // ACCESS GROUP
+        // ==========================================
+
         case 'accessGroupName':
 
           return (emp.accessGroupName || '')
             .toLowerCase()
             .split(',')
             .map((x: string) => x.trim())
-            .includes(this.selectedValue.toLowerCase());
+            .includes(
+              this.selectedValue.toLowerCase()
+            );
 
+
+        // ==========================================
+        // DEPARTMENT
+        // ==========================================
 
         case 'deptName':
 
-          return (emp.deptName || '').toLowerCase() ===
-                 this.selectedValue.toLowerCase();
+          return (emp.deptName || '')
+            .toLowerCase() ===
+            this.selectedValue.toLowerCase();
 
+
+        // ==========================================
+        // CATEGORY
+        // ==========================================
 
         case 'categoryName':
 
-          return (emp.categoryName || '').toLowerCase() ===
-                 this.selectedValue.toLowerCase();
+          return (emp.categoryName || '')
+            .toLowerCase() ===
+            this.selectedValue.toLowerCase();
 
+
+        // ==========================================
+        // CONTRACTOR
+        // ==========================================
 
         case 'conName':
 
-          return (emp.conName || '').toLowerCase() ===
-                 this.selectedValue.toLowerCase();
+          return (emp.conName || '')
+            .toLowerCase() ===
+            this.selectedValue.toLowerCase();
 
+
+        // ==========================================
+        // LOCATION
+        // ==========================================
 
         case 'locationName':
 
-          return (emp.locationName || '').toLowerCase() ===
-                 this.selectedValue.toLowerCase();
+          return (emp.locationName || '')
+            .toLowerCase() ===
+            this.selectedValue.toLowerCase();
 
 
+        // ==========================================
+        // TRANSFER
+        // ==========================================
+
+        // case 'transfer':
+
+        //   // Non Transfer Employee
+        //   if (this.selectedValue === 'Non Transfer Employee') {
+
+        //     return emp.transferStatus === null;
+
+        //   }
+
+        //   // Transfer Employee
+        //   if (this.selectedValue === 'Transfer Employee') {
+
+        //     return emp.transferStatus !== null;
+
+        //   }
+
+        //   return true;
+
+
+
+        case 'transfer':
+
+  if (this.selectedValue === 'Transfer Employee') {
+    return (emp.transferStatus || '').toLowerCase() === 'transfer';
+  }
+
+  if (this.selectedValue === 'Non Transfer Employee') {
+    return emp.transferStatus === null;
+  }
+
+  return true;
         default:
 
           return true;
@@ -2659,6 +2810,7 @@ filterDropdown(): void {
     });
   }
 
+
   this.totalItems = this.filterallData.length;
 
   this.pageIndex = 0;
@@ -2666,12 +2818,38 @@ filterDropdown(): void {
   this.applyPagination();
 }
 
+
+
 searchText: string = '';
 
 
 
 
-onSearchInput(event: any) {
+// onSearchInput(event: any) {
+
+//   let value = event.target.value;
+
+//   if (
+//     this.searchType === 'name' ||
+//     this.searchType === 'empStatus'
+//   ) {
+//     value = value.replace(/[^a-zA-Z\s]/g, '');
+
+//   } else if (this.searchType === 'userId') {
+//     value = value.replace(/[^0-9]/g, '');
+//   }
+
+//   this.searchText = value;
+//   event.target.value = value;
+
+//   this.filterData();
+// }
+
+
+/**
+ * Text Search
+ */
+onSearchInput(event: any): void {
 
   let value = event.target.value;
 
@@ -2679,49 +2857,105 @@ onSearchInput(event: any) {
     this.searchType === 'name' ||
     this.searchType === 'empStatus'
   ) {
+
     value = value.replace(/[^a-zA-Z\s]/g, '');
 
   } else if (this.searchType === 'userId') {
+
     value = value.replace(/[^0-9]/g, '');
   }
 
+
   this.searchText = value;
+
   event.target.value = value;
 
   this.filterData();
 }
 
 
-filterData() {
+
+// filterData() {
+
+//   this.filterallData = this.getAllList.filter((emp: any) => {
+
+//     switch (this.searchType) {
+
+//       case 'name':
+//         return (emp.name || '')
+//           .toLowerCase()
+//           .includes(this.searchText.toLowerCase());
+
+//       case 'empStatus':
+//         return (emp.empStatus || '')
+//           .toLowerCase()
+//           .includes(this.searchText.toLowerCase());
+
+//       case 'userId':
+//         return (emp.userId || '')
+//           .toString()
+//           .includes(this.searchText);
+
+//       default:
+//         return true;
+//     }
+//   });
+
+//   // IMPORTANT
+//   this.totalItems = this.filterallData.length;
+
+//   // Search/clear झाल्यावर first page
+//   this.pageIndex = 0;
+
+//   this.applyPagination();
+// }
+
+
+
+/**
+ * Text Filter
+ */
+filterData(): void {
 
   this.filterallData = this.getAllList.filter((emp: any) => {
 
     switch (this.searchType) {
 
       case 'name':
+
         return (emp.name || '')
           .toLowerCase()
-          .includes(this.searchText.toLowerCase());
+          .includes(
+            this.searchText.toLowerCase()
+          );
+
 
       case 'empStatus':
+
         return (emp.empStatus || '')
           .toLowerCase()
-          .includes(this.searchText.toLowerCase());
+          .includes(
+            this.searchText.toLowerCase()
+          );
+
 
       case 'userId':
+
         return (emp.userId || '')
           .toString()
           .includes(this.searchText);
 
+
       default:
+
         return true;
     }
+
   });
 
-  // IMPORTANT
+
   this.totalItems = this.filterallData.length;
 
-  // Search/clear झाल्यावर first page
   this.pageIndex = 0;
 
   this.applyPagination();
@@ -2758,7 +2992,9 @@ empDelete() {
 //       return '';
 //   }
 // }
-
+/**
+ * Select Label
+ */
 getSelectLabel(): string {
 
   switch (this.searchType) {
@@ -2778,11 +3014,13 @@ getSelectLabel(): string {
     case 'locationName':
       return 'Branch';
 
+    case 'transfer':
+      return 'Transfer Status';
+
     default:
-      return '';
+      return 'Value';
   }
 }
-
 
 // getPlaceholder(): string {
 //   switch (this.searchType) {

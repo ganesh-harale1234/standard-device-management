@@ -1,155 +1,203 @@
 <div class="p-0 ">
- <div  class="flex flex-wrap items-center gap-3 py-3 ">
-  <div *ngIf="RoleName !== 'Branch Admin'" class="w-52">
+<div class="flex flex-wrap items-center gap-3 py-3">
 
-    <!-- <ng-select
-        class="custom-ng-select"
-        [items]="locationList"
-        bindLabel="locationName"
-        bindValue="locationId"
-        [multiple]="true"
-        [searchable]="true"
-        [closeOnSelect]="false"
-        placeholder="Select Branch"
-        [(ngModel)]="selectedLocationIds">
+  <!-- ========================= -->
+  <!-- Branch -->
+  <!-- ========================= -->
 
-        <ng-template ng-header-tmp>
+  <div
+    *ngIf="RoleName !== 'Branch Admin'"
+    class="w-52 search-field">
 
-            <div class="px-2 py-2 border-b">
-
-                <label class="flex items-center cursor-pointer">
-
-                    <input
-                        type="checkbox"
-                        [checked]="isAllLocationSelected()"
-                        (click)="$event.stopPropagation()"
-                        (change)="toggleSelectAllLocations()">
-
-                    <span class="ml-2">
-                        Select All
-                    </span>
-
-                </label>
-
-            </div>
-
-        </ng-template>
-
-        <ng-template
-            ng-option-tmp
-            let-item="item"
-            let-item$="item$">
-
-            <input
-                type="checkbox"
-                [checked]="item$.selected"
-                tabindex="-1"
-                class="mr-2">
-
-            {{ item.locationName }}
-
-        </ng-template>
-
-    </ng-select> -->
-    <ng-select style="border: 1px solid #2563eb !important;
-    border-radius: 6px !important;" [items]="locationList"   (change)="onLocationChange($event)" bindLabel="locationName" bindValue="locationId" [clearable]="true"
-      [(ngModel)]="selectlocationId" placeholder="Select Branch">
+    <ng-select
+      style="
+        border: 1px solid #2563eb !important;
+        border-radius: 6px !important;
+      "
+      [items]="locationList"
+      (change)="onLocationChange($event)"
+      bindLabel="locationName"
+      bindValue="locationId"
+      [clearable]="true"
+      [(ngModel)]="selectlocationId"
+      placeholder="Select Branch">
     </ng-select>
 
-</div>
-<div style="display: flex; " class="gap-3 items-center">
-    <div>
-          <!-- <label class="block text-sm font-medium text-[#004A71] mb-1"> Select Contractor <span class="text-red-500">*</span></label> -->
-         
-         <select   (change)="getContractorId($event)"
-           
-            class="w-full px-3 py-2 border border-sky-500 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-sm h-[44px]" style="min-width: 176px;"
-          >
-       
-            <option value="" disabled selected>Select Contractor</option>
-            @for (item of getAllListdepartment; track $index){
-              <option [value]="item.conId"> {{item.contractorName}} </option>
-            }
-          </select>
-      
-        </div>
+  </div>
 
-<mat-form-field 
-  appearance="fill"
-  class="w-39 custom-field search-field">
 
-  <mat-label>From</mat-label>
+  <!-- ========================= -->
+  <!-- Contractor -->
+  <!-- ========================= -->
 
-  <input
-    matInput
-    [matDatepicker]="fromPicker"
-    [(ngModel)]="fromDate" />
+  <div class="w-52">
 
-  <mat-datepicker-toggle
-    matSuffix
-    [for]="fromPicker">
-  </mat-datepicker-toggle>
+    <select
+      (change)="getContractorId($event)"
+      class="w-full px-3 py-2 border border-sky-500
+             rounded-md bg-white
+             focus:outline-none
+             focus:ring-1 focus:ring-sky-500
+             focus:border-sky-500
+             text-sm h-[44px]">
 
-  <mat-datepicker #fromPicker></mat-datepicker>
+      <option value="" disabled selected>
+        Select Contractor
+      </option>
 
-</mat-form-field>
+      @for (item of getAllListdepartment; track $index) {
 
-<!-- ========================= -->
-<!-- To Date -->
-<!-- ========================= -->
+        <option [value]="item.conId">
+          {{ item.contractorName }}
+        </option>
 
-<mat-form-field
-  appearance="fill"
-  class="w-39 custom-field search-field">
+      }
 
-  <mat-label>To</mat-label>
+    </select>
 
-  <input
-    matInput
-    [matDatepicker]="toPicker"
-    [(ngModel)]="toDate" />
+  </div>
 
-  <mat-datepicker-toggle
-    matSuffix
-    [for]="toPicker">
-  </mat-datepicker-toggle>
 
-  <mat-datepicker #toPicker></mat-datepicker>
+  <!-- ========================= -->
+  <!-- From Date -->
+  <!-- ========================= -->
 
-</mat-form-field>
+  <mat-form-field
+    appearance="fill"
+    class="w-37 custom-field search-field">
 
-</div>
-  <!-- Buttons (right aligned) -->
-  <div class="flex items-center gap-2 m">
-    <button style="cursor: pointer;"
-      type="button"
-  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+    <mat-label>From</mat-label>
 
-      (click)="AuditReport()"
-    >
-      View Report
-    </button>
+    <input
+      matInput
+      [matDatepicker]="fromPicker"
+      [(ngModel)]="fromDate" />
+
+    <mat-datepicker-toggle
+      matSuffix
+      [for]="fromPicker">
+    </mat-datepicker-toggle>
+
+    <mat-datepicker #fromPicker></mat-datepicker>
+
+  </mat-form-field>
+
+
+  <!-- ========================= -->
+  <!-- To Date -->
+  <!-- ========================= -->
+
+  <mat-form-field
+    appearance="fill"
+    class="w-37 custom-field search-field">
+
+    <mat-label>To</mat-label>
+
+    <input
+      matInput
+      [matDatepicker]="toPicker"
+      [(ngModel)]="toDate" />
+
+    <mat-datepicker-toggle
+      matSuffix
+      [for]="toPicker">
+    </mat-datepicker-toggle>
+
+    <mat-datepicker #toPicker></mat-datepicker>
+
+  </mat-form-field>
+
+
+  <!-- ========================= -->
+  <!-- Buttons -->
+  <!-- ========================= -->
+
+  <div class="flex items-center gap-2 ml-auto">
+
+    <!-- View Report -->
 
     <button
-  type="button"
-  class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+      type="button"
+      style="cursor: pointer;"
+      class="bg-[#005177]
+             hover:bg-[#003e5c]
+             text-white
+             text-sm
+             font-medium
+             py-2
+             px-2
+             rounded-lg
+             normal-case
+             shadow-md
+             transition-all
+             duration-200
+             flex
+             items-center
+             justify-center
+             export-btn"
+      (click)="AuditReport()">
 
-      (click)="onExportPdf()">
-      Export to pdf
+      View Report
+
     </button>
 
-        <button
-  type="button" 
-  class="bg-[#005177] hover:bg-[#003e5c] text-white  text-sm font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"  
- (click)="onExportExcel()" >
 
-  Export to Excel
-</button>
+    <!-- Export PDF -->
+
+    <button
+      type="button"
+      class="bg-[#005177]
+             hover:bg-[#003e5c]
+             text-white
+             text-sm
+             font-medium
+             py-2
+             px-2
+             rounded-lg
+             normal-case
+             shadow-md
+             transition-all
+             duration-200
+             flex
+             items-center
+             justify-center
+             export-btn"
+      (click)="onExportPdf()">
+
+      Export to pdf
+
+    </button>
+
+
+    <!-- Export Excel -->
+
+    <button
+      type="button"
+      class="bg-[#005177]
+             hover:bg-[#003e5c]
+             text-white
+             text-sm
+             font-medium
+             py-2
+             px-2
+             rounded-lg
+             normal-case
+             shadow-md
+             transition-all
+             duration-200
+             flex
+             items-center
+             justify-center
+             export-btn"
+      (click)="onExportExcel()">
+
+      Export to Excel
+
+    </button>
+
   </div>
-  <!-- Buttons (right aligned) -->
 
 </div>
-
 
 <!-- <div id="contentToConvert" class="bg-white rounded-md shadow-sm p-4"> -->
   <div #contentToConvert id="contentToConvert" class="pdf-container">
@@ -227,7 +275,7 @@
           {{ row.employeeName }}
         </td>
 
-        <td>
+        <td style="text-align: left;">
           {{ row.contractorName }}
         </td>  
    <td>

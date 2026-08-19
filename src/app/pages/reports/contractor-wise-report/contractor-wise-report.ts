@@ -41,11 +41,14 @@ constructor(private dataService:DataService, private toaster:ToastrService, priv
 
 getAllListdepartment:any[] = []
 
- locationID:any;
+
+locationID:any;
 RoleName:any;
+locationName:any;
   ngOnInit(): void {
   this.locationID = sessionStorage.getItem('locationId');
   this.RoleName =  sessionStorage.getItem('roleName');
+  this.locationName =  sessionStorage.getItem('locationName');
   this.getallDataLocation();
   this.getallDatadepartment();
   this.roleId = sessionStorage.getItem('rollId')
@@ -249,6 +252,21 @@ onExportExcel(): void {
     return;
   }
 
+  const branchName = this.getSelectedLocationName() || 'All';
+  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
+  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
+  const fDate = fromDateValue || 'N/A';
+  const tDate = toDateValue || 'N/A';
+  const reportTime = new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+
   const excelData = this.reportData.map((item: any, index: number) => {
 
     return {
@@ -256,16 +274,39 @@ onExportExcel(): void {
       'Employee ID': item.employeeId ?? '',
       'Employee Name': item.employeeName ?? '',
       'Contractor Name': item.contractorName ?? '',
-      'Location': item.locationName ?? '',
-      'Punch Date': item.punchDate ?? '',
+      'Date': item.punchDate ?? '',
       'Punch In': item.punchIn ?? '',
       'Punch Out': item.punchOut ?? ''
     };
 
   });
 
-  const worksheet: XLSX.WorkSheet =
-    XLSX.utils.json_to_sheet(excelData);
+  const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
+    [],
+    [],
+    [],
+    [],
+    Object.keys(excelData[0]),
+    ...excelData.map((item: any) => Object.values(item))
+  ]);
+
+  XLSX.utils.sheet_add_aoa(worksheet, [
+    [{ v: 'Contractor Wise Report', t: 's', s: { alignment: { horizontal: 'center' }, font: { bold: true } } }],
+    [{ v: `From Date: ${fDate} to ${tDate}`, t: 's', s: { alignment: { horizontal: 'center' } } }],
+    [`Branch Name: ${branchName}`, '', '', '', '', '', '', `Report Time: ${reportTime}`]
+  ], { origin: 'A1' });
+
+  worksheet['A1'].s = { alignment: { horizontal: 'center' }, font: { bold: true } };
+  worksheet['A2'].s = { alignment: { horizontal: 'center' } };
+  worksheet['A3'].s = { alignment: { horizontal: 'center' } };
+  worksheet['H3'].s = { alignment: { horizontal: 'center' } };
+
+  worksheet['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } },
+    { s: { r: 2, c: 7 }, e: { r: 2, c: 7 } }
+  ];
 
   worksheet['!cols'] = [
     { wch: 10 }, // Sr No
@@ -633,7 +674,7 @@ onExportPdf() {
     { content: 'Employee Id' },
     { content: 'Employee Name' },
     { content: 'Contractor Name' },
-    { content: 'Location' },
+    // { content: 'Location' },
     { content: 'Punch Date' },
     { content: 'Punch In' },
     { content: 'Punch Out' }
@@ -644,7 +685,7 @@ onExportPdf() {
     item.employeeId ?? '-',
     item.employeeName ?? '-',
     item.contractorName ?? '-',
-    item.locationName ?? '-',
+    // item.locationName ?? '-',
     item.punchDate ?? '-',
     item.punchIn ?? '-',
     item.punchOut ?? '-'
@@ -694,11 +735,16 @@ onExportPdf() {
 
 selectedLocationName = '';
 selectlocationId: number | null = null;
+
 getSelectedLocationName() {
+
+  if (this.RoleName === 'Branch Admin') {
+    return this.locationName || '';
+  }
+
   return this.locationList.find(
     (x: any) => x.locationId === this.selectlocationId
-  )?.locationName;
+  )?.locationName || '';
 }
-
 
 }

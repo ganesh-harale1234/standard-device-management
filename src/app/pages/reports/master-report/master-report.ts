@@ -43,9 +43,12 @@ constructor(private dataService:DataService, private toaster:ToastrService, priv
 
 locationID:any;
 RoleName:any;
+locationName:any;
   ngOnInit(): void {
   this.locationID = sessionStorage.getItem('locationId');
   this.RoleName =  sessionStorage.getItem('roleName');
+  this.locationName =  sessionStorage.getItem('locationName');
+
   this.getallDataLocation();
   this.roleId = sessionStorage.getItem('rollId')
 
@@ -344,18 +347,8 @@ if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
 
 const requestData = {
   employeeId: employeeId || null,
-  fromDate: fromDate,
-  toDate: toDate,
   locationId: locationId ? [locationId] : []
 };
-
-
-    // const requestData = {
-    //   employeeId: employeeId || null,
-    //   fromDate: fromDate,
-    //   toDate: toDate,
-    //   locationId: this.selectlocationId ? [this.selectlocationId] : []
-    // };
 
     this.dataService.viewmasterReportDetails(requestData).subscribe((res: any) => {
       if (res.code === 100) {
@@ -384,10 +377,10 @@ downloadPDF() {
   const pageWidth = doc.internal.pageSize.getWidth();
 
   const branchName = this.getSelectedLocationName() || 'All';
-  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
-  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
+  // const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
+  // const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
+  // const fDate = fromDateValue || 'N/A';
+  // const tDate = toDateValue || 'N/A';
   const reportTime = new Date().toLocaleString('en-US', {
     month: 'short',
     day: '2-digit',
@@ -404,7 +397,7 @@ downloadPDF() {
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  doc.text(`From Date: ${fDate} to ${tDate}`, pageWidth / 2, 15, { align: 'center' });
+  // doc.text(`From Date: ${fDate} to ${tDate}`, pageWidth / 2, 15, { align: 'center' });
 
   doc.setFont('helvetica', 'bold');
   doc.text('Branch Name: ', 10, 20);
@@ -421,6 +414,8 @@ downloadPDF() {
     { content: 'Employee Id' },
     { content: 'Employee Name' },
     { content: 'Designation' },
+      { content: 'Department' }, 
+       { content: 'Category' },
     { content: 'Image' },
     { content: 'Date' },
     { content: 'Status' }
@@ -431,6 +426,8 @@ downloadPDF() {
     item.employeeId ?? '-',
     item.employeeName ?? '-',
     item.designation ?? '-',
+    item.department ?? '-',
+    item.category ?? '-',
     item.image ?? item.imageAvailable ?? '-',
     item.date ?? item.createdDate ?? '-',
     item.status ?? '-'
@@ -478,6 +475,105 @@ downloadPDF() {
   doc.save('Master_Report.pdf');
 }
 
+
+
+// onExportExcel(): void {
+
+//   // Check data
+//   if (!this.reportData || this.reportData.length === 0) {
+//     this.toaster.error('No employee data available for export');
+//     return;
+//   }
+
+//   const branchName = this.getSelectedLocationName() || 'All';
+//   // const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
+//   // const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
+//   // const fDate = fromDateValue || 'N/A';
+//   // const tDate = toDateValue || 'N/A';
+//   const reportTime = new Date().toLocaleString('en-US', {
+//     month: 'short',
+//     day: '2-digit',
+//     year: 'numeric',
+//     hour: '2-digit',
+//     minute: '2-digit',
+//     second: '2-digit',
+//     hour12: true
+//   });
+
+//   // Prepare Excel data - same headings as table
+//   const excelData = this.reportData.map((item: any, index: number) => {
+//     return {
+//       'Sr No.': index + 1,
+//       'Employee Id': item.employeeId ?? '',
+//       'Employee Name': item.employeeName ?? '',
+//       'Designation': item.designation ?? '',
+//       'Department': item.department ?? '',
+//       'Category': item.category ?? '',
+//       'Image': item.image ?? item.imageAvailable ?? '',
+//       'Date': item.date ?? item.createdDate ?? '',
+//       'Status': item.status ?? ''
+//     };
+//   });
+
+//   // Create worksheet
+//   const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
+//     [],
+//     [],
+//     [],
+//     [],
+//     Object.keys(excelData[0]),
+//     ...excelData.map((item: any) => Object.values(item))
+//   ]);
+
+//   XLSX.utils.sheet_add_aoa(worksheet, [
+//     [{ v: 'Master Report', t: 's', s: { alignment: { horizontal: 'center' }, font: { bold: true } } }],
+//     // [{ v: `From Date: ${fDate} to ${tDate}`, t: 's', s: { alignment: { horizontal: 'center' } } }],
+//     [`Branch Name: ${branchName}`, '', '', '', '', '', '', `Report Time: ${reportTime}`]
+//   ], { origin: 'A1' });
+
+//   worksheet['A1'].s = { alignment: { horizontal: 'center' }, font: { bold: true } };
+//   worksheet['A2'].s = { alignment: { horizontal: 'center' } };
+
+//   worksheet['A3'].s = { alignment: { horizontal: 'center' } };
+//   worksheet['H3'].s = { alignment: { horizontal: 'center' } };
+
+//   worksheet['!merges'] = [
+//     { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } },
+//     { s: { r: 1, c: 0 }, e: { r: 1, c: 8 } },
+//     { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } },
+//     { s: { r: 2, c: 7 }, e: { r: 2, c: 8 } }
+//   ];
+
+//   // Set column widths - same order as table
+//   worksheet['!cols'] = [
+//     { wch: 10 }, // Sr No.
+//     { wch: 18 }, // Employee Id
+//     { wch: 25 }, // Employee Name
+//     { wch: 25 }, // Designation
+//     { wch: 15 }, // Image
+//     { wch: 18 }, // Date
+//     { wch: 15 }  // Status
+//   ];
+
+//   // Create workbook
+//   const workbook: XLSX.WorkBook =
+//     XLSX.utils.book_new();
+
+//   // Add worksheet
+//   XLSX.utils.book_append_sheet(
+//     workbook,
+//     worksheet,
+//     'Employee Report'
+//   );
+
+//   // Download Excel
+//   XLSX.writeFile(
+//     workbook,
+//     'Employee_Master_Report.xlsx'
+//   );
+// }
+  
+
 onExportExcel(): void {
 
   // Check data
@@ -486,13 +582,27 @@ onExportExcel(): void {
     return;
   }
 
-  // Prepare Excel data - same headings as table
+  const branchName = this.getSelectedLocationName() || 'All';
+
+  const reportTime = new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+
+  // Prepare Excel data
   const excelData = this.reportData.map((item: any, index: number) => {
     return {
       'Sr No.': index + 1,
       'Employee Id': item.employeeId ?? '',
       'Employee Name': item.employeeName ?? '',
       'Designation': item.designation ?? '',
+      'Department': item.department ?? '',
+      'Category': item.category ?? '',
       'Image': item.image ?? item.imageAvailable ?? '',
       'Date': item.date ?? item.createdDate ?? '',
       'Status': item.status ?? ''
@@ -500,23 +610,64 @@ onExportExcel(): void {
   });
 
   // Create worksheet
-  const worksheet: XLSX.WorkSheet =
-    XLSX.utils.json_to_sheet(excelData);
+  const headers = Object.keys(excelData[0]);
 
-  // Set column widths - same order as table
+  const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
+    ['Master Report'],
+    [`Branch Name: ${branchName}`, '', '', '', '', '', '', `Report Time: ${reportTime}`],
+    [],
+    [],
+    headers,
+    ...excelData.map((item: any) => Object.values(item))
+  ]);
+
+  // Merge title
+  worksheet['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }, // A1:I1
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 3 } }, // A2:D2
+    { s: { r: 1, c: 7 }, e: { r: 1, c: 8 } }  // H2:I2
+  ];
+
+  // Apply styles safely
+  worksheet['A1'].s = {
+    alignment: {
+      horizontal: 'center',
+      vertical: 'center'
+    },
+    font: {
+      bold: true
+    }
+  };
+
+  worksheet['A2'].s = {
+    alignment: {
+      horizontal: 'center',
+      vertical: 'center'
+    }
+  };
+
+  worksheet['H2'].s = {
+    alignment: {
+      horizontal: 'center',
+      vertical: 'center'
+    }
+  };
+
+  // Set column widths - 9 columns
   worksheet['!cols'] = [
     { wch: 10 }, // Sr No.
     { wch: 18 }, // Employee Id
     { wch: 25 }, // Employee Name
     { wch: 25 }, // Designation
-    { wch: 15 }, // Image
+    { wch: 18 }, // Department
+    { wch: 18 }, // Category
+    { wch: 18 }, // Image
     { wch: 18 }, // Date
     { wch: 15 }  // Status
   ];
 
   // Create workbook
-  const workbook: XLSX.WorkBook =
-    XLSX.utils.book_new();
+  const workbook: XLSX.WorkBook = XLSX.utils.book_new();
 
   // Add worksheet
   XLSX.utils.book_append_sheet(
@@ -531,13 +682,17 @@ onExportExcel(): void {
     'Employee_Master_Report.xlsx'
   );
 }
-  
 
 selectedLocationName = '';
 
 getSelectedLocationName() {
+
+  if (this.RoleName === 'Branch Admin') {
+    return this.locationName || '';
+  }
+
   return this.locationList.find(
     (x: any) => x.locationId === this.selectlocationId
-  )?.locationName;
+  )?.locationName || '';
 }
 }

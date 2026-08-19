@@ -38,11 +38,14 @@ constructor(private dataService:DataService, private toaster:ToastrService){
 
 
 
+
 locationID:any;
 RoleName:any;
+locationName:any;
   ngOnInit(): void {
   this.locationID = sessionStorage.getItem('locationId');
   this.RoleName =  sessionStorage.getItem('roleName');
+  this.locationName =  sessionStorage.getItem('locationName');
   this.getallDataLocation();
   this.roleId = sessionStorage.getItem('rollId')
   this.getallData()
@@ -279,15 +282,39 @@ isAllLocationSelected(): boolean {
 onExportExcel(): void {
 
   if (!this.reportData || this.reportData.length === 0) {
-    this.toaster.error('No  data available for export');
+    this.toaster.error('No data available for export');
     return;
   }
 
-  // Excel data
+  const branchName = this.getSelectedLocationName() || 'All';
+
+  const fromDateValue = this.fromDate
+    ? this.formatDateToYMD(this.fromDate)
+    : null;
+
+  const toDateValue = this.toDate
+    ? this.formatDateToYMD(this.toDate)
+    : null;
+
+  const fDate = fromDateValue || 'N/A';
+  const tDate = toDateValue || 'N/A';
+
+  const reportTime = new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+
+  // Excel Data
   const excelData = this.reportData.map((item: any, index: number) => {
 
     return [
       index + 1,
+      item.empId ?? '',
       item.employeeName ?? '',
       item.designation ?? '',
       item.locationName ?? '',
@@ -301,21 +328,23 @@ onExportExcel(): void {
 
   });
 
-  // Header rows
+  // Header Rows
   const headerRows = [
     [
-      'SR. NO.',
-      'NAME OF EMPLOYEE',
-      'DESIGNATION',
+      'Sr. No.',
+      'Employee Id',
+      'Employee Name',
+      'Designation',
       'Branch Name',
       'Date',
-      'COUNT',
+      'Count',
       '',
       '',
-      'WORKING DURATION (HOURS)',
+      'Working Duration (Hours)',
       ''
     ],
     [
+      '',
       '',
       '',
       '',
@@ -329,71 +358,147 @@ onExportExcel(): void {
     ]
   ];
 
-  // Combine header + data
+  // Combine Header + Data
   const sheetData = [
+    [],
+    [],
+    [],
+    [],
     ...headerRows,
     ...excelData
   ];
 
-  // Create worksheet
+  // Create Worksheet
   const worksheet: XLSX.WorkSheet =
     XLSX.utils.aoa_to_sheet(sheetData);
 
-  // Merge COUNT
+  // Report Information
+  XLSX.utils.sheet_add_aoa(
+    worksheet,
+    [
+      [
+        `Entry Exit Status Report`
+      ],
+      [
+        `From Date: ${fDate} to ${tDate}`
+      ],
+      [
+        `Branch Name: ${branchName}`,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        `Report Time: ${reportTime}`,
+        ''
+      ]
+    ],
+    {
+      origin: 'A1'
+    }
+  );
+
+  // =========================================================
+  // MERGES
+  // =========================================================
   worksheet['!merges'] = [
+
+    // COUNT = G5:I5
     {
-      s: { r: 0, c: 5 },
-      e: { r: 0, c: 7 }
+      s: { r: 4, c: 6 },
+      e: { r: 4, c: 8 }
     },
 
-    // Merge WORKING DURATION
+    // WORKING DURATION = J5:K5
     {
-      s: { r: 0, c: 8 },
-      e: { r: 0, c: 9 }
+      s: { r: 4, c: 9 },
+      e: { r: 4, c: 10 }
     },
 
-    // Merge vertical headers
+    // Sr. No. = A5:A6
+    {
+      s: { r: 4, c: 0 },
+      e: { r: 5, c: 0 }
+    },
+
+    // Employee Id = B5:B6
+    {
+      s: { r: 4, c: 1 },
+      e: { r: 5, c: 1 }
+    },
+
+    // Employee Name = C5:C6
+    {
+      s: { r: 4, c: 2 },
+      e: { r: 5, c: 2 }
+    },
+
+    // Designation = D5:D6
+    {
+      s: { r: 4, c: 3 },
+      e: { r: 5, c: 3 }
+    },
+
+    // Branch Name = E5:E6
+    {
+      s: { r: 4, c: 4 },
+      e: { r: 5, c: 4 }
+    },
+
+    // Date = F5:F6
+    {
+      s: { r: 4, c: 5 },
+      e: { r: 5, c: 5 }
+    },
+
+    // Report Title = A1:K1
     {
       s: { r: 0, c: 0 },
-      e: { r: 1, c: 0 }
+      e: { r: 0, c: 10 }
     },
+
+    // From Date = A2:K2
     {
-      s: { r: 0, c: 1 },
-      e: { r: 1, c: 1 }
+      s: { r: 1, c: 0 },
+      e: { r: 1, c: 10 }
     },
+
+    // Branch Name = A3:I3
     {
-      s: { r: 0, c: 2 },
-      e: { r: 1, c: 2 }
+      s: { r: 2, c: 0 },
+      e: { r: 2, c: 8 }
     },
+
+    // Report Time = J3:K3
     {
-      s: { r: 0, c: 3 },
-      e: { r: 1, c: 3 }
-    },
-    {
-      s: { r: 0, c: 4 },
-      e: { r: 1, c: 4 }
+      s: { r: 2, c: 9 },
+      e: { r: 2, c: 10 }
     }
   ];
 
-  // Column widths
+  // Column Widths
   worksheet['!cols'] = [
-    { wch: 10 }, // SR NO.
-    { wch: 25 }, // NAME OF EMPLOYEE
-    { wch: 25 }, // DESIGNATION
+    { wch: 10 }, // Sr. No.
+    { wch: 18 }, // Employee Id
+    { wch: 25 }, // Employee Name
+    { wch: 20 }, // Designation
     { wch: 18 }, // Branch Name
     { wch: 15 }, // Date
-    { wch: 12 }, // ENTRY
-    { wch: 12 }, // EXITS
-    { wch: 12 }, // TOTAL
-    { wch: 20 }, // IN CAMPUS
-    { wch: 20 }  // OUT CAMPUS
+    { wch: 12 }, // Entry
+    { wch: 12 }, // Exits
+    { wch: 12 }, // Total
+    { wch: 20 }, // In Campus
+    { wch: 20 }  // Out Campus
   ];
 
-  // Create workbook
+  // Create Workbook
   const workbook: XLSX.WorkBook =
     XLSX.utils.book_new();
 
-  // Add worksheet
+  // Add Worksheet
   XLSX.utils.book_append_sheet(
     workbook,
     worksheet,
@@ -617,9 +722,14 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
 
 
 getSelectedLocationName() {
+
+  if (this.RoleName === 'Branch Admin') {
+    return this.locationName || '';
+  }
+
   return this.locationLists.find(
     (x: any) => x.locationId === this.selectedLocationIds
-  )?.locationName;
+  )?.locationName || '';
 }
 
 

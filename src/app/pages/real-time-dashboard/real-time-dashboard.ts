@@ -28,6 +28,8 @@ export class RealTimeDashboard implements OnInit{
  isEdit:boolean = false 
  totalCountLog:number = 0;
  totalCountAlarm:number = 0;
+ private punchingLogInterval: any;
+private alarmLogInterval: any;
 
 punchingLogs:any = [];
 alarmLogs:any = [] =[];
@@ -46,6 +48,15 @@ ngOnInit(){
  this.getPunchinglog();
  this.getAlarmLogs()
 this.dataService.setTitle('Real time Dashboard');
+  // Every 5 seconds refresh punching logs
+  this.punchingLogInterval = setInterval(() => {
+    this.getPunchinglog();
+  }, 5000);
+
+  // Every 5 seconds refresh alarm logs
+  this.alarmLogInterval = setInterval(() => {
+    this.getAlarmLogs();
+  }, 5000);
  
 
 
@@ -125,16 +136,7 @@ this.updateAlarmPagination();
 }
 
 
-// filterDatapunchingLog(event: any) {
-//   const value = (event.target.value || '').trim().toLowerCase();
-//   console.log('search value......', value);
-//   this.filterPunchingLog = this.punchingLogs.filter((item: any) => {
-//     return item.name.toLowerCase().includes(value);   
-//   });
-//   this.currentPage = 1;
-// this.updatePagination();
-//   console.log('filtered data.......', this.filterPunchingLog);
-// }
+
 
 filterDatapunchingLog(event: any) {
   const value = (event.target.value || '').trim().toLowerCase();
@@ -240,4 +242,20 @@ previousAlarmPage() {
     this.updateAlarmPagination();
   }
 }
+
+
+ngOnDestroy(): void {
+
+  if (this.punchingLogInterval) {
+    clearInterval(this.punchingLogInterval);
+    this.punchingLogInterval = null;
+  }
+
+  if (this.alarmLogInterval) {
+    clearInterval(this.alarmLogInterval);
+    this.alarmLogInterval = null;
+  }
+}
+
+
 }

@@ -18,10 +18,10 @@
              <!-- <span class="imglogo"><img src="assets/images/image - 2026-07-07T155118.840.png" alt="Logo" class=" text-center logoimg"></span>        -->
      <!-- <img src="assets/images/dev-main-logo.png" alt="" height="20" width="280" class="mt-8 mb-8"> -->
 
-        <span class="text-xs md:text-2xl hidden md:block ms-29 name" >Device Management System</span>
+        <!-- <span class="text-xs md:text-2xl hidden md:block ms-29 name" >Device Management System</span> -->
 
         <span class="example-spacer"> 
-  <span *ngIf="roleName === 'Branch Admin'" class="ml-5" style="font-size: 15px;"> <span style="color:black" >Branch Name</span> : <span style="font-size: 18px;">{{locationName}}</span> </span> </span>
+  <span *ngIf="roleName === 'Branch Admin'" class="ml-15" style="font-size: 15px;"> <span style="color:black" >Branch Name</span> : <span style="font-size: 18px;">{{locationName}}</span> </span> </span>
 
         <div *ngIf="!isLoading" class="inline-flex items-center text-md">
           <div class="flex flex-col leading-5">
@@ -341,7 +341,7 @@
 
 
                    <a mat-button class="menu-button nav-link" routerLink="/master-report" routerLinkActive="active">
-                    <span>  Master Report </span>
+                    <span> Employee Master Report </span>
                 </a>
 
 

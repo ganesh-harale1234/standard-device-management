@@ -42,9 +42,12 @@ constructor(private dataService:DataService, private toaster:ToastrService,priva
 
 locationID:any;
 RoleName:any;
+locationName:any;
   ngOnInit(): void {
   this.locationID = sessionStorage.getItem('locationId');
   this.RoleName =  sessionStorage.getItem('roleName');
+  this.locationName =  sessionStorage.getItem('locationName');
+
   this.getallDataLocation();
   this.roleId = sessionStorage.getItem('rollId')
 
@@ -356,6 +359,21 @@ onExportExcel(): void {
     return;
   }
 
+  const branchName = this.getSelectedLocationName() || 'All';
+  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
+  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
+  const fDate = fromDateValue || 'N/A';
+  const tDate = toDateValue || 'N/A';
+  const reportTime = new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+
   // Prepare Excel data
   const excelData = this.reportData.map((item: any, index: number) => {
 
@@ -370,8 +388,32 @@ onExportExcel(): void {
   });
 
   // Create worksheet
-  const worksheet: XLSX.WorkSheet =
-    XLSX.utils.json_to_sheet(excelData);
+  const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
+    [],
+    [],
+    [],
+    [],
+    Object.keys(excelData[0]),
+    ...excelData.map((item: any) => Object.values(item))
+  ]);
+
+  XLSX.utils.sheet_add_aoa(worksheet, [
+    [{ v: 'Log Report', t: 's', s: { alignment: { horizontal: 'center' }, font: { bold: true } } }],
+    [{ v: `From Date: ${fDate} to ${tDate}`, t: 's', s: { alignment: { horizontal: 'center' } } }],
+    [`Branch Name: ${branchName}`, '', '', `Report Time: ${reportTime}`, '']
+  ], { origin: 'A1' });
+
+  worksheet['A1'].s = { alignment: { horizontal: 'center' }, font: { bold: true } };
+  worksheet['A2'].s = { alignment: { horizontal: 'center' } };
+  worksheet['A3'].s = { alignment: { horizontal: 'center' } };
+  worksheet['D3'].s = { alignment: { horizontal: 'center' } };
+
+  worksheet['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } },
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 2 } },
+    { s: { r: 2, c: 3 }, e: { r: 2, c: 4 } }
+  ];
 
   // Set column widths
   worksheet['!cols'] = [
@@ -505,10 +547,16 @@ onExportPdf() {
 
 selectedLocationName = '';
 selectlocationId: number | null = null;
-getSelectedLocationName() {
+
+getSelectedLocationName(): string {
+
+  if (this.RoleName === 'Branch Admin') {
+    return this.locationName || '';
+  }
+
   return this.locationList.find(
     (x: any) => x.locationId === this.selectlocationId
-  )?.locationName;
+  )?.locationName || '';
 }
 
 
