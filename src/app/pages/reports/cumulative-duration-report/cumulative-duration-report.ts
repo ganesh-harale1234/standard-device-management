@@ -239,8 +239,6 @@ viewReportDetails() {
 
       if (res.code === 100) {
 
-        // API response:
-        // extend.data
         this.reportData = res.extend?.data || [];
 
         console.log('Report Details:', this.reportData);
