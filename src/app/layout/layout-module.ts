@@ -139,6 +139,14 @@ export const routes: Routes = [
         loadComponent:()=> import('../pages/reports/attendance-report/attendance-report').then((m)=> m.AttendanceReport)
         , canActivate:[authGuard]
      },
+
+     
+      {
+        path:'cumulative-duration-report',
+        loadComponent:()=> import('../pages/reports/cumulative-duration-report/cumulative-duration-report').then((m)=> m.CumulativeDurationReport)
+        , canActivate:[authGuard]
+     },
+
       {
         path:'multiple-punches-report',
         loadComponent:()=> import('../pages/reports/multiple-punches-report/multiple-punches-report').then((m)=> m.MultiplePunchesReport)
