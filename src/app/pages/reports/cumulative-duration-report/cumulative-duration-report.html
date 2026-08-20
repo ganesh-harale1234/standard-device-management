@@ -120,90 +120,74 @@
 
 </div>
 
-<table class="pdf-table">
+<div class="pdf-table-container">
 
-  <thead>
-    <tr>
-      <th>Sr No.</th>
-      <th>Employee Id</th>
-      <th>Employee Name</th>
-      <th>Attendance Date</th>
-      <th>In Time</th>
-      <th>Out Time</th>
-      <th>Total In Stamps</th>
-      <th>Total Out Stamps</th>
-      <th>Cumulative Duration</th>
-      <th>Total Hours</th>
-    </tr>
-  </thead>
+  <table class="pdf-table">
 
-  <tbody>
+    <thead>
+      <tr>
+        <th>Sr No.</th>
+        <th>Employee Id</th>
+        <th>Employee Name</th>
+        <th>Attendance Date</th>
+        <th>In Time</th>
+        <th>Out Time</th>
+        <th>Total In Stamps</th>
+        <th>Total Out Stamps</th>
+        <th>Cumulative Duration</th>
+        <th>Total Hours</th>
+      </tr>
+    </thead>
 
-    <tr *ngFor="let row of reportData; let i = index">
+    <tbody>
 
-      <!-- Sr No -->
-      <td>
-        {{ i + 1 }}
-      </td>
+      <tr *ngFor="let row of reportData; let i = index">
+        <td>{{ i + 1 }}</td>
 
-      <!-- Employee Id -->
-      <td>
-        {{ row.empid }}
-      </td>
+        <td>{{ row.empid }}</td>
 
-      <!-- Employee Name -->
-      <td>
-        {{ row.name }}
-      </td>
+        <td>{{ row.name }}</td>
 
-      <!-- Attendance Date -->
-      <td>
-        {{ row.entryDate | date:'dd-MM-yyyy' }}
-      </td>
+        <td>
+          {{ row.entryDate | date:'dd-MM-yyyy' }}
+        </td>
 
-      <!-- In Time -->
-      <td>
-        {{ row.inTime ? (row.inTime | date:'HH:mm') : '-' }}
-      </td>
+        <td>
+          {{ row.inTime ? (row.inTime | date:'HH:mm') : '-' }}
+        </td>
 
-      <!-- Out Time -->
-      <td>
-        {{ row.outTime ? (row.outTime | date:'HH:mm') : '-' }}
-      </td>
+        <td>
+          {{ row.outTime ? (row.outTime | date:'HH:mm') : '-' }}
+        </td>
 
-      <!-- Total In Stamps -->
-      <td>
-        {{ row.totalinstamps || '-' }}
-      </td>
+        <td>
+          {{ row.totalinstamps || '-' }}
+        </td>
 
-      <!-- Total Out Stamps -->
-      <td>
-        {{ row.totaloutstamps || '-' }}
-      </td>
+        <td>
+          {{ row.totaloutstamps || '-' }}
+        </td>
 
-      <!-- Cumulative Duration -->
-      <td>
-        {{ row.cumulativeDuration ?? 0 }}
-      </td>
+        <td>
+          {{ row.cumulativeDuration ?? 0 }}
+        </td>
 
-      <!-- Total Hours -->
-      <td>
-        {{ row.totalhrs || '00:00' }}
-      </td>
+        <td>
+          {{ row.totalhrs || '00:00' }}
+        </td>
+      </tr>
 
-    </tr>
+      <tr *ngIf="!reportData || reportData.length === 0">
+        <td colspan="10" class="no-data">
+          No Data Found
+        </td>
+      </tr>
 
-    <!-- No Data -->
+    </tbody>
 
-  <tr *ngIf="!reportData || reportData.length === 0">
-  <td colspan="10" style="text-align: center;">
-    No Data Found
-  </td>
-</tr>
-  
-  </tbody>
+  </table>
 
-</table>
+</div>
 
 </div>
 </div>
