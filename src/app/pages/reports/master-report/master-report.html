@@ -61,9 +61,29 @@
 
 </div>
 
-<!-- ========================= -->
+
 <!-- From Date -->
-<!-- ========================= -->
+<div class="date-field">
+  <label>From </label>
+
+  <input
+    type="date"
+    [value]="fromDate | date:'yyyy-MM-dd'"
+    (change)="fromDate = $any($event.target).valueAsDate"
+    [max]="maxDate" />
+</div>
+
+<!-- To Date -->
+<div class="date-field">
+  <label>To</label>
+
+  <input
+    type="date"
+    [value]="toDate | date:'yyyy-MM-dd'"
+    (change)="toDate = $any($event.target).valueAsDate"
+    [max]="maxDate" />
+</div>
+
 
 
   <!-- Buttons (right aligned) -->
@@ -155,9 +175,10 @@
         <th>Sr No.</th>       
          <th style="text-align: center;">Employee Id</th>
         <th>Employee Name</th>
-        <th>Designation</th>
-           <th>Department</th>  
-            <th>Category</th>
+     
+                 <th>Category</th>
+                <th>Department</th>
+                <th>Designation</th>
         <th>Image</th>
         <th>Date</th>
         <th>Status</th>
@@ -172,9 +193,9 @@
         <td class="text-center">{{ i + 1 }}</td>
              <td style="text-align: center;">{{ row.employeeId }}</td>
         <td  >{{ row.employeeName }}</td>
+                <td style="text-align: left;">{{ row.category }}</td>
+           <td style="text-align: left;">{{ row.department }}</td>
         <td style="text-align: left;">{{ row.designation }}</td>
-                <td style="text-align: left;">{{ row.department }}</td>
-        <td style="text-align: left;">{{ row.category }}</td>
         <td class="text-center">{{ row.imageAvailable }}</td>
        <td class="text-center">
   {{ row.createdDate ?? '-' }}

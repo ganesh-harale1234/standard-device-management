@@ -61,7 +61,8 @@ displayedColumns: string[] = [
       ioStatus:['', Validators.required],
       locationId:['', Validators.required],
       // authorizedDevice:['',Validators.required],
-  accessGroupId: [null, Validators.required]
+      accessGroupId: [null, Validators.required],
+      secound:['', Validators.required]
 
 
     }))

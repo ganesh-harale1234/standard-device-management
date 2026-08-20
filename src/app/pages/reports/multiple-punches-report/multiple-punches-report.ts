@@ -32,6 +32,10 @@ selectedEmployeeId: string | null = null;
   fromDate: Date = new Date();
   toDate: Date = new Date();
   now: Date = new Date();
+  
+    maxDate: string = new Date().toISOString().split('T')[0];
+fromDateValue: string = new Date().toISOString().split('T')[0];
+toDateValue: string = new Date().toISOString().split('T')[0];
 
 reportData:any[] = [];
  data: any[] = [];

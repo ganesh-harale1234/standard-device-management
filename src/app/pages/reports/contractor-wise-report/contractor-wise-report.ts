@@ -33,6 +33,10 @@ selectedEmployeeId: string | null = null;
   toDate: Date = new Date();
   now: Date = new Date();
 
+maxDate: string = new Date().toISOString().split('T')[0];
+fromDateValue: string = new Date().toISOString().split('T')[0];
+toDateValue: string = new Date().toISOString().split('T')[0];
+
   reportData:any[] = [];
  dataSource: any
 constructor(private dataService:DataService, private toaster:ToastrService, private spinner:NgxSpinnerService){

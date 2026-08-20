@@ -60,53 +60,35 @@
 
 </div>
 
-<!-- ========================= -->
+
+
+
 <!-- From Date -->
-<!-- ========================= -->
-
-<mat-form-field
-  appearance="fill"
-  class="w-35 custom-field search-field">
-
-  <mat-label>From</mat-label>
+<div class="date-field">
+  <label>From</label>
 
   <input
-    matInput
-    [matDatepicker]="fromPicker"
-    [(ngModel)]="fromDate" />
+    type="date"
+    [value]="fromDate | date:'yyyy-MM-dd'"
+    (change)="fromDate = $any($event.target).valueAsDate"
+    [max]="maxDate" />
+</div>
 
-  <mat-datepicker-toggle
-    matSuffix
-    [for]="fromPicker">
-  </mat-datepicker-toggle>
-
-  <mat-datepicker #fromPicker></mat-datepicker>
-
-</mat-form-field>
-
-<!-- ========================= -->
 <!-- To Date -->
-<!-- ========================= -->
-
-<mat-form-field
-  appearance="fill"
-  class="w-35 custom-field search-field">
-
-  <mat-label>To</mat-label>
+<div class="date-field">
+  <label>To</label>
 
   <input
-    matInput
-    [matDatepicker]="toPicker"
-    [(ngModel)]="toDate" />
+    type="date"
+    [value]="toDate | date:'yyyy-MM-dd'"
+    (change)="toDate = $any($event.target).valueAsDate"
+    [max]="maxDate" />
+</div>
 
-  <mat-datepicker-toggle
-    matSuffix
-    [for]="toPicker">
-  </mat-datepicker-toggle>
 
-  <mat-datepicker #toPicker></mat-datepicker>
 
-</mat-form-field>
+
+
 
   <!-- Buttons (right aligned) -->
   <div class="flex items-center gap-2 ml-auto">
@@ -192,6 +174,11 @@
         <th>Sr No.</th>
         <th>Employee Id</th>
         <th>Employee Name</th>
+
+                <th>Category</th>
+                <th>Department</th>
+                <th>Designation</th>
+
         <th>Attendance Date</th>
         <th>Punch In</th>
         <th>Punch Out</th>
@@ -206,6 +193,15 @@
         <td>{{i+1}}</td>
         <td>{{row.employeeId}}</td>
         <td>{{row.employeeName}}</td>
+            <td class="text-left">
+                    {{ row.category }}
+                </td>
+                    <td class="text-left">
+                    {{ row.department }}
+                </td>
+                     <td class="text-left">
+                    {{ row.designation }}
+                </td>
         <td>{{row.attendanceDate | date:'dd-MM-yyyy'}}</td>
         <td>{{row.punchIn?.slice(0, 5)}}</td>
         <td>{{row.punchOut?.slice(0, 5)}}</td>

@@ -58,54 +58,28 @@
   </div>
 
 
-  <!-- ========================= -->
   <!-- From Date -->
-  <!-- ========================= -->
+<div class="date-field">
+  <label>From</label>
 
-  <mat-form-field
-    appearance="fill"
-    class="w-37 custom-field search-field">
+  <input
+    type="date"
+    [value]="fromDate | date:'yyyy-MM-dd'"
+    (change)="fromDate = $any($event.target).valueAsDate"
+    [max]="maxDate" />
+</div>
 
-    <mat-label>From</mat-label>
+<!-- To Date -->
+<div class="date-field">
+  <label>To</label>
 
-    <input
-      matInput
-      [matDatepicker]="fromPicker"
-      [(ngModel)]="fromDate" />
+  <input
+    type="date"
+    [value]="toDate | date:'yyyy-MM-dd'"
+    (change)="toDate = $any($event.target).valueAsDate"
+    [max]="maxDate" />
+</div>
 
-    <mat-datepicker-toggle
-      matSuffix
-      [for]="fromPicker">
-    </mat-datepicker-toggle>
-
-    <mat-datepicker #fromPicker></mat-datepicker>
-
-  </mat-form-field>
-
-
-  <!-- ========================= -->
-  <!-- To Date -->
-  <!-- ========================= -->
-
-  <mat-form-field
-    appearance="fill"
-    class="w-37 custom-field search-field">
-
-    <mat-label>To</mat-label>
-
-    <input
-      matInput
-      [matDatepicker]="toPicker"
-      [(ngModel)]="toDate" />
-
-    <mat-datepicker-toggle
-      matSuffix
-      [for]="toPicker">
-    </mat-datepicker-toggle>
-
-    <mat-datepicker #toPicker></mat-datepicker>
-
-  </mat-form-field>
 
 
   <!-- ========================= -->
@@ -253,6 +227,10 @@
         <th>Sr No.</th>
         <th>Employee Id</th>
         <th>Employee Name</th>
+        
+                <th>Category</th>
+                <th>Department</th>
+                <th>Designation</th>
         <th>Contractor Name</th>
          <th>Date</th>
            <th>Punch In </th>
@@ -274,6 +252,15 @@
         <td>
           {{ row.employeeName }}
         </td>
+            <td class="text-left">
+                    {{ row.category }}
+                </td>
+                    <td class="text-left">
+                    {{ row.department }}
+                </td>
+                     <td class="text-left">
+                    {{ row.designation }}
+                </td>
 
         <td style="text-align: left;">
           {{ row.contractorName }}
