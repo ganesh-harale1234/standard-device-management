@@ -55,6 +55,8 @@ class="flex flex-wrap items-center gap-3 py-3 ">
 
 </div>  
 
+
+
 <div class="w-52">
 
  <ng-select style="border: 1px solid #2563eb !important;
@@ -104,6 +106,8 @@ class="flex flex-wrap items-center gap-3 py-3 ">
 </ng-select>
 
 </div>
+
+
  <!-- ========================= -->
 <!-- Employee Search -->
 <!-- ========================= -->
@@ -155,7 +159,7 @@ class="flex flex-wrap items-center gap-3 py-3 ">
 <!-- ========================= -->
 <!-- From Date -->
 <div class="date-field">
-  <label>From</label>
+  <label>From Date</label>
 
   <input
     type="date"
@@ -166,7 +170,7 @@ class="flex flex-wrap items-center gap-3 py-3 ">
 
 <!-- To Date -->
 <div class="date-field">
-  <label>To</label>
+  <label>To Date</label>
 
   <input
     type="date"
@@ -216,12 +220,12 @@ class="flex flex-wrap items-center gap-3 py-3 ">
     </div>
 
        <div class="text-center mt-2  text-[#004A71] leading-5">
-    <div>
+     <div>
       <span>From Date:</span>
       <span class="font-semibold">
-        {{ fromDate | date:'MMM d, y' }}
+        {{ fromDate | date:'dd MMM, y' }}
         to
-        {{ toDate | date:'MMM d, y' }}
+        {{ toDate | date:'dd MMM, y' }}
       </span>
     </div>
 
@@ -233,11 +237,17 @@ class="flex flex-wrap items-center gap-3 py-3 ">
 
   <!-- Branch Name -->
   <div>
+
+<!-- <span class="text-[#004A71] mb-3">
+  Start Working Time : <span class="font-semibold">{{ formatTime(workingHoursSetTime?.inTime) || 'N/A' }}</span> 
+ End Working Time : <span class="font-semibold">{{formatTime(workingHoursSetTime?.outTime) || 'N/A' }}</span>
+</span> -->
+
     <p class="text-[#004A71]">
       Branch Name:
       <span class="font-semibold">
         {{ getSelectedLocationName() }}
-      </span>
+      </span> 
     </p>
   </div>
 
@@ -247,8 +257,7 @@ class="flex flex-wrap items-center gap-3 py-3 ">
     <div>
       <span>Report Time:</span>
       <span class="font-semibold">
-        {{ now | date:'MMM d, y, h:mm:ss a' }}
-      </span>
+{{ now | date:'dd MMM, y, h:mm a' }}      </span>
     </div>
   </div>
 
@@ -275,9 +284,9 @@ class="flex flex-wrap items-center gap-3 py-3 ">
                 <th rowspan="2">Employee Id</th>
 
         <th rowspan="2">Employee Name</th>
-        <th rowspan="2"> Disignation </th>
+        <th rowspan="2">Designation</th>
        <th rowspan="2">Branch Name</th>
-<th rowspan="2">Date</th>
+       <th rowspan="2">Date</th>
         <th colspan="3">Count</th>
 
         <th colspan="2">
@@ -322,5 +331,7 @@ class="flex flex-wrap items-center gap-3 py-3 ">
 
   </table>
 </div>
+
+
   </div>
   </div>

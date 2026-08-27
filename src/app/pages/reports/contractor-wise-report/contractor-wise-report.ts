@@ -55,6 +55,7 @@ locationName:any;
   this.locationName =  sessionStorage.getItem('locationName');
   this.getallDataLocation();
   this.getallDatadepartment();
+  this.getallData()
   this.roleId = sessionStorage.getItem('rollId')
 
   }
@@ -86,10 +87,23 @@ onSearchEmp(event: any) {
   const trimmed = event.target.value.trim();
   this.searchTextemp = trimmed;
 
+  const branchId = this.RoleName === 'Branch Admin'
+    ? this.locationID
+    : this.selectlocationId;
+
   if (!trimmed) {
     this.employeeList = [];
     this.searchDone = false;
     this.showDropdown = false;   
+    return;
+  }
+
+  if (branchId == null || branchId === '') {
+    this.employeeList = [];
+    this.searchDone = false;
+    this.showDropdown = false;
+    this.isEmpLoading = false;
+    this.toaster.error('Please select branch');
     return;
   }
 
@@ -99,7 +113,7 @@ onSearchEmp(event: any) {
   this.employeeList = [];
   this.selectedEmployeeId = null;
 
-  this.dataService.getAllData(`searchByNameOrId/${trimmed}`).subscribe(
+  this.dataService.getAllData(`searchByNameOrId/${trimmed}?locationId=${branchId}`).subscribe(
     (res: any) => {
       this.isEmpLoading = false;
       this.searchDone = true;
@@ -213,41 +227,190 @@ onLocationChange(event: any) {
 
 
 
-// AuditReport() {
-//   this.reportData = [];
 
-//   const fromDate = this.formatDateToYMD(this.fromDate);
-//   const toDate = this.formatDateToYMD(this.toDate);
 
-//   let apiUrl: string;
-//   let requestData: any = { fromDate, toDate };
 
-//   // Employee
-//   if (this.selectedEmployeeId) {
-//     apiUrl = 'getEmpWiseMultiplePunchReport';
-//     requestData.empId = this.selectedEmployeeId;
-//   }
 
-//   // Contractor
-//   else if (this.selectedDeptId) {
-//     apiUrl = 'contractorWiseReport'; // Contractor API
-// requestData.conId = Number(this.selectedDeptId);  }
+AuditReport() {
 
-//   // Date only
-//   else {
-//     apiUrl = 'contractorWiseReport';
-//   }
+  this.reportData = [];
 
-//   this.dataService.addData(apiUrl, requestData).subscribe((res: any) => {
-//     if (res.code === 100) {
-//       this.reportData = res.extend?.contractorReportList || [];
-//     } else {
-//       this.toaster.error(res.msg || 'Something went wrong!');
-//     }
-//   }, (err: any) => {
-//     this.toaster.error(err?.error?.msg || 'Server side error!');
-//   });
-// }
+  // Branch Mandatory
+  if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
+    this.toaster.error('Please select a Branch');
+    return;
+  }
+
+  if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
+  this.toaster.error('Please select one category...!');
+  return;
+}
+
+  const fromDate = this.formatDateToYMD(this.fromDate);
+  const toDate = this.formatDateToYMD(this.toDate);
+
+  // Branch Admin -> sessionStorage locationId
+  // Other Role -> selected branch locationId
+  const locationId =
+    this.RoleName === 'Branch Admin'
+      ? Number(this.locationID)
+      : Number(this.selectlocationId);
+
+  let apiUrl = '';
+
+  let requestData: any = {
+    fromDate,
+    toDate,
+    locationId: locationId,
+      categoryIdList: this.selectedCategoryIds,
+  };
+
+  // Employee
+  if (this.selectedEmployeeId) {
+
+    apiUrl = 'getEmpWiseMultiplePunchReport';
+
+    requestData = {
+      fromDate,
+      toDate,
+      locationId: locationId,
+      empId: this.selectedEmployeeId,
+         categoryIdList: this.selectedCategoryIds,
+    };
+
+  }
+
+  // Contractor
+  else if (this.selectedDeptId) {
+
+    apiUrl = 'contractorWiseReport';
+
+    requestData = {
+      fromDate,
+      toDate,
+      locationId: locationId,
+      conId: Number(this.selectedDeptId),
+      categoryIdList: this.selectedCategoryIds,
+    };
+
+  }
+
+  // Date + Location
+  else {
+
+    apiUrl = 'contractorWiseReport';
+
+    requestData = {
+      fromDate,
+      toDate,
+      locationId: locationId,
+            categoryIdList: this.selectedCategoryIds,
+
+    };
+
+  }
+
+  this.spinner.show();
+
+  this.dataService.addData(apiUrl, requestData).subscribe({
+    next: (res: any) => {
+
+      this.spinner.hide();
+
+      if (res.code === 100) {
+        this.reportData = res.extend?.contractorReportList || [];
+      } else {
+        this.toaster.error(res.msg || 'Something went wrong!');
+        this.reportData = [];
+      }
+
+    },
+
+    error: (err: any) => {
+
+      this.spinner.hide();
+
+      console.error('Audit Report API Error:', err);
+
+      this.toaster.error(
+        err?.error?.msg || 'Server side error!'
+      );
+
+      this.reportData = [];
+    }
+  });
+}
+
+
+
+
+
+
+getAllList:any[] = []
+selectedCategoryIds: string[] = [];
+
+getallData() {
+  this.dataService.getAllData('getAllCategory').subscribe({
+    next: (res: any) => {
+
+      if (res.code === 100) {
+        this.getAllList = res.extend.allCategory || [];
+      }
+
+      else if (res.code === 500) {
+        this.toaster.error('Internal server error!');
+      }
+
+      else {
+        this.toaster.error('Something went wrong!');
+      }
+
+    },
+
+    error: (err) => {
+      this.toaster.error(err.error?.msg || 'Failed to load category list!');
+    }
+  });
+}
+selectedCategoryNames: string[] = [];
+updateSelectedCategoryNames() {
+  this.selectedCategoryNames = this.getAllList
+    .filter(item => this.selectedCategoryIds.includes(item.categoryId))
+    .map(item => item.categoryName);   // categoryName field
+}
+
+// Select All
+toggleSelectAllCategory() {
+
+  if (this.isAllCategorySelected()) {
+
+    this.selectedCategoryIds = [];
+
+  } else {
+
+    this.selectedCategoryIds = this.getAllList.map(
+      (x: any) => x.categoryId
+    );
+
+  }
+ this.updateSelectedCategoryNames();
+  console.log(this.selectedCategoryIds);
+
+}
+// Check All Selected
+isAllCategorySelected(): boolean {
+   this.updateSelectedCategoryNames();
+
+  return (
+    this.getAllList.length > 0 &&
+    this.selectedCategoryIds.length === this.getAllList.length
+  );
+
+}
+
+
+
+
 
 onExportExcel(): void {
 
@@ -257,19 +420,15 @@ onExportExcel(): void {
   }
 
   const branchName = this.getSelectedLocationName() || 'All';
-  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
-  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
-  const reportTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
+  const fDate = this.fromDate
+    ? `${this.fromDate.getDate().toString().padStart(2, '0')} ${this.fromDate.toLocaleString('en-US', { month: 'short' })}, ${this.fromDate.getFullYear()}`
+    : 'N/A';
+  const tDate = this.toDate
+    ? `${this.toDate.getDate().toString().padStart(2, '0')} ${this.toDate.toLocaleString('en-US', { month: 'short' })}, ${this.toDate.getFullYear()}`
+    : 'N/A';
+  const reportDate = new Date();
+  const amPm = reportDate.getHours() >= 12 ? 'PM' : 'AM';
+const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${reportDate.toLocaleString('en-US', { month: 'short' })}, ${reportDate.getFullYear()} , ${reportDate.getHours() % 12 || 12}:${reportDate.getMinutes().toString().padStart(2, '0')} ${amPm}`;
 
   const excelData = this.reportData.map((item: any, index: number) => {
 
@@ -277,6 +436,9 @@ onExportExcel(): void {
       'Sr No.': index + 1,
       'Employee ID': item.employeeId ?? '',
       'Employee Name': item.employeeName ?? '',
+      'Category': item.category ?? '',
+      'Department': item.department ?? '',
+      'Designation': item.designation ?? '',
       'Contractor Name': item.contractorName ?? '',
       'Date': item.punchDate ?? '',
       'Punch In': item.punchIn ?? '',
@@ -337,299 +499,6 @@ onExportExcel(): void {
     'Contractor_Attendance_Report.xlsx'
   );
 }
-
-
-
-// AuditReport() {
-
-//   this.reportData = [];
-
-//   // Branch Mandatory
-//   if (!this.selectlocationId) {
-//     this.toaster.error('Please select Branch');
-//     return;
-//   }
-
-//   const fromDate = this.formatDateToYMD(this.fromDate);
-//   const toDate = this.formatDateToYMD(this.toDate);
-
-//   let apiUrl = '';
-//   let requestData: any = {
-//     fromDate,
-//     toDate,
-//     locationId: this.selectlocationId
-//   };
-
-//   // Employee
-//   if (this.selectedEmployeeId) {
-
-//     apiUrl = 'getEmpWiseMultiplePunchReport';
-
-//     requestData = {
-//       fromDate,
-//       toDate,
-//       locationId: this.selectlocationId,
-//       empId: this.selectedEmployeeId
-//     };
-
-//   }
-
-//   // Contractor
-//   else if (this.selectedDeptId) {
-
-//     apiUrl = 'contractorWiseReport';
-
-//     requestData = {
-//       fromDate,
-//       toDate,
-//       locationId: this.selectlocationId,
-//       conId: Number(this.selectedDeptId)
-//     };
-
-//   }
-
-//   // Date + Location
-//   else {
-
-//     apiUrl = 'contractorWiseReport';
-
-//     requestData = {
-//       fromDate,
-//       toDate,
-//       locationId: this.selectlocationId
-//     };
-
-//   }
-
-//   this.spinner.show();
-
-//   this.dataService.addData(apiUrl, requestData).subscribe({
-//     next: (res: any) => {
-
-//       this.spinner.hide();
-
-//       if (res.code === 100) {
-//         this.reportData = res.extend?.contractorReportList || [];
-//       } else {
-//         this.toaster.error(res.msg || 'Something went wrong!');
-//         this.reportData = [];
-//       }
-
-//     },
-//     error: (err: any) => {
-
-//       this.spinner.hide();
-
-//       console.error('Audit Report API Error:', err);
-
-//       this.toaster.error(
-//         err?.error?.msg || 'Server side error!'
-//       );
-
-//       this.reportData = [];
-//     }
-//   });
-
-// }
-
-
-
-// AuditReport() {
-
-//   this.reportData = [];
-
-//   // Branch Mandatory
-// if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
-//   this.toaster.error('Please select a Branch');
-//   return;
-// }
-
-//   const fromDate = this.formatDateToYMD(this.fromDate);
-//   const toDate = this.formatDateToYMD(this.toDate);
-// const locationId =
-//   this.RoleName === 'Branch Admin'
-//     ? this.locationID
-//     : this.selectlocationId;
-
-
-//   let apiUrl = '';
-//   let requestData: any = {
-//     fromDate,
-//     toDate,
-//     locationId: locationId ? [locationId] : []
-//   };
-
-//   // Employee
-//   if (this.selectedEmployeeId) {
-
-//     apiUrl = 'getEmpWiseMultiplePunchReport';
-
-//     requestData = {
-//       fromDate,
-//       toDate,
-//       locationId: locationId ? [locationId] : [],
-//       empId: this.selectedEmployeeId
-//     };
-
-//   }
-
-//   // Contractor
-//   else if (this.selectedDeptId) {
-
-//     apiUrl = 'contractorWiseReport';
-
-//     requestData = {
-//       fromDate,
-//       toDate,
-//       locationId: locationId ? [locationId] : [],
-//       conId: Number(this.selectedDeptId)
-//     };
-
-//   }
-
-//   // Date + Location
-//   else {
-
-//     apiUrl = 'contractorWiseReport';
-
-//     requestData = {
-//       fromDate,
-//       toDate,
-//       locationId: this.selectlocationId
-//     };
-
-//   }
-
-//   this.spinner.show();
-
-//   this.dataService.addData(apiUrl, requestData).subscribe({
-//     next: (res: any) => {
-
-//       this.spinner.hide();
-
-//       if (res.code === 100) {
-//         this.reportData = res.extend?.contractorReportList || [];
-//       } else {
-//         this.toaster.error(res.msg || 'Something went wrong!');
-//         this.reportData = [];
-//       }
-
-//     },
-//     error: (err: any) => {
-
-//       this.spinner.hide();
-
-//       console.error('Audit Report API Error:', err);
-
-//       this.toaster.error(
-//         err?.error?.msg || 'Server side error!'
-//       );
-
-//       this.reportData = [];
-//     }
-//   });
-
-// }
-
-AuditReport() {
-
-  this.reportData = [];
-
-  // Branch Mandatory
-  if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
-    this.toaster.error('Please select a Branch');
-    return;
-  }
-
-  const fromDate = this.formatDateToYMD(this.fromDate);
-  const toDate = this.formatDateToYMD(this.toDate);
-
-  // Branch Admin -> sessionStorage locationId
-  // Other Role -> selected branch locationId
-  const locationId =
-    this.RoleName === 'Branch Admin'
-      ? Number(this.locationID)
-      : Number(this.selectlocationId);
-
-  let apiUrl = '';
-
-  let requestData: any = {
-    fromDate,
-    toDate,
-    locationId: locationId
-  };
-
-  // Employee
-  if (this.selectedEmployeeId) {
-
-    apiUrl = 'getEmpWiseMultiplePunchReport';
-
-    requestData = {
-      fromDate,
-      toDate,
-      locationId: locationId,
-      empId: this.selectedEmployeeId
-    };
-
-  }
-
-  // Contractor
-  else if (this.selectedDeptId) {
-
-    apiUrl = 'contractorWiseReport';
-
-    requestData = {
-      fromDate,
-      toDate,
-      locationId: locationId,
-      conId: Number(this.selectedDeptId)
-    };
-
-  }
-
-  // Date + Location
-  else {
-
-    apiUrl = 'contractorWiseReport';
-
-    requestData = {
-      fromDate,
-      toDate,
-      locationId: locationId
-    };
-
-  }
-
-  this.spinner.show();
-
-  this.dataService.addData(apiUrl, requestData).subscribe({
-    next: (res: any) => {
-
-      this.spinner.hide();
-
-      if (res.code === 100) {
-        this.reportData = res.extend?.contractorReportList || [];
-      } else {
-        this.toaster.error(res.msg || 'Something went wrong!');
-        this.reportData = [];
-      }
-
-    },
-
-    error: (err: any) => {
-
-      this.spinner.hide();
-
-      console.error('Audit Report API Error:', err);
-
-      this.toaster.error(
-        err?.error?.msg || 'Server side error!'
-      );
-
-      this.reportData = [];
-    }
-  });
-}
   
 onExportPdf() {
   if (!this.reportData || this.reportData.length === 0) {
@@ -641,19 +510,15 @@ onExportPdf() {
   const pageWidth = doc.internal.pageSize.getWidth();
 
   const branchName = this.getSelectedLocationName() || 'All';
-  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
-  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
-  const reportTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
+  const fDate = this.fromDate
+    ? `${this.fromDate.getDate().toString().padStart(2, '0')} ${this.fromDate.toLocaleString('en-US', { month: 'short' })}, ${this.fromDate.getFullYear()}`
+    : 'N/A';
+  const tDate = this.toDate
+    ? `${this.toDate.getDate().toString().padStart(2, '0')} ${this.toDate.toLocaleString('en-US', { month: 'short' })}, ${this.toDate.getFullYear()}`
+    : 'N/A';
+  const reportDate = new Date();
+  const amPm = reportDate.getHours() >= 12 ? 'PM' : 'AM';
+const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${reportDate.toLocaleString('en-US', { month: 'short' })}, ${reportDate.getFullYear()} , ${reportDate.getHours() % 12 || 12}:${reportDate.getMinutes().toString().padStart(2, '0')} ${amPm}`;
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
@@ -677,6 +542,9 @@ onExportPdf() {
     { content: 'Sr No.' },
     { content: 'Employee Id' },
     { content: 'Employee Name' },
+    { content: 'Category' },
+    { content: 'Department' },
+    { content: 'Designation' },
     { content: 'Contractor Name' },
     // { content: 'Location' },
     { content: 'Punch Date' },
@@ -688,6 +556,9 @@ onExportPdf() {
     index + 1,
     item.employeeId ?? '-',
     item.employeeName ?? '-',
+    item.category ?? '-',
+    item.department ?? '-',
+    item.designation ?? '-',
     item.contractorName ?? '-',
     // item.locationName ?? '-',
     item.punchDate ?? '-',

@@ -31,30 +31,29 @@
     {{ isChecked ? 'Active' : 'Inactive' }}
   </mat-slide-toggle> -->
 
-  <div class="status-filter">
+<div class="status-filter">
+
   <mat-radio-group
     [(ngModel)]="selectedStatus"
     (change)="changeStatus($event.value)">
 
     <mat-radio-button value="All">
-   <span style="color:#004a9f;">   All </span>
+      <span style="color:#004a9f;">All</span>
     </mat-radio-button>
 
-    <mat-radio-button  value="Active">
-     <span style="color:#004a9f;">  Active</span>
+    <mat-radio-button value="Active">
+      <span style="color:#004a9f;">Active</span>
     </mat-radio-button>
 
     <mat-radio-button value="Inactive">
-    <span style="color:#004a9f;">  Inactive </span>
+      <span style="color:#004a9f;">Inactive</span>
     </mat-radio-button>
-<!-- 
-     <mat-radio-button value="new">
-    <span style="color:#004a9f;">  New </span>
-    </mat-radio-button> -->
-
 
   </mat-radio-group>
+
 </div>
+
+
 </div>
 
 </div>
@@ -347,7 +346,7 @@
              hover:bg-sky-700 transition">
 
       <mat-icon>swap_horiz</mat-icon>
-      Emp Transfer
+      User Transfer
 
     </button>
 
@@ -744,7 +743,8 @@
   </ng-container> -->
 
   <!-- Level -->
-  <ng-container matColumnDef="level" *ngIf="showLevel">
+
+  <!-- <ng-container matColumnDef="level" *ngIf="showLevel">
     <th mat-header-cell *matHeaderCellDef
         class="font-semibold sticky top-0 bg-white z-10">
             Access Group
@@ -752,7 +752,8 @@
  <td mat-cell *matCellDef="let row">
   {{ row.accessGroupName ? row.accessGroupName : 'N/A' }}
 </td>
-  </ng-container>
+
+  </ng-container> -->
 
   <ng-container matColumnDef="imageAvailable" *ngIf="showImageAvailable">
     <th mat-header-cell *matHeaderCellDef
@@ -847,13 +848,24 @@
   (page)="onPageChange($event)">
 </mat-paginator> -->
 
-<mat-paginator
+<!-- <mat-paginator
   [length]="totalItems"
   [pageIndex]="pageIndex"
   [pageSize]="pageSize"
   [pageSizeOptions]="[500, 1000, 1500, 2000, 2500]"
   (page)="onPageChange($event)">
+</mat-paginator> -->
+
+
+<mat-paginator
+  [length]="totalItems"
+  [pageSize]="pageSize"
+   [pageIndex]="pageIndex"
+  [pageSizeOptions]="[100,]"
+  (page)="onPageChange($event)">
 </mat-paginator>
+  <!-- [pageSizeOptions]="[100, 250, 500,1000, 2500]" -->
+
     </div>
 </div>
 

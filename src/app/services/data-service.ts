@@ -12,6 +12,7 @@ export class DataService  {
 userName:any;
   constructor(private http:HttpClient){
 this.userName =  sessionStorage.getItem('userName');
+console.log(this.userName)
 
   }
 
@@ -44,9 +45,21 @@ viewmultiplePunchesReportDetails(requestData: any): Observable<any> {
   return this.http.post(fullUrl, requestData);
 }   
 
+// addDataC(url: string, data: any): Observable<any> {
+//   return this.http.post(
+//     this.baseUrl + url + '?userName=' + this.userName,
+//     data
+//   );
+// }
+
 addDataC(url: string, data: any): Observable<any> {
+
+  const userName = sessionStorage.getItem('userName');
+
+  console.log('userName:', userName);
+
   return this.http.post(
-    this.baseUrl + url + '?userName=' + this.userName,
+    this.baseUrl + url + '?userName=' + encodeURIComponent(userName || ''),
     data
   );
 }
@@ -73,13 +86,28 @@ updateData(url:any,data:any):Observable<any>{
 }
 
 
-updateDataC(url:any,data:any):Observable<any>{
+// updateDataC(url:any,data:any):Observable<any>{
+//   return this.http.put(
+//     this.baseUrl + url + '?userName=' + this.userName,
+//     data
+//   );
+// }
+
+
+
+
+
+updateDataC(url: string, data: any): Observable<any> {
+
+  const userName = sessionStorage.getItem('userName');
+
+  console.log('userName:', userName);
+
   return this.http.put(
-    this.baseUrl + url + '?userName=' + this.userName,
+    this.baseUrl + url + '?userName=' + encodeURIComponent(userName || ''),
     data
   );
 }
-
 
 // deleteData(id:any, url:any){
 //   const fullUrl = this.baseUrl+url;
@@ -96,9 +124,20 @@ deleteData(url: string) {
   return this.http.delete(fullUrl);
 }
 
-deleteDataC(url: string) {
+// deleteDataC(url: string) {
+//   return this.http.delete(
+//     this.baseUrl + url + '?userName=' + this.userName
+//   );
+// }
+
+deleteDataC(url: string): Observable<any> {
+
+  const userName = sessionStorage.getItem('userName');
+
+  console.log('userName:', userName);
+
   return this.http.delete(
-    this.baseUrl + url + '?userName=' + this.userName
+    this.baseUrl + url + '?userName=' + encodeURIComponent(userName || '')
   );
 }
 

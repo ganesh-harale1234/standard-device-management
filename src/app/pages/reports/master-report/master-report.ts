@@ -51,7 +51,7 @@ locationName:any;
   this.locationID = sessionStorage.getItem('locationId');
   this.RoleName =  sessionStorage.getItem('roleName');
   this.locationName =  sessionStorage.getItem('locationName');
-
+  this.getallData()
   this.getallDataLocation();
   this.roleId = sessionStorage.getItem('rollId')
 
@@ -65,10 +65,23 @@ onSearchEmp(event: any) {
   const trimmed = event.target.value.trim();
   this.searchTextemp = trimmed;
 
+  const branchId = this.RoleName === 'Branch Admin'
+    ? this.locationID
+    : this.selectlocationId;
+
   if (!trimmed) {
     this.employeeList = [];
     this.searchDone = false;
     this.showDropdown = false;   
+    return;
+  }
+
+  if (branchId == null || branchId === '') {
+    this.employeeList = [];
+    this.searchDone = false;
+    this.showDropdown = false;
+    this.isEmpLoading = false;
+    this.toaster.error('Please select branch');
     return;
   }
 
@@ -78,7 +91,7 @@ onSearchEmp(event: any) {
   this.employeeList = [];
   this.selectedEmployeeId = null;
 
-  this.dataService.getAllData(`searchByNameOrId/${trimmed}`).subscribe(
+  this.dataService.getAllData(`searchByNameOrId/${trimmed}?locationId=${branchId}`).subscribe(
     (res: any) => {
       this.isEmpLoading = false;
       this.searchDone = true;
@@ -185,6 +198,71 @@ isAllLocationSelected(): boolean {
   );
 
 }
+
+
+
+getAllList:any[] = []
+selectedCategoryIds: string[] = [];
+
+getallData() {
+  this.dataService.getAllData('getAllCategory').subscribe({
+    next: (res: any) => {
+
+      if (res.code === 100) {
+        this.getAllList = res.extend.allCategory || [];
+      }
+
+      else if (res.code === 500) {
+        this.toaster.error('Internal server error!');
+      }
+
+      else {
+        this.toaster.error('Something went wrong!');
+      }
+
+    },
+
+    error: (err) => {
+      this.toaster.error(err.error?.msg || 'Failed to load category list!');
+    }
+  });
+}
+selectedCategoryNames: string[] = [];
+updateSelectedCategoryNames() {
+  this.selectedCategoryNames = this.getAllList
+    .filter(item => this.selectedCategoryIds.includes(item.categoryId))
+    .map(item => item.categoryName);   // categoryName field
+}
+
+// Select All
+toggleSelectAllCategory() {
+
+  if (this.isAllCategorySelected()) {
+
+    this.selectedCategoryIds = [];
+
+  } else {
+
+    this.selectedCategoryIds = this.getAllList.map(
+      (x: any) => x.categoryId
+    );
+
+  }
+ this.updateSelectedCategoryNames();
+  console.log(this.selectedCategoryIds);
+
+}
+// Check All Selected
+isAllCategorySelected(): boolean {
+   this.updateSelectedCategoryNames();
+
+  return (
+    this.getAllList.length > 0 &&
+    this.selectedCategoryIds.length === this.getAllList.length
+  );
+
+}
+
 
 
 // masterReport() {
@@ -336,6 +414,12 @@ if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
   this.toaster.error('Please select a Branch');
   return;
 }
+
+if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
+  this.toaster.error('Please select one category...!');
+  return;
+}
+
     const employeeText = this.searchTextemp || null;
 
     const employeeId = employeeText? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null : null;
@@ -350,7 +434,8 @@ if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
 
 const requestData = {
   employeeId: employeeId || null,
-  locationId: locationId ? [locationId] : []
+  locationId: locationId ? [locationId] : [],
+   categoryIdList: this.selectedCategoryIds,
 };
 
     this.dataService.viewmasterReportDetails(requestData).subscribe((res: any) => {

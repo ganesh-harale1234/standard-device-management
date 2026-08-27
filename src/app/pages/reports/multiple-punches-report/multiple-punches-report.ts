@@ -48,6 +48,7 @@ locationID:any;
 RoleName:any;
 locationName:any;
   ngOnInit(): void {
+    this.getallData()
   this.locationID = sessionStorage.getItem('locationId');
   this.RoleName =  sessionStorage.getItem('roleName');
   this.locationName =  sessionStorage.getItem('locationName');
@@ -65,10 +66,23 @@ onSearchEmp(event: any) {
   const trimmed = event.target.value.trim();
   this.searchTextemp = trimmed;
 
+  const branchId = this.RoleName === 'Branch Admin'
+    ? this.locationID
+    : this.selectlocationId;
+
   if (!trimmed) {
     this.employeeList = [];
     this.searchDone = false;
     this.showDropdown = false;   
+    return;
+  }
+
+  if (branchId == null || branchId === '') {
+    this.employeeList = [];
+    this.searchDone = false;
+    this.showDropdown = false;
+    this.isEmpLoading = false;
+    this.toaster.error('Please select branch');
     return;
   }
 
@@ -78,7 +92,7 @@ onSearchEmp(event: any) {
   this.employeeList = [];
   this.selectedEmployeeId = null;
 
-  this.dataService.getAllData(`searchByNameOrId/${trimmed}`).subscribe(
+  this.dataService.getAllData(`searchByNameOrId/${trimmed}?locationId=${branchId}`).subscribe(
     (res: any) => {
       this.isEmpLoading = false;
       this.searchDone = true;
@@ -113,6 +127,79 @@ onSelectEmployee(emp: any) {
 }
 
 
+
+
+
+
+
+
+
+getAllList:any[] = []
+selectedCategoryIds: string[] = [];
+
+getallData() {
+  this.dataService.getAllData('getAllCategory').subscribe({
+    next: (res: any) => {
+
+      if (res.code === 100) {
+        this.getAllList = res.extend.allCategory || [];
+      }
+
+      else if (res.code === 500) {
+        this.toaster.error('Internal server error!');
+      }
+
+      else {
+        this.toaster.error('Something went wrong!');
+      }
+
+    },
+
+    error: (err) => {
+      this.toaster.error(err.error?.msg || 'Failed to load category list!');
+    }
+  });
+}
+selectedCategoryNames: string[] = [];
+updateSelectedCategoryNames() {
+  this.selectedCategoryNames = this.getAllList
+    .filter(item => this.selectedCategoryIds.includes(item.categoryId))
+    .map(item => item.categoryName);   // categoryName field
+}
+
+// Select All
+toggleSelectAllCategory() {
+
+  if (this.isAllCategorySelected()) {
+
+    this.selectedCategoryIds = [];
+
+  } else {
+
+    this.selectedCategoryIds = this.getAllList.map(
+      (x: any) => x.categoryId
+    );
+
+  }
+ this.updateSelectedCategoryNames();
+  console.log(this.selectedCategoryIds);
+
+}
+// Check All Selected
+isAllCategorySelected(): boolean {
+   this.updateSelectedCategoryNames();
+
+  return (
+    this.getAllList.length > 0 &&
+    this.selectedCategoryIds.length === this.getAllList.length
+  );
+
+}
+
+
+
+
+
 formatDateToYMD(date: Date | null): string | null {
   if (!date) return null;
 
@@ -125,6 +212,23 @@ formatDateToYMD(date: Date | null): string | null {
   return `${year}-${month}-${day}`;
 }
 
+formatExportDate(date: Date | null): string {
+  if (!date) return 'N/A';
+
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = date.toLocaleString('en-US', { month: 'short' });
+  const year = date.getFullYear();
+
+  return `${day} ${month}, ${year}`;
+}
+
+formatExportDateTime(date: Date): string {
+  const hour = date.getHours() % 12 || 12;
+  const minute = date.getMinutes().toString().padStart(2, '0');
+  const amPm = date.getHours() >= 12 ? 'PM' : 'AM';
+
+  return `${this.formatExportDate(date)} , ${hour}:${minute} ${amPm}`;
+}
 // Location List
 locationList: any[] = [ ]
 // Selected IDs
@@ -331,6 +435,13 @@ selectlocationId: number | null = null;
   this.toaster.error('Please select a Branch');
   return;
 }
+
+if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
+  this.toaster.error('Please select one category...!');
+  return;
+}
+
+
     const employeeText = this.searchTextemp || null;
     const employeeId = employeeText? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null : null;
     const fromDate = this.formatDateToYMD(this.fromDate);
@@ -340,12 +451,15 @@ const locationId =
   this.RoleName === 'Branch Admin'
     ? this.locationID
     : this.selectlocationId;
+    
 
     const requestData = {
       id: employeeId || null,
       fromDate: fromDate,
+
       toDate: toDate,
-      locationIdList: locationId ? [locationId] : []
+      locationIdList: locationId ? [locationId] : [],
+      categoryIdList: this.selectedCategoryIds,
     };
 
     this.dataService.viewmultiplePunchesReportDetails(requestData).subscribe((res: any) => {
@@ -364,8 +478,137 @@ const locationId =
 
   }
    
-  
+getPunches(ioStatus: string): string[] {
+  if (!ioStatus) {
+    return [];
+  }
 
+  return ioStatus
+    .split(',')
+    .map((punch: string) => punch.trim());
+}
+
+
+// Location List
+locationLists: any[] = [ ]
+// Selected IDs
+
+getLocationId(){
+  this.getworkingHoursTime()
+}
+
+
+
+formatTime(time: string): string {
+  if (!time) {
+    return '';
+  }
+
+  return time.slice(0, 5);
+}
+// getworkingHoursTime() {
+
+//   this.dataService.getAllData(`findWorkingHoursBranch?locationId=${this.selectlocationId}`).subscribe(
+//     (res: any) => {
+//       if (res.code === 100) {
+//         this.workingHoursSetTime = res.extend.workingHours;
+//       }
+      
+    
+//       else if (res.code === 200) {
+//         this.toaster.error(res.extend.msg);
+//       } else {
+//         this.toaster.error('Something went wrong!');
+//       }
+//     },
+//     (err) => {
+//       // this.toaster.error(err.error.msg || 'Failed to load location list!');
+//     }
+//   );
+// }
+
+workingHoursSetTime: any = null;
+
+getworkingHoursTime() {
+  this.dataService
+    .getAllData(`findWorkingHoursBranch?locationId=${this.selectlocationId}`)
+    .subscribe(
+      (res: any) => {
+
+        if (res.code === 100) {
+
+          this.workingHoursSetTime = res.extend?.workingHours || null;
+
+        } else if (res.code === 200) {
+
+          // Clear previous working hours
+          this.workingHoursSetTime = null;
+
+          this.toaster.error(
+            res.extend?.msg || 'Working hours not found!'
+          );
+
+        } else {
+
+          this.workingHoursSetTime = null;
+          this.toaster.error('Something went wrong!');
+
+        }
+      },
+      (err) => {
+
+        this.workingHoursSetTime = null;
+
+        this.toaster.error(
+          err?.error?.msg || 'Failed to load working hours!'
+        );
+      }
+    );
+}
+
+
+isLateEarlyPunch(punch: string, lateEarly: string): boolean {
+
+  if (!punch || !lateEarly) {
+    return false;
+  }
+
+  // Punch मधून time काढा
+  // Example: 10:25-IN -> 10:25
+  const punchMatch = punch.match(/^(\d{2}:\d{2})-(IN|OUT)$/);
+
+  if (!punchMatch) {
+    return false;
+  }
+
+  const punchTime = punchMatch[1];
+
+  // LateComing time
+  const lateComingMatch = lateEarly.match(
+    /LateComing-(\d{2}:\d{2})/
+  );
+
+  if (
+    lateComingMatch &&
+    lateComingMatch[1] === punchTime
+  ) {
+    return true;
+  }
+
+  // EarlyGoing time
+  const earlyGoingMatch = lateEarly.match(
+    /EarlyGoing-(\d{2}:\d{2})/
+  );
+
+  if (
+    earlyGoingMatch &&
+    earlyGoingMatch[1] === punchTime
+  ) {
+    return true;
+  }
+
+  return false;
+}
 
 onExportPdf() {
   if (!this.reportData || this.reportData.length === 0) {
@@ -377,19 +620,11 @@ onExportPdf() {
   const pageWidth = doc.internal.pageSize.getWidth();
 
   const branchName = this.getSelectedLocationName() || 'All';
-  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
-  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
-  const reportTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
+  const fDate = this.formatExportDate(this.fromDate);
+  const tDate = this.formatExportDate(this.toDate);
+  const reportTime = this.formatExportDateTime(new Date());
+  const startWorkingTime = this.formatTime(this.workingHoursSetTime?.inTime) || 'N/A';
+  const endWorkingTime = this.formatTime(this.workingHoursSetTime?.outTime) || 'N/A';
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
@@ -409,10 +644,22 @@ onExportPdf() {
   doc.setFont('helvetica', 'normal');
   doc.text(reportTime, pageWidth - 49, 20);
 
+  doc.setFont('helvetica', 'bold');
+  doc.text('Start Working Time : ', 10, 25);
+  doc.setFont('helvetica', 'normal');
+  doc.text(startWorkingTime, 43, 25);
+  doc.setFont('helvetica', 'bold');
+  doc.text('End Working Time : ', pageWidth - 70, 25);
+  doc.setFont('helvetica', 'normal');
+  doc.text(endWorkingTime, pageWidth - 39, 25);
+
   const head = [[
     { content: 'Sr No.' },
     { content: 'Employee Id' },
     { content: 'Employee Name' },
+    { content: 'Category' },
+    { content: 'Department' },
+    { content: 'Designation' },
     { content: 'Attendance Date' },
     { content: 'Punches' }
   ]];
@@ -421,6 +668,9 @@ onExportPdf() {
     index + 1,
     item.enrollId ?? '-',
     item.employeeName ?? '-',
+    item.category ?? '-',
+    item.department ?? '-',
+    item.designation ?? '-',
     item.attendanceDate ?? '-',
     item.ioStatus ? this.formatIoStatus(item.ioStatus) : '-'
   ]);
@@ -428,7 +678,7 @@ onExportPdf() {
   autoTable(doc, {
     head: head as any,
     body: body,
-    startY: 25,
+    startY: 30,
     theme: 'grid',
     tableWidth: 'auto',
     styles: {
@@ -450,7 +700,7 @@ onExportPdf() {
       lineColor: [0, 100, 160]
     },
     margin: {
-      top: 25,
+      top: 30,
       right: 10,
       bottom: 15,
       left: 10
@@ -478,19 +728,11 @@ onExportExcel(): void {
   }
 
   const branchName = this.getSelectedLocationName() || 'All';
-  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
-  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
-  const reportTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
+  const fDate = this.formatExportDate(this.fromDate);
+  const tDate = this.formatExportDate(this.toDate);
+  const reportTime = this.formatExportDateTime(new Date());
+  const startWorkingTime = this.formatTime(this.workingHoursSetTime?.inTime) || 'N/A';
+  const endWorkingTime = this.formatTime(this.workingHoursSetTime?.outTime) || 'N/A';
 
   // Prepare Excel data
   const excelData = this.reportData.map((item: any, index: number) => {
@@ -499,6 +741,9 @@ onExportExcel(): void {
       'Sr No.': index + 1,
       'Employee ID': item.enrollId ?? '',
       'Employee Name': item.employeeName ?? '',
+      'Category': item.category ?? '',
+      'Department': item.department ?? '',
+      'Designation': item.designation ?? '',
       'Attendance Date': item.attendanceDate ?? '',
       'Punches': item.ioStatus ?? ''
     };
@@ -511,6 +756,7 @@ onExportExcel(): void {
     [],
     [],
     [],
+    [],
     Object.keys(excelData[0]),
     ...excelData.map((item: any) => Object.values(item))
   ]);
@@ -518,19 +764,24 @@ onExportExcel(): void {
   XLSX.utils.sheet_add_aoa(worksheet, [
     [{ v: 'Multiple Punches Report', t: 's', s: { alignment: { horizontal: 'center' }, font: { bold: true } } }],
     [{ v: `From Date: ${fDate} to ${tDate}`, t: 's', s: { alignment: { horizontal: 'center' } } }],
-    [`Branch Name: ${branchName}`, '', '', '', `Report Time: ${reportTime}`]
+    [`Branch Name: ${branchName}`, '', '', '', `Report Time: ${reportTime}`],
+    [`Start Working Time : ${startWorkingTime}`, '', '', '', `End Working Time : ${endWorkingTime}`]
   ], { origin: 'A1' });
 
   worksheet['A1'].s = { alignment: { horizontal: 'center' }, font: { bold: true } };
   worksheet['A2'].s = { alignment: { horizontal: 'center' } };
   worksheet['A3'].s = { alignment: { horizontal: 'center' } };
   worksheet['E3'].s = { alignment: { horizontal: 'center' } };
+  worksheet['A4'].s = { alignment: { horizontal: 'center' } };
+  worksheet['E4'].s = { alignment: { horizontal: 'center' } };
 
   worksheet['!merges'] = [
     { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
     { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } },
     { s: { r: 2, c: 0 }, e: { r: 2, c: 2 } },
-    { s: { r: 2, c: 3 }, e: { r: 2, c: 4 } }
+    { s: { r: 2, c: 3 }, e: { r: 2, c: 4 } },
+    { s: { r: 3, c: 0 }, e: { r: 3, c: 2 } },
+    { s: { r: 3, c: 3 }, e: { r: 3, c: 4 } }
   ];
 
   // Set column widths
@@ -559,6 +810,8 @@ onExportExcel(): void {
     'Multiple_Punches_Report.xlsx'
   );
 }
+
+
 
 formatIoStatus(status: string): string {
   if (!status) return '';

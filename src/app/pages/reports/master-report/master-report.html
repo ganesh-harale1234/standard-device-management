@@ -15,6 +15,57 @@
       </ng-select>
 
 </div>
+
+
+<div class="w-52">
+
+ <ng-select style="border: 1px solid #2563eb !important;
+    border-radius: 6px !important;"
+    class="custom-ng-select"
+    [items]="getAllList"
+    bindLabel="categoryName"
+    bindValue="categoryId"
+    [multiple]="true"
+    [searchable]="true"
+    [closeOnSelect]="false"
+    placeholder="Select Category"
+    [clearable]="false"
+    [(ngModel)]="selectedCategoryIds">
+
+    <ng-template ng-header-tmp>
+        <div class="px-2 py-2 border-b">
+            <label class="flex items-center cursor-pointer">
+                <input
+                    type="checkbox"
+                    [checked]="isAllCategorySelected()"
+                    (click)="$event.stopPropagation()"
+                    (change)="toggleSelectAllCategory()">
+
+                <span class="ml-2">Select All</span>
+            </label>
+        </div>
+    </ng-template>
+
+    <ng-template
+        ng-option-tmp
+        let-item="item"
+        let-item$="item$">
+
+        <input
+            type="checkbox"
+            [checked]="item$.selected"
+            tabindex="-1"
+            class="mr-2">
+
+        {{ item.categoryName }}
+
+    </ng-template>
+
+</ng-select>
+
+</div> 
+
+
  <!-- ========================= -->
 <!-- Employee Search -->
 <!-- ========================= -->
@@ -63,7 +114,7 @@
 
 
 <!-- From Date -->
-<div class="date-field">
+<!-- <div class="date-field">
   <label>From </label>
 
   <input
@@ -73,7 +124,6 @@
     [max]="maxDate" />
 </div>
 
-<!-- To Date -->
 <div class="date-field">
   <label>To</label>
 
@@ -82,7 +132,7 @@
     [value]="toDate | date:'yyyy-MM-dd'"
     (change)="toDate = $any($event.target).valueAsDate"
     [max]="maxDate" />
-</div>
+</div> -->
 
 
 
@@ -159,14 +209,14 @@
     <div>
       <span>Report Time:</span>
       <span class="font-semibold">
-        {{ now | date:'MMM d, y, h:mm:ss a' }}
-      </span>
+       {{ now | date:'dd MMM, y, h:mm a' }}    </span>
     </div>
   </div>
 
 </div>
 
     <!-- TABLE HEADER ROW -->
+     
 <div>
   <table class="pdf-table">
 
@@ -214,6 +264,8 @@
 
   </table>
 </div>
+
+
   </div>
   </div>
 </div>

@@ -314,3 +314,155 @@ font-weight: 500;
      margin-right: 0px; 
     padding: 6px 10px 2px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===========================
+   PDF Table - Responsive
+=========================== */
+
+.pdf-table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  /* Important */
+  table-layout: fixed;
+
+  /* Long data handling */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.pdf-table th {
+  background: rgb(0, 150, 225) !important;
+  color: #ffffff;
+  border: 1px solid #696969;
+  padding: 8px 5px;
+  text-align: center;
+  font-weight: 600;
+
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.pdf-table td {
+  border: 1px solid #999898;
+  padding: 6px 5px;
+  text-align: center;
+
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+
+  /* Prevent column expansion */
+  max-width: 0;
+}
+
+/* ===========================
+   Left Align Text Columns
+=========================== */
+
+.pdf-table td:nth-child(3),
+.pdf-table td:nth-child(4),
+.pdf-table td:nth-child(5),
+.pdf-table td:nth-child(6),
+.pdf-table td:nth-child(7) {
+  text-align: left !important;
+}
+
+/* ===========================
+   Column Width
+=========================== */
+
+/* Sr No */
+.pdf-table th:nth-child(1),
+.pdf-table td:nth-child(1) {
+  width: 5%;
+}
+
+/* Employee Id */
+.pdf-table th:nth-child(2),
+.pdf-table td:nth-child(2) {
+  width: 9%;
+}
+
+/* Employee Name */
+.pdf-table th:nth-child(3),
+.pdf-table td:nth-child(3) {
+  width: 14%;
+}
+
+/* Category */
+.pdf-table th:nth-child(4),
+.pdf-table td:nth-child(4) {
+  width: 11%;
+}
+
+/* Department */
+.pdf-table th:nth-child(5),
+.pdf-table td:nth-child(5) {
+  width: 13%;
+}
+
+/* Designation */
+.pdf-table th:nth-child(6),
+.pdf-table td:nth-child(6) {
+  width: 12%;
+}
+
+/* Contractor Name */
+.pdf-table th:nth-child(7),
+.pdf-table td:nth-child(7) {
+  width: 14%;
+}
+
+/* Date */
+.pdf-table th:nth-child(8),
+.pdf-table td:nth-child(8) {
+  width: 8%;
+}
+
+/* Punch In */
+.pdf-table th:nth-child(9),
+.pdf-table td:nth-child(9) {
+  width: 8%;
+}
+
+/* Punch Out */
+.pdf-table th:nth-child(10),
+.pdf-table td:nth-child(10) {
+  width: 8%;
+}
+
+/* ===========================
+   Center Columns
+=========================== */
+
+.pdf-table th:nth-child(1),
+.pdf-table th:nth-child(2),
+.pdf-table th:nth-child(8),
+.pdf-table th:nth-child(9),
+.pdf-table th:nth-child(10),
+
+.pdf-table td:nth-child(1),
+.pdf-table td:nth-child(2),
+.pdf-table td:nth-child(8),
+.pdf-table td:nth-child(9),
+.pdf-table td:nth-child(10) {
+  text-align: center !important;
+}

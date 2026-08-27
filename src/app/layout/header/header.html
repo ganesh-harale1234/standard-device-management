@@ -414,18 +414,37 @@
 </mat-sidenav-container>
 
 
-<ngx-spinner
+<!-- <ngx-spinner
   bdColor="rgba(0, 0, 0, 0.6)"
   size="medium"
   [fullScreen]="true">
 
   <div class="custom-loader"></div>
 
-  <!-- <p class="loader-text">Please wait sometime...</p> -->
+
+</ngx-spinner> -->
+
+
+<!-- 
+<ngx-spinner
+  bdColor="rgba(255, 255, 255, 0.75)"
+  size="medium"
+  [fullScreen]="true">
+
+  <div class="custom-loader"></div>
+
+</ngx-spinner> -->
+
+<ngx-spinner
+  bdColor="rgba(15, 23, 42, 0.30)"
+  size="medium"
+  [fullScreen]="true">
+
+  <div class="loader-container">
+    <div class="custom-loader"></div>
+  </div>
 
 </ngx-spinner>
-
-
 <!-- ================= Modal ================= -->
  
 <div class="password-modal" *ngIf="showChangePasswordModal">

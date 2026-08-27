@@ -67,6 +67,10 @@ onSearchEmp(event: any) {
   const trimmed = event.target.value.trim();
   this.searchTextemp = trimmed;
 
+  const branchId = this.RoleName === 'Branch Admin'
+    ? this.locationID
+    : this.selectedLocationIds;
+
   // clear previous timer
   if (this.searchEmpTimer) {
     clearTimeout(this.searchEmpTimer);
@@ -81,6 +85,15 @@ onSearchEmp(event: any) {
     return;
   }
 
+  if (branchId == null || branchId === '') {
+    this.employeeList = [];
+    this.searchDone = false;
+    this.showDropdown = false;
+    this.isEmpLoading = false;
+    this.toaster.error('Please select branch');
+    return;
+  }
+
   // debounce logic (400ms)
   this.searchEmpTimer = setTimeout(() => {
 
@@ -90,7 +103,7 @@ onSearchEmp(event: any) {
     this.employeeList = [];
     this.selectedEmployeeId = null;
 
-    this.dataService.getAllData(`searchByNameOrId/${trimmed}`).subscribe(
+    this.dataService.getAllData(`searchByNameOrId/${trimmed}?locationId=${branchId}`).subscribe(
       (res: any) => {
         this.isEmpLoading = false;
         this.searchDone = true;
@@ -223,10 +236,49 @@ isAllCategorySelected(): boolean {
 
 }
 
+
+
+
+
+
+
+
 // Location List
 locationLists: any[] = [ ]
 // Selected IDs
 selectedLocationIds: any;
+workingHoursSetTime:any;
+
+getLocationId(){
+  this.getworkingHoursTime()
+}
+
+getworkingHoursTime() {
+
+  this.dataService.getAllData(`findWorkingHoursBranch?locationId=${this.selectedLocationIds}`).subscribe(
+    (res: any) => {
+      if (res.code === 100) {
+        this.workingHoursSetTime = res.extend.workingHours;
+      }
+      
+    
+      else if (res.code === 200) {
+        this.toaster.error(res.extend.msg);
+      } else {
+        this.toaster.error('Something went wrong!');
+      }
+    },
+    (err) => {
+      // this.toaster.error(err.error.msg || 'Failed to load location list!');
+    }
+  );
+}
+
+
+
+
+
+
 
 // Get Locations
 getallDataLocations() {
@@ -249,7 +301,7 @@ getallDataLocations() {
       }
     },
     (err) => {
-      this.toaster.error(err.error.msg || 'Failed to load location list!');
+      // this.toaster.error(err.error.msg || 'Failed to load location list!');
     }
   );
 }
@@ -291,27 +343,15 @@ onExportExcel(): void {
   }
 
   const branchName = this.getSelectedLocationName() || 'All';
-
-  const fromDateValue = this.fromDate
-    ? this.formatDateToYMD(this.fromDate)
-    : null;
-
-  const toDateValue = this.toDate
-    ? this.formatDateToYMD(this.toDate)
-    : null;
-
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
-
-  const reportTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
+  const fDate = this.fromDate
+    ? `${this.fromDate.getDate().toString().padStart(2, '0')} ${this.fromDate.toLocaleString('en-US', { month: 'short' })}, ${this.fromDate.getFullYear()}`
+    : 'N/A';
+  const tDate = this.toDate
+    ? `${this.toDate.getDate().toString().padStart(2, '0')} ${this.toDate.toLocaleString('en-US', { month: 'short' })}, ${this.toDate.getFullYear()}`
+    : 'N/A';
+  const reportDate = new Date();
+  const amPm = reportDate.getHours() >= 12 ? 'PM' : 'AM';
+const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${reportDate.toLocaleString('en-US', { month: 'short' })}, ${reportDate.getFullYear()} , ${reportDate.getHours() % 12 || 12}:${reportDate.getMinutes().toString().padStart(2, '0')} ${amPm}`;
 
   // Excel Data
   const excelData = this.reportData.map((item: any, index: number) => {
@@ -532,7 +572,6 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
 }
 
   
-
   const fromDate = this.formatDateToYMD(this.fromDate);
   const toDate = this.formatDateToYMD(this.toDate);
 
@@ -567,7 +606,7 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
             this.reportData = [];
 
         }else{
-                    this.toaster.error(res.msg || 'Something went wrong!');
+                    // this.toaster.error(res.msg || 'Something went wrong!');
 
         }
         
@@ -603,7 +642,7 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
             this.reportData = [];
 
         }else{
-                    this.toaster.error(res.msg || 'Something went wrong!');
+                    // this.toaster.error(res.msg || 'Something went wrong!');
 
         }
 
@@ -643,7 +682,7 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
             this.reportData = [];
 
         }else{
-                    this.toaster.error(res.msg || 'Something went wrong!');
+                    // this.toaster.error(res.msg || 'Something went wrong!');
 
         }
 
@@ -750,13 +789,22 @@ onExportPdfFromJson(apiData: any[], fromDate?: string, toDate?: string, category
 
   // Dynamic Metadata Values
   const branchName = apiData[0]?.locationName || 'All';
-  const fDate = fromDate || apiData[0]?.attendanceDate || 'Aug 18, 2026';
-  const tDate = toDate || apiData[0]?.attendanceDate || 'Aug 18, 2026';
+  const formatHeaderDate = (value?: string): string => {
+    if (!value) return 'N/A';
+
+    const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value);
+
+    if (Number.isNaN(date.getTime())) return value;
+
+    return `${date.getDate().toString().padStart(2, '0')} ${date.toLocaleString('en-US', { month: 'short' })}, ${date.getFullYear()}`;
+  };
+
+  const fDate = formatHeaderDate(fromDate || apiData[0]?.attendanceDate);
+  const tDate = formatHeaderDate(toDate || apiData[0]?.attendanceDate);
   const category = categoryName || 'Student,Contractor,A,General';
-  const reportTime = new Date().toLocaleString('en-US', { 
-    month: 'short', day: '2-digit', year: 'numeric', 
-    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
-  });
+  const reportDate = new Date();
+  const amPm = reportDate.getHours() >= 12 ? 'PM' : 'AM';
+const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${reportDate.toLocaleString('en-US', { month: 'short' })}, ${reportDate.getFullYear()} , ${reportDate.getHours() % 12 || 12}:${reportDate.getMinutes().toString().padStart(2, '0')} ${amPm}`;
 
   // ==============================
   // 1. TOP HEADER (Title & Subtitles)

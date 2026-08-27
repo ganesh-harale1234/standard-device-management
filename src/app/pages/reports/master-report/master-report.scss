@@ -256,7 +256,6 @@ font-weight: 500;
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  font-weight: 600;
 }
 
 .pdf-table th {
@@ -265,7 +264,7 @@ font-weight: 500;
   border: 1px solid #696969;
   padding: 8px;
   text-align: center;
-  font-weight: 600;
+  font-weight: 600 !important;
 }
 
 .pdf-table td {
@@ -314,4 +313,136 @@ font-weight: 500;
     background: #fff;
      margin-right: 0px; 
     padding: 6px 10px 2px;
+}
+
+
+/* ===========================
+   PDF Table - Responsive
+=========================== */
+
+.pdf-table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  /* Important for fixed column width */
+  table-layout: fixed;
+
+  /* Long text handling */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.pdf-table th {
+  background: rgb(0, 150, 225) !important;
+  color: #ffffff;
+  border: 1px solid #696969;
+  padding: 8px 5px;
+  text-align: center;
+  font-weight: 600;
+
+  /* Prevent header overflow */
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.pdf-table td {
+  border: 1px solid #999898;
+  padding: 6px 5px;
+  text-align: center;
+
+  /* Prevent long data from expanding table */
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  max-width: 0;
+}
+
+/* ===========================
+   Left Align Text Columns
+=========================== */
+
+.pdf-table td:nth-child(3),
+.pdf-table td:nth-child(4),
+.pdf-table td:nth-child(5),
+.pdf-table td:nth-child(6) {
+  text-align: left !important;
+}
+
+/* ===========================
+   Column Width
+=========================== */
+
+/* Sr No */
+.pdf-table th:nth-child(1),
+.pdf-table td:nth-child(1) {
+  width: 6%;
+}
+
+/* Employee Id */
+.pdf-table th:nth-child(2),
+.pdf-table td:nth-child(2) {
+  width: 11%;
+}
+
+/* Employee Name */
+.pdf-table th:nth-child(3),
+.pdf-table td:nth-child(3) {
+  width: 16%;
+}
+
+/* Category */
+.pdf-table th:nth-child(4),
+.pdf-table td:nth-child(4) {
+  width: 12%;
+}
+
+/* Department */
+.pdf-table th:nth-child(5),
+.pdf-table td:nth-child(5) {
+  width: 15%;
+}
+
+/* Designation */
+.pdf-table th:nth-child(6),
+.pdf-table td:nth-child(6) {
+  width: 14%;
+}
+
+/* Image */
+.pdf-table th:nth-child(7),
+.pdf-table td:nth-child(7) {
+  width: 8%;
+}
+
+/* Date */
+.pdf-table th:nth-child(8),
+.pdf-table td:nth-child(8) {
+  width: 10%;
+}
+
+/* Status */
+.pdf-table th:nth-child(9),
+.pdf-table td:nth-child(9) {
+  width: 8%;
+}
+
+/* ===========================
+   Center Alignment
+=========================== */
+
+.pdf-table th:nth-child(1),
+.pdf-table th:nth-child(2),
+.pdf-table th:nth-child(7),
+.pdf-table th:nth-child(8),
+.pdf-table th:nth-child(9),
+
+.pdf-table td:nth-child(1),
+.pdf-table td:nth-child(2),
+.pdf-table td:nth-child(7),
+.pdf-table td:nth-child(8),
+.pdf-table td:nth-child(9) {
+  text-align: center !important;
 }

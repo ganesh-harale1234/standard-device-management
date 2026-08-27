@@ -14,6 +14,7 @@ import { NgxSpinner, NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { NgSelectModule } from '@ng-select/ng-select';
 import {FaceDetector,FilesetResolver} from '@mediapipe/tasks-vision';
+import { Subject } from 'rxjs';
 @Component({
   selector: 'app-staff-management',
   imports: [SharedModule, CommonModule,  FormsModule,NgSelectModule, ReactiveFormsModule, NgxSpinnerModule],
@@ -26,8 +27,6 @@ export class StaffManagement {
   showTableData:boolean = true
   isEditMode:boolean = false;
   isChecked: boolean = true; 
-getAllList:any = [];
-filterallData:any = [];
 empId:any;
 getAllListlocation:any;
 getAllListdepartment:any;
@@ -60,7 +59,7 @@ RoleName:any;
     'accessGroup',
     'imageAvailable',
     // 'employeeId',
-    'level',
+    // 'level',
     // 'empStatus',
     // 'photo',
     'edit'
@@ -147,16 +146,24 @@ selectedDeviceIds: string[] = [];
 
   // 🔹 Pagination + table data
   // dataSource = new MatTableDataSource([this.filterallData]);
-  dataSource = new MatTableDataSource([]);
+  // dataSource = new MatTableDataSource([]);
+  dataSource = new MatTableDataSource<any>([]);
   
 
   @ViewChild('excelFileInput') excelFileInput!: ElementRef<HTMLInputElement>;
  showLoginFields = false;
+
+
   pageIndex = 0;
-  pageSize = 500;                               // 5 per page
-  pageStart = 0;
-  pageEnd = 0;
-  totalItems = 0;
+pageSize = 100;   // Initially 100 rows
+pageStart = 0;
+pageEnd = 0;
+totalItems = 0;
+
+getAllList: any[] = [];       // FULL 25k data
+filterallData: any[] = [];    // filtered FULL data
+
+
  form!: FormGroup;
  @ViewChild(MatPaginator) paginator!: MatPaginator;
 @ViewChild('TABLE', { static: false }) table!: ElementRef;
@@ -276,7 +283,19 @@ backtoList(){
   this.photoPreview = ""
 }
 
-selectedStatus: string = 'All';
+selectedStatus: string = 'Active';
+
+changeStatus(status: string) {
+
+  if (status === 'All') {
+    this.pageIndex = 0;
+    this.getallData();
+    return;
+  }
+
+  this.pageIndex = 0;
+  this.getStatuswiseEmp(status);
+}
 
 
 // changeStatus(status: string) {
@@ -286,30 +305,23 @@ selectedStatus: string = 'All';
 //     return;
 //   }
 
-//   this.getStatuswiseEmp(status);
+// if (status === 'new') {
+
+//   this.filterallData = this.getAllList.filter(
+//     (employee: any) =>
+//       employee.transferStatus === null
+//   );
+
+//   this.totalItems = this.filterallData.length;
+//   this.pageIndex = 0;
+
+//   this.applyPagination();
+
+//   return;
 // }
 
-changeStatus(status: string) {
-
-  if (status === 'All') {
-    this.getallData();
-    return;
-  }
-
-  if (status === 'new') {
-
-    this.filterallData = this.getAllList.filter(
-      (employee: any) => employee.transferStatus === null
-    );
-
-    this.dataSource = new MatTableDataSource(this.filterallData);
-    this.dataSource.paginator = this.paginator;
-
-    return;
-  }
-
-  this.getStatuswiseEmp(status);
-}
+//   this.getStatuswiseEmp(status);
+// }
 
 
 allEmpShow(){
@@ -334,46 +346,203 @@ allEmpShow(){
 
 // employee/findAllEmployees?locationId
 
-getStatuswiseEmp(empStatus:any){
-  // this.dataService.getAllData(`employeeStatus?empStatus=${empStatus}`).subscribe((res:any)=>{
+// getStatuswiseEmp(empStatus: string) {
 
+//   let apiUrl = '';
+
+//   if (this.RoleName === 'Branch Admin' && this.locationID) {
+//     apiUrl = `employeeStatus?empStatus=${empStatus}&locationId=${this.locationID}`;
+//   } else {
+//     apiUrl = `employeeStatus?empStatus=${empStatus}`;
+//   }
+
+//   this.dataService.getAllData(apiUrl).subscribe((res: any) => {
+
+//     if (res.code === 100) {
+
+//       this.getAllList = res?.extend?.data || [];
+
+//       this.filterallData = [...this.getAllList];
+
+//       this.totalItems = this.filterallData.length;
+
+//       this.pageIndex = 0;
+
+//       this.applyPagination();
+//     }
+//   });
+// }
+
+// private searchSubject = new Subject<void>();
+
+getStatuswiseEmp(empStatus: string) {
+
+  this.spinner.show();
+
+  const page = this.pageIndex;
+  const size = this.pageSize;
   let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
-    apiUrl = `employeeStatus?empStatus=${empStatus}&locationId=${this.locationID}`;
+    apiUrl = `employeeStatus?empStatus=${empStatus}&locationId=${this.locationID}&page=${page}&size=${size}`;
   } else {
-    apiUrl = `employeeStatus?empStatus=${empStatus}`;
+    apiUrl = `employeeStatus?empStatus=${empStatus}&page=${page}&size=${size}`;
   }
-    this.dataService.getAllData(apiUrl).subscribe((res: any) => {
 
-       if (res.code === 100) {
-        this.getAllList = res?.extend?.data || []
-        // this.getAllList = (res?.extend?.data || []).map((item: any) => {
+  this.dataService.getAllData(apiUrl).subscribe(
+    (res: any) => {
 
-        //   if (item.photo === 'Y' && item.image) {
+      this.spinner.hide();
 
-        //     // 🔥 remove unwanted prefix before /9j/
-        //     const index = item.image.indexOf('/9j/');
-        //     const cleanBase64 =
-        //       index !== -1 ? item.image.substring(index) : item.image;
+      if (res.code === 100) {
 
-        //     return {
-        //       ...item,
-        //       img: this.sanitizer.bypassSecurityTrustResourceUrl(
-        //         `data:image/jpeg;base64,${cleanBase64}`
-        //       )
-        //     };
-        //   }
+        this.getAllList = res?.extend?.data || [];
 
-        //   return { ...item, img: null };
-        // });
+        this.filterallData = [...this.getAllList];
 
-        this.filterallData = this.getAllList;
-        this.dataSource = new MatTableDataSource(this.getAllList);
-        this.dataSource.paginator = this.paginator;
+        this.dataSource.data = this.getAllList;
+        this.totalItems = res?.extend?.totalItems
+          ?? res?.extend?.totalCount
+          ?? res?.extend?.totalElements
+          ?? 0;
+        this.pageStart = this.totalItems ? (page * size) + 1 : 0;
+        this.pageEnd = Math.min((page * size) + this.getAllList.length, this.totalItems);
+
+      } else {
+
+        this.getAllList = [];
+        this.filterallData = [];
+        this.dataSource.data = [];
+        this.totalItems = 0;
+
+        this.toastr.error(
+          'Unable to fetch employee data. Please try again later.'
+        );
       }
-  })
+    },
+    (error: any) => {
+
+      this.spinner.hide();
+
+      console.error('Employee Status API Error:', error);
+
+      this.toastr.error(
+        'Unable to fetch data. Please try again later.'
+      );
+    }
+  );
 }
+
+searchEmployees(): void {
+  const params = new URLSearchParams();
+  const searchValue = this.searchText.trim();
+
+  if (this.selectedStatus && this.selectedStatus !== 'All') {
+    params.set('empStatus', this.selectedStatus);
+  }
+
+  if (searchValue && this.searchType === 'name') {
+    params.set('name', searchValue);
+  } else if (searchValue && this.searchType === 'userId') {
+    params.set('userId', searchValue);
+  } else if (this.selectedValue) {
+    const filterConfig: Record<string, { list: any[]; idKeys: string[]; valueKeys: string[] }> = {
+      deptName: {
+        list: this.getAllListdepartment,
+        idKeys: ['deptId', 'id'],
+        valueKeys: ['deptName', 'name']
+      },
+      accessGroupName: {
+        list: this.getAllListgroup,
+        idKeys: ['accessGroupId', 'id'],
+        valueKeys: ['accessGroupName', 'name']
+      },
+      categoryName: {
+        list: this.getAllListcategory,
+        idKeys: ['categoryId', 'id'],
+        valueKeys: ['categoryName', 'name']
+      },
+      conName: {
+        list: this.getAllListcontractor,
+        idKeys: ['conId', 'id'],
+        valueKeys: ['contractorName', 'conName', 'name']
+      },
+      locationName: {
+        list: this.getAllListlocation,
+        idKeys: ['locationId', 'id'],
+        valueKeys: ['locationName', 'name']
+      }
+    };
+
+    if (this.searchType === 'transfer') {
+      params.set(
+        'transferStatus',
+        this.selectedValue === 'Transferred Employee' ? 'transfer' : 'null'
+      );
+    } else {
+      const config = filterConfig[this.searchType];
+      const selectedItem = config?.list?.find((item: any) =>
+        config.valueKeys.some(key => String(item[key] ?? '') === this.selectedValue)
+      );
+      const selectedId = config?.idKeys
+        .map(key => selectedItem?.[key])
+        .find(value => value !== null && value !== undefined && value !== '');
+
+      if (selectedId !== undefined) {
+        params.set(
+          this.searchType === 'deptName' ? 'deptId' :
+          this.searchType === 'accessGroupName' ? 'accessGroupId' :
+          this.searchType === 'categoryName' ? 'categoryId' :
+          this.searchType === 'conName' ? 'conId' : 'locationId',
+          String(selectedId)
+        );
+      }
+    }
+  }
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    params.set('locationId', String(this.locationID));
+  }
+
+  params.set('page', String(this.pageIndex));
+  params.set('size', String(this.pageSize));
+
+  this.spinner.show();
+  this.dataService.getAllData(`employee/searchEmployees?${params.toString()}`).subscribe(
+    (res: any) => {
+      this.spinner.hide();
+
+      if (res.code === 100) {
+        this.getAllList = res?.extend?.data || [];
+        this.filterallData = [...this.getAllList];
+        this.dataSource.data = this.getAllList;
+        this.totalItems = res?.extend?.totalItems
+          ?? res?.extend?.totalCount
+          ?? res?.extend?.totalElements
+          ?? 0;
+        this.pageStart = this.totalItems ? (this.pageIndex * this.pageSize) + 1 : 0;
+        this.pageEnd = Math.min(
+          (this.pageIndex * this.pageSize) + this.getAllList.length,
+          this.totalItems
+        );
+      } else {
+        this.getAllList = [];
+        this.filterallData = [];
+        this.dataSource.data = [];
+        this.totalItems = 0;
+      }
+    },
+    (error: any) => {
+      this.spinner.hide();
+      this.toastr.error(error?.error?.msg || 'Unable to fetch employee data.');
+    }
+  );
+}
+
+private hasEmployeeSearchFilter(): boolean {
+  return Boolean(this.searchText.trim() || this.selectedValue);
+}
+
 hidePassword = true;
 userNameLogin:any;
   
@@ -381,9 +550,12 @@ userNameLogin:any;
   // this.pageIndex = 0;
   // this.pageSize = 500;
 
+    this.selectedStatus = 'Active';
     this.locationID = sessionStorage.getItem('locationId');
     this.RoleName =  sessionStorage.getItem('roleName');
     this.userNameLogin =  sessionStorage.getItem('userName');
+
+  this.getStatuswiseEmp('Active');
 
     console.log(this.locationID, "location ID........") 
      this.form.get('roleName')?.valueChanges.subscribe((role) => {
@@ -395,7 +567,7 @@ userNameLogin:any;
   });
 
 // this.getallDataRole();
- this.getallData();
+//  this.getallData();
  this.getalllocation();
  this.getallDatadepartment();
  this.getallDatagroup();
@@ -406,6 +578,8 @@ userNameLogin:any;
  this.getallCollegeData();
  this.getallDiginationData();
    this.loadFaceDetector();
+
+   
   }
 
 
@@ -642,12 +816,14 @@ collegeList:any  = []
 getallData() {
   this.spinner.show();
 
+  const page = this.pageIndex;
+  const size = this.pageSize;
   let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
-    apiUrl = `employee/findAllEmployees?locationId=${this.locationID}`;
+    apiUrl = `employee/findAllEmployees?locationId=${this.locationID}&page=${page}&size=${size}`;
   } else {
-    apiUrl = 'employee/findAllEmployees';
+    apiUrl = `employee/findAllEmployees?page=${page}&size=${size}`;
   }
 
   this.dataService.getAllData(apiUrl).subscribe(
@@ -655,14 +831,25 @@ getallData() {
       this.spinner.hide();
 
       if (res.code === 100) {
-        this.getAllList = (res?.extend?.data || [])
-        this.filterallData = this.getAllList;
-        this.dataSource = new MatTableDataSource(this.getAllList);
-        this.dataSource.paginator = this.paginator;
+        this.getAllList = res?.extend?.data || [];
+        this.filterallData = [...this.getAllList];
+        this.dataSource.data = this.getAllList;
+        this.totalItems = res?.extend?.totalItems
+          ?? res?.extend?.totalCount
+          ?? res?.extend?.totalElements
+          ?? 0;
+        this.pageStart = this.totalItems ? (page * size) + 1 : 0;
+        this.pageEnd = Math.min((page * size) + this.getAllList.length, this.totalItems);
+
+      } else {
+        this.getAllList = [];
+        this.filterallData = [];
+        this.dataSource.data = [];
+        this.totalItems = 0;
       }
     },
     (error: any) => {
-      // Hide spinner when API fails
+
       this.spinner.hide();
 
       console.error('Employee API Error:', error);
@@ -673,7 +860,6 @@ getallData() {
     }
   );
 }
-
 
 // Server side pagination use this method
 
@@ -1171,11 +1357,10 @@ console.log(ids); // [1,2,1011]
              accessGroupId: ids
            });
           // this.form.get('accessGroupId')?.disable();
-
-            if (empData.photo === 'Y' && empData.image) {
+            if (empData.imageAvailable === 'Yes' && empData.signature) {
               this.photoPreview =
                 this.sanitizer.bypassSecurityTrustResourceUrl(
-                  'data:image/jpeg;base64,' + empData.image
+                  'data:image/jpeg;base64,' + empData.signature
                 );
             } else {
               this.photoPreview = null;
@@ -1201,156 +1386,298 @@ onAccessGroupChangeS(event: any) {
   }
 }
 
-onUpdate() {
+// onUpdate() {
 
-  const accessGroup = this.form.get('accessGroupId')?.value;
+//   const accessGroup = this.form.get('accessGroupId')?.value;
 
-  if (!accessGroup || accessGroup.length === 0) {
+//   if (!accessGroup || accessGroup.length === 0) {
+//     this.isAccessGroupError = true;
+//     return;
+//   }
+
+//   this.isAccessGroupError = false;
+
+//   if (this.form.valid) {
+
+//     const formValues = this.form.value;
+
+//     const fromData = {
+//       enrollId: this.empId,
+//       ...formValues,
+//       empType: this.empType,
+//       accessGroupId: accessGroup.join(','),
+//       imagePath: this.imagePath
+//     };
+
+//     this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
+//       if(res.code == 100){
+//         this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
+//               this.photoFile = null;
+//           this.photoPreview = null;
+//         this.getallData();
+//         this.form.reset();
+//         this.backtoList()
+//         this.isEditMode = false;
+
+//       }else{
+//         this.toaster.error('Something went wrong !')
+//       }
+//     },((err:any)=>{
+//       if(err?.error?.msg){
+//             this.toaster.error( err.error.msg,'error!')
+//       }else{
+//                     this.toaster.error('Server side error !')
+//       }
+//     })
+//   )
+//   }else{
+    
+//     this.form.markAllAsTouched();
+//     this.toaster.error('Please fill all required fields!')
+//   }
+// }
+
+
+
+
+// onUpdate(): void {
+
+//   // 1. Get access group value
+//   const accessGroupControl = this.form.get('accessGroupId');
+//   const accessGroup = accessGroupControl?.value;
+
+//   // 2. Normalize access group
+//   let accessGroupIds: string[] = [];
+
+//   if (Array.isArray(accessGroup)) {
+//     accessGroupIds = accessGroup
+//       .filter((id: any) => id !== null && id !== undefined && id !== '')
+//       .map((id: any) => String(id));
+//   } 
+//   else if (
+//     accessGroup !== null &&
+//     accessGroup !== undefined &&
+//     accessGroup !== ''
+//   ) {
+//     accessGroupIds = String(accessGroup)
+//       .split(',')
+//       .map(id => id.trim())
+//       .filter(id => id !== '');
+//   }
+
+//   // 3. Access group required validation
+//   if (accessGroupIds.length === 0) {
+//     this.isAccessGroupError = true;
+
+//     accessGroupControl?.markAsTouched();
+//     accessGroupControl?.markAsDirty();
+
+//     return;
+//   }
+
+//   this.isAccessGroupError = false;
+
+//   // 4. Update form validity
+//   this.form.updateValueAndValidity();
+
+//   // 5. Check all required fields
+//   if (this.form.invalid) {
+
+//     this.form.markAllAsTouched();
+
+//     // Find actual invalid control
+//     const invalidFields: string[] = [];
+
+//     Object.keys(this.form.controls).forEach((key: string) => {
+
+//       const control = this.form.get(key);
+
+//       if (control && control.invalid) {
+//         invalidFields.push(key);
+//       }
+
+//     });
+
+//     console.log('Invalid Fields:', invalidFields);
+
+//     // Stop API call
+//     this.toaster.error('Please fill all required fields!');
+//     return;
+//   }
+
+//   // 6. Get all form values including disabled controls
+//   const formValues = this.form.getRawValue();
+
+//   // 7. Prepare request
+//   const fromData = {
+//     ...formValues,
+//     enrollId: this.empId,
+//     empType: this.empType,
+//     accessGroupId: accessGroupIds.join(','),
+//     imagePath: this.imagePath
+//   };
+
+//   console.log('Update Request:', fromData);
+
+//   // 8. API call
+//   this.dataService
+//     .updateDataC('employee/updateEmployee', fromData)
+//     .subscribe({
+      
+//       next: (res: any) => {
+
+//         if (res?.code === 100) {
+
+//           this.toaster.success(
+//             res?.msg || 'Employee Data Updated Successfully!'
+//           );
+
+//           this.photoFile = null;
+//           this.photoPreview = null;
+
+//           this.isEditMode = false;
+
+//           this.getallData();
+
+//           this.form.reset();
+
+//           this.backtoList();
+
+//         } else {
+
+//           this.toaster.error(
+//             res?.msg || 'Something went wrong!'
+//           );
+//         }
+//       },
+
+//       error: (err: any) => {
+
+//         console.error('Update API Error:', err);
+
+//         if (err?.error?.msg) {
+//           this.toaster.error(err.error.msg, 'Error!');
+//         } else {
+//           this.toaster.error('Server side error!');
+//         }
+//       }
+//     });
+// }
+
+onUpdate(): void {
+
+const conIdControl = this.form.get('conId');
+
+if (this.empType === 'staff') {
+  conIdControl?.clearValidators();
+  conIdControl?.updateValueAndValidity();
+} else {
+  conIdControl?.setValidators([Validators.required]);
+  conIdControl?.updateValueAndValidity();
+}
+  const accessGroupControl = this.form.get('accessGroupId');
+  const accessGroup = accessGroupControl?.value;
+
+  let accessGroupIds: string[] = [];
+
+  if (Array.isArray(accessGroup)) {
+    accessGroupIds = accessGroup
+      .filter((id: any) => id !== null && id !== undefined && id !== '')
+      .map((id: any) => String(id));
+  } else if (
+    accessGroup !== null &&
+    accessGroup !== undefined &&
+    accessGroup !== ''
+  ) {
+    accessGroupIds = String(accessGroup)
+      .split(',')
+      .map(id => id.trim())
+      .filter(id => id !== '');
+  }
+
+  if (accessGroupIds.length === 0) {
     this.isAccessGroupError = true;
+    accessGroupControl?.markAsTouched();
+    accessGroupControl?.markAsDirty();
     return;
   }
 
   this.isAccessGroupError = false;
 
-  if (this.form.valid) {
+  this.form.updateValueAndValidity();
 
-    const formValues = this.form.value;
+  if (this.form.invalid) {
 
-    const fromData = {
-      enrollId: this.empId,
-      ...formValues,
-      empType: this.empType,
-      accessGroupId: accessGroup.join(','),
-      imagePath: this.imagePath
-    };
-
-    this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
-      if(res.code == 100){
-        this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
-              this.photoFile = null;
-          this.photoPreview = null;
-        this.getallData();
-        this.form.reset();
-        this.backtoList()
-        this.isEditMode = false;
-
-      }else{
-        this.toaster.error('Something went wrong !')
-      }
-    },((err:any)=>{
-      if(err?.error?.msg){
-            this.toaster.error( err.error.msg,'error!')
-      }else{
-                    this.toaster.error('Server side error !')
-      }
-    })
-  )
-  }else{
     this.form.markAllAsTouched();
-    this.toaster.error('Please fill all required fields!')
+
+    const invalidFields: string[] = [];
+
+    Object.keys(this.form.controls).forEach((key: string) => {
+      const control = this.form.get(key);
+
+      if (control && control.invalid) {
+        invalidFields.push(key);
+      }
+    });
+
+    console.log('Invalid Fields:', invalidFields);
+
+    this.toaster.error('Please fill all required fields!');
+    return;
   }
+
+  const formValues = this.form.getRawValue();
+
+  const fromData = {
+    ...formValues,
+    enrollId: this.empId,
+    empType: this.empType,
+    accessGroupId: accessGroupIds.join(','),
+    imagePath: this.imagePath
+  };
+
+  console.log('Update Request:', fromData);
+
+  this.dataService
+    .updateDataC('employee/updateEmployee', fromData)
+    .subscribe({
+      next: (res: any) => {
+
+        if (res?.code === 100) {
+
+          this.toaster.success(
+            res?.msg || 'Employee Data Updated Successfully!'
+          );
+
+          this.photoFile = null;
+          this.photoPreview = null;
+          this.isEditMode = false;
+
+          this.getallData();
+
+          this.form.reset();
+          this.backtoList();
+
+        } else {
+          this.toaster.error(
+            res?.msg || 'Something went wrong!'
+          );
+        }
+      },
+
+      error: (err: any) => {
+
+        console.error('Update API Error:', err);
+
+        if (err?.error?.msg) {
+          this.toaster.error(err.error.msg, 'Error!');
+        } else {
+          this.toaster.error('Server side error!');
+        }
+      }
+    });
 }
 
-
-
-
-
-// onUpdate(){
-//   if(this.form.valid){
-//      const formValues = this.form.value
-//     const fromData = {
-//      enrollId:this.empId,
-//       ...this.form.value,
-//        empType:this.empType,
-//         accessGroupId: formValues.accessGroupId.join(','),
-//       imagePath: this.imagePath, 
-//     }
-//     this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
-//       if(res.code == 100){
-//         this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
-//               this.photoFile = null;
-//           this.photoPreview = null;
-//         this.getallData();
-//         this.form.reset();
-//         this.backtoList()
-//         this.isEditMode = false;
-
-//       }else{
-//         this.toaster.error('Something went wrong !')
-//       }
-//     },((err:any)=>{
-//       if(err?.error?.msg){
-//             this.toaster.error( err.error.msg,'error!')
-//       }else{
-//                     this.toaster.error('Server side error !')
-//       }
-//     })
-//   )
-//   }else{
-//     this.form.markAllAsTouched();
-//     this.toaster.error('Please fill all required fields!')
-//   }
-// }
-
-
-
-// onUpdate(){
-//   if(this.form.valid){
-//      const formValues = this.form.value
-//     const fromData = {
-//      enrollId:this.empId,
-//       ...this.form.value,
-//        empType:this.empType,
-//         accessGroupId: formValues.accessGroupId.join(','),
-//       imagePath: this.imagePath, 
-//     }
-//     this.dataService.updateDataC('employee/updateEmployee',fromData).subscribe((res:any)=>{
-//       if(res.code == 100){
-//         this.toaster.success(res.msg || 'Category Data Update Sucessfully !');
-//               this.photoFile = null;
-//           this.photoPreview = null;
-//         this.getallData();
-//         this.form.reset();
-//         this.backtoList()
-//         this.isEditMode = false;
-
-//       }else{
-//         this.toaster.error('Something went wrong !')
-//       }
-//     },((err:any)=>{
-//       if(err?.error?.msg){
-//             this.toaster.error( err.error.msg,'error!')
-//       }else{
-//                     this.toaster.error('Server side error !')
-//       }
-//     })
-//   )
-//   }else{
-//     this.form.markAllAsTouched();
-//     this.toaster.error('Please fill all required fields!')
-//   }
-// }
-
-// delete(id:any){
-//   const enrollId = id;
-// this.dataService.deleteData('deleteCategoryById/'+ enrollId).subscribe((res:any)=>{
-//   if(res.code === 100){
-//  this.toaster.success(res.msg || 'Data deleted successfully !')
-//   this.getallData();
-
-//   }else if(res.code === 500){
-//     this.toaster.error('Internal Server Error !')
-//   }else{
-//     this.toaster.error('Something went wrong !')
-//   }
-
-// },((err:any)=>{
-//          const errorMessage = err?.error?.message || 'Something went wrong!';
-//          this.toaster.error(errorMessage)
-// })
-
-// )
-// }
 
 
 
@@ -1359,10 +1686,18 @@ applyPagination(): void {
   const start = this.pageIndex * this.pageSize;
   const end = start + this.pageSize;
 
+  // IMPORTANT:
+  // Table la only current page data
   this.dataSource.data = this.filterallData.slice(start, end);
 
-  this.pageStart = this.totalItems ? start + 1 : 0;
-  this.pageEnd = Math.min(end, this.totalItems);
+  this.pageStart = this.totalItems
+    ? start + 1
+    : 0;
+
+  this.pageEnd = Math.min(
+    end,
+    this.totalItems
+  );
 }
 
 
@@ -1386,16 +1721,16 @@ applyPagination(): void {
 
   @ViewChild('dropdown') dropdown!: ElementRef;
 
-  ngAfterViewInit() {
-    // ViewChild initialized here
-      this.dataSource.paginator = this.paginator;
-  }
+  // ngAfterViewInit() {
+  //   // ViewChild initialized here
+  //     this.dataSource.paginator = this.paginator;
+  // }
 
   columns = [
     { key: 'biometricId', label: 'Biometric ID', checked: true },
     { key: 'name', label: 'Name', checked: true },
     // { key: 'employeeId', label: 'Employee ID', checked: true },
-    { key: 'level', label: 'Level', checked: true },
+    // { key: 'level', label: 'Level', checked: true },
     { key: 'photo', label: 'Photo', checked: true },
     { key: 'edit', label: 'Edit', checked: true }
   ];
@@ -1421,7 +1756,7 @@ applyPagination(): void {
     this.showBiometricId = this.columns.find(c => c.key === 'biometricId')?.checked ?? false;
     this.showName = this.columns.find(c => c.key === 'name')?.checked ?? false;
     // this.showEmployeeId = this.columns.find(c => c.key === 'employeeId')?.checked ?? false;
-    this.showLevel = this.columns.find(c => c.key === 'level')?.checked ?? false;
+    // this.showLevel = this.columns.find(c => c.key === 'level')?.checked ?? false;
     this.showImageAvailable = this.columns.find(c => c.key === 'imageAvailable')?.checked ?? false;
     // this.showPhoto = this.columns.find(c => c.key === 'photo')?.checked ?? false;
     this.showEdit = this.columns.find(c => c.key === 'edit')?.checked ?? false;
@@ -1435,7 +1770,7 @@ onColumnChange(event: Event) {
   this.showBiometricId = selected.includes('biometricId');
   this.showName = selected.includes('name');
   // this.showEmployeeId = selected.includes('employeeId');
-  this.showLevel = selected.includes('level');
+  // this.showLevel = selected.includes('level');
   this.showImageAvailable = selected.includes('imageAvailable');  
   // this.showPhoto = selected.includes('photo');
   this.showEdit = selected.includes('edit');
@@ -1451,7 +1786,7 @@ onColumnChange(event: Event) {
 
     // cols.push('backupNum');
 
-    if (this.showLevel) cols.push('level');
+    // if (this.showLevel) cols.push('level');
     if (this.showImageAvailable) cols.push('imageAvailable');
         // if (this.showstatus) cols.push('empStatus');
 
@@ -1611,7 +1946,7 @@ this.dialog.open(this.uploadExcelDialog, {
       name: '',
       employeeId: '',
       // backupNum: '',
-      level: '',
+      // level: '',
       photoUrl: ''
     });
   }
@@ -1736,28 +2071,32 @@ toggleSelectAllemp(event: any): void {
 }
 
 
-
 onPageChange(event: PageEvent) {
-
-  const pageChanged = this.pageIndex !== event.pageIndex;
-  const pageSizeChanged = this.pageSize !== event.pageSize;
 
   this.pageIndex = event.pageIndex;
   this.pageSize = event.pageSize;
 
-  if (pageChanged || pageSizeChanged) {
+  // Reset selection
+  this.isAllSelectedemp = false;
 
-    this.isAllSelectedemp = false;
+  this.selectedEnrollIds = [];
+  this.enrollIdList = [];
+  this.selectedRolesText = '';
 
-    this.selectedEnrollIds = [];
-    this.enrollIdList = [];
-    this.selectedRolesText = '';
+  // Current page selection reset
+  this.dataSource.data.forEach((row: any) => {
+    row.select = false;
+  });
 
-    this.dataSource.data.forEach((row: any) => {
-      row.select = false;
-    });
+  if (this.selectedStatus === 'All') {
+    this.hasEmployeeSearchFilter()
+      ? this.searchEmployees()
+      : this.getallData();
+  } else {
+    this.hasEmployeeSearchFilter()
+      ? this.searchEmployees()
+      : this.getStatuswiseEmp(this.selectedStatus);
   }
-
 }
 
 // SERVER SIDE PAGINATION USE THIS METHOD....
@@ -2454,85 +2793,6 @@ dropdownList: any[] = [];
 
 
 
-// onSearchTypeChange(): void {
-
-//   this.selectedValue = '';
-//   this.searchText = '';
-
-//   switch (this.searchType) {
-
-//     case 'deptName':
-
-//       this.dropdownList = this.getAllListdepartment
-//         .map((x: any) => x.deptName)
-//         .filter((x: any) => x);
-
-//       this.dropdownList = [...new Set(this.dropdownList)];
-
-//       break;
-
-
-//     case 'accessGroupName':
-
-//       this.dropdownList = this.getAllListgroup
-//         .map((x: any) => x.accessGroupName)
-//         .filter((x: any) => x);
-
-//       this.dropdownList = [...new Set(this.dropdownList)];
-
-//       break;
-
-
-//     case 'categoryName':
-
-//       this.dropdownList = this.getAllListcategory
-//         .map((x: any) => x.categoryName)
-//         .filter((x: any) => x);
-
-//       this.dropdownList = [...new Set(this.dropdownList)];
-
-//       break;
-
-
-//     case 'conName':
-
-//       this.dropdownList = this.getAllList
-//         .filter((x: any) => x.conName)
-//         .map((x: any) => x.conName);
-
-//       this.dropdownList = [...new Set(this.dropdownList)];
-
-//       break;
-
-
-//     case 'locationName':
-
-//       this.dropdownList = this.getAllListlocation
-//         .filter((x: any) => x.locationName)
-//         .map((x: any) => x.locationName);
-
-//       this.dropdownList = [...new Set(this.dropdownList)];
-
-//       break;
-
-
-//     default:
-
-//       this.dropdownList = [];
-
-//       break;
-//   }
-
-//   // Reset data
-//   this.filterallData = [...this.getAllList];
-
-//   this.totalItems = this.filterallData.length;
-
-//   this.pageIndex = 0;
-
-//   this.applyPagination();
-
-// }
 
 
 onSearchTypeChange(): void {
@@ -2578,9 +2838,9 @@ onSearchTypeChange(): void {
 
     case 'conName':
 
-      this.dropdownList = this.getAllList
-        .filter((x: any) => x.conName)
-        .map((x: any) => x.conName);
+      this.dropdownList = this.getAllListcontractor
+        .filter((x: any) => x.contractorName)
+        .map((x: any) => x.contractorName);
 
       this.dropdownList = [...new Set(this.dropdownList)];
 
@@ -2605,8 +2865,8 @@ onSearchTypeChange(): void {
     case 'transfer':
 
       this.dropdownList = [
-        'Transfer Employee',
-        'Non Transfer Employee'
+        'Transferred Employee',
+        'Non Transferred Employee'
       ];
 
       break;
@@ -2627,69 +2887,16 @@ onSearchTypeChange(): void {
 
   this.pageIndex = 0;
 
-  this.applyPagination();
+  // if (this.hasEmployeeSearchFilter()) {
+  //   this.searchEmployees();
+  // } else if (this.selectedStatus === 'All') {
+  //   this.getallData();
+  // } else {
+  //   this.getStatuswiseEmp(this.selectedStatus);
+  // }
 }
 
 
-// filterDropdown(): void {
-
-//   if (!this.selectedValue) {
-
-//     this.filterallData = [...this.getAllList];
-
-//   } else {
-
-//     this.filterallData = this.getAllList.filter((emp: any) => {
-
-//       switch (this.searchType) {
-
-//         case 'accessGroupName':
-
-//           return (emp.accessGroupName || '')
-//             .toLowerCase()
-//             .split(',')
-//             .map((x: string) => x.trim())
-//             .includes(this.selectedValue.toLowerCase());
-
-
-//         case 'deptName':
-
-//           return (emp.deptName || '').toLowerCase() ===
-//                  this.selectedValue.toLowerCase();
-
-
-//         case 'categoryName':
-
-//           return (emp.categoryName || '').toLowerCase() ===
-//                  this.selectedValue.toLowerCase();
-
-
-//         case 'conName':
-
-//           return (emp.conName || '').toLowerCase() ===
-//                  this.selectedValue.toLowerCase();
-
-
-//         case 'locationName':
-
-//           return (emp.locationName || '').toLowerCase() ===
-//                  this.selectedValue.toLowerCase();
-
-
-//         default:
-
-//           return true;
-//       }
-
-//     });
-//   }
-
-//   this.totalItems = this.filterallData.length;
-
-//   this.pageIndex = 0;
-
-//   this.applyPagination();
-// }
 
 
 /**
@@ -2697,125 +2904,18 @@ onSearchTypeChange(): void {
  */
 filterDropdown(): void {
 
-  // If nothing selected
-  if (!this.selectedValue) {
-
-    this.filterallData = [...this.getAllList];
-
-  } else {
-
-    this.filterallData = this.getAllList.filter((emp: any) => {
-
-      switch (this.searchType) {
-
-        // ==========================================
-        // ACCESS GROUP
-        // ==========================================
-
-        case 'accessGroupName':
-
-          return (emp.accessGroupName || '')
-            .toLowerCase()
-            .split(',')
-            .map((x: string) => x.trim())
-            .includes(
-              this.selectedValue.toLowerCase()
-            );
-
-
-        // ==========================================
-        // DEPARTMENT
-        // ==========================================
-
-        case 'deptName':
-
-          return (emp.deptName || '')
-            .toLowerCase() ===
-            this.selectedValue.toLowerCase();
-
-
-        // ==========================================
-        // CATEGORY
-        // ==========================================
-
-        case 'categoryName':
-
-          return (emp.categoryName || '')
-            .toLowerCase() ===
-            this.selectedValue.toLowerCase();
-
-
-        // ==========================================
-        // CONTRACTOR
-        // ==========================================
-
-        case 'conName':
-
-          return (emp.conName || '')
-            .toLowerCase() ===
-            this.selectedValue.toLowerCase();
-
-
-        // ==========================================
-        // LOCATION
-        // ==========================================
-
-        case 'locationName':
-
-          return (emp.locationName || '')
-            .toLowerCase() ===
-            this.selectedValue.toLowerCase();
-
-
-        // ==========================================
-        // TRANSFER
-        // ==========================================
-
-        // case 'transfer':
-
-        //   // Non Transfer Employee
-        //   if (this.selectedValue === 'Non Transfer Employee') {
-
-        //     return emp.transferStatus === null;
-
-        //   }
-
-        //   // Transfer Employee
-        //   if (this.selectedValue === 'Transfer Employee') {
-
-        //     return emp.transferStatus !== null;
-
-        //   }
-
-        //   return true;
-
-
-
-        case 'transfer':
-
-  if (this.selectedValue === 'Transfer Employee') {
-    return (emp.transferStatus || '').toLowerCase() === 'transfer';
-  }
-
-  if (this.selectedValue === 'Non Transfer Employee') {
-    return emp.transferStatus === null;
-  }
-
-  return true;
-        default:
-
-          return true;
-      }
-
-    });
-  }
-
-
-  this.totalItems = this.filterallData.length;
-
   this.pageIndex = 0;
 
-  this.applyPagination();
+  if (this.selectedValue) {
+    this.searchEmployees();
+    return;
+  }
+
+  if (this.selectedStatus === 'All') {
+    this.getallData();
+  } else {
+    this.getStatuswiseEmp(this.selectedStatus);
+  }
 }
 
 
@@ -2823,27 +2923,6 @@ filterDropdown(): void {
 searchText: string = '';
 
 
-
-
-// onSearchInput(event: any) {
-
-//   let value = event.target.value;
-
-//   if (
-//     this.searchType === 'name' ||
-//     this.searchType === 'empStatus'
-//   ) {
-//     value = value.replace(/[^a-zA-Z\s]/g, '');
-
-//   } else if (this.searchType === 'userId') {
-//     value = value.replace(/[^0-9]/g, '');
-//   }
-
-//   this.searchText = value;
-//   event.target.value = value;
-
-//   this.filterData();
-// }
 
 
 /**
@@ -2869,46 +2948,16 @@ onSearchInput(event: any): void {
   this.searchText = value;
 
   event.target.value = value;
+  this.pageIndex = 0;
 
-  this.filterData();
+  if (this.searchText.trim()) {
+    this.searchEmployees();
+  } else if (this.selectedStatus === 'All') {
+    this.getallData();
+  } else {
+    this.getStatuswiseEmp(this.selectedStatus);
+  }
 }
-
-
-
-// filterData() {
-
-//   this.filterallData = this.getAllList.filter((emp: any) => {
-
-//     switch (this.searchType) {
-
-//       case 'name':
-//         return (emp.name || '')
-//           .toLowerCase()
-//           .includes(this.searchText.toLowerCase());
-
-//       case 'empStatus':
-//         return (emp.empStatus || '')
-//           .toLowerCase()
-//           .includes(this.searchText.toLowerCase());
-
-//       case 'userId':
-//         return (emp.userId || '')
-//           .toString()
-//           .includes(this.searchText);
-
-//       default:
-//         return true;
-//     }
-//   });
-
-//   // IMPORTANT
-//   this.totalItems = this.filterallData.length;
-
-//   // Search/clear झाल्यावर first page
-//   this.pageIndex = 0;
-
-//   this.applyPagination();
-// }
 
 
 
@@ -2974,27 +3023,6 @@ empDelete() {
 }
 
 
-// getSelectLabel(): string {
-//   switch (this.searchType) {
-//     case 'deptName':
-//       return 'Department';
-
-//     case 'accessGroupName':
-//       return 'Access Group';
-
-//     case 'categoryName':
-//       return 'Category';
-
-//     case 'conName':
-//       return 'Contractor';
-
-//     default:
-//       return '';
-//   }
-// }
-/**
- * Select Label
- */
 getSelectLabel(): string {
 
   switch (this.searchType) {
@@ -3021,21 +3049,6 @@ getSelectLabel(): string {
       return 'Value';
   }
 }
-
-// getPlaceholder(): string {
-//   switch (this.searchType) {
-//     case 'userId':
-//       return 'Search Biometric ID';
-//     case 'name':
-//       return 'Search Employee Name';
-//     case 'empStatus':
-//             return 'Search Status';
-
-     
-//     default:
-//       return 'Search here...';
-//   }
-// }
 
 
 getPlaceholder(): string {

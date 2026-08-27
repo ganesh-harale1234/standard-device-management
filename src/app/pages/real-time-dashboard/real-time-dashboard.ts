@@ -51,19 +51,57 @@ this.dataService.setTitle('Real time Dashboard');
   // Every 5 seconds refresh punching logs
   this.punchingLogInterval = setInterval(() => {
     this.getPunchinglog();
-  }, 5000);
+  }, 4000);
 
   // Every 5 seconds refresh alarm logs
   this.alarmLogInterval = setInterval(() => {
     this.getAlarmLogs();
-  }, 5000);
+  }, 4000);
  
 
 
 }
 countShowOnlyIn:any[] = []
 
-getPunchinglog(){
+// getPunchinglog(){
+//   let apiUrl = '';
+
+//   if (this.RoleName === 'Branch Admin' && this.locationID) {
+//     apiUrl = `todaysPunchLogs?locationId=${this.locationID}`;
+//   } else {
+//     apiUrl = 'todaysPunchLogs';
+//   }
+
+//   this.dataService.getAllData(apiUrl).subscribe((res: any) => {
+
+//     if(res.code == 100){
+//       console.log("Punching log", res)
+//    this.punchingLogs = res.extend.todaysPunchLogs
+//    // Only IN status records
+// this.filterPunchingLog = [...this.punchingLogs]
+// this.currentPage = 1;
+// this.updatePagination();
+
+// this.countShowOnlyIn = this.punchingLogs.filter(
+//   (item: any) => item.ioStatus === 'IN'
+// );
+
+// // Count of only IN records
+// this.totalCountLog = this.countShowOnlyIn.length;
+//     }else if(res.code == 200){
+//       // this.toaster.error(res.msg || "Data not found today...!")
+//     }
+    
+//     else if(res.code == 500){
+//       this.toaster.error(res.msg || 'Internal server error... !')
+//     }else{
+//       this.toaster.error("Something went wrong...!")
+//     }
+//   })
+
+// }
+
+getPunchinglog() {
   let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
@@ -74,36 +112,96 @@ getPunchinglog(){
 
   this.dataService.getAllData(apiUrl).subscribe((res: any) => {
 
-    if(res.code == 100){
-      console.log("Punching log", res)
-   this.punchingLogs = res.extend.todaysPunchLogs
-   // Only IN status records
-this.filterPunchingLog = [...this.punchingLogs]
-this.currentPage = 1;
-this.updatePagination();
+    if (res.code == 100) {
 
-this.countShowOnlyIn = this.punchingLogs.filter(
-  (item: any) => item.ioStatus === 'IN'
-);
+      console.log("Punching log", res);
 
-// Count of only IN records
-this.totalCountLog = this.countShowOnlyIn.length;
-    }else if(res.code == 200){
-      // this.toaster.error(res.msg || "Data not found today...!")
+      // Safe handling
+      this.punchingLogs = res?.extend?.todaysPunchLogs ?? [];
+
+      // Only IN status records
+      this.filterPunchingLog = [...this.punchingLogs];
+
+      this.currentPage = 1;
+      this.updatePagination();
+
+      // Count only IN records
+      this.countShowOnlyIn = this.punchingLogs.filter(
+        (item: any) => item.ioStatus === 'IN'
+      );
+
+      this.totalCountLog = this.countShowOnlyIn.length;
+
+    } 
+    else if (res.code == 200) {
+
+      // No punch records found
+      this.punchingLogs = [];
+
+      this.filterPunchingLog = [];
+
+      this.countShowOnlyIn = [];
+
+      this.totalCountLog = 0;
+
+      this.currentPage = 1;
+      this.updatePagination();
+
+      // this.toaster.error(res.msg || "Data not found today...!");
+
+    } 
+    else if (res.code == 500) {
+
+      this.toaster.error(
+        res.msg || 'Internal server error... !'
+      );
+
+    } 
+    else {
+
+      this.toaster.error("Something went wrong...!");
+
     }
-    
-    else if(res.code == 500){
-      this.toaster.error(res.msg || 'Internal server error... !')
-    }else{
-      this.toaster.error("Something went wrong...!")
-    }
-  })
-
+  });
 }
 
 
-getAlarmLogs(){
+// getAlarmLogs(){
         
+//   let apiUrl = '';
+
+//   if (this.RoleName === 'Branch Admin' && this.locationID) {
+//     apiUrl = `todaysAlarmLogs?locationId=${this.locationID}`;
+//   } else {
+//     apiUrl = 'todaysAlarmLogs';
+//   }
+
+//   this.dataService.getAllData(apiUrl).subscribe((res: any) => {
+//     if(res.code == 100){
+//       console.log("Punching log", res)
+ 
+//    this.alarmLogs = res.extend.todaysAlarmLogs
+//    console.log("alram", this.alarmLogs)
+//      this.filteralarmLogs = this.alarmLogs;
+//      this.totalCountAlarm = this.filteralarmLogs?.length;
+//      this.alarmCurrentPage = 1;
+// this.updateAlarmPagination();
+//     }else if(res.code == 200){
+//       // this.toaster.error(res.msg || "Data not found today...!")
+//     }
+    
+//     else if(res.code == 500){
+//       this.toaster.error(res.msg || 'Internal server error... !')
+//     }else{
+//       this.toaster.error("Something went wrong...!")
+//     }
+//   })
+
+// }
+
+
+getAlarmLogs() {
+
   let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
@@ -113,26 +211,54 @@ getAlarmLogs(){
   }
 
   this.dataService.getAllData(apiUrl).subscribe((res: any) => {
-    if(res.code == 100){
-      console.log("Punching log", res)
- 
-   this.alarmLogs = res.extend.todaysAlarmLogs
-   console.log("alram", this.alarmLogs)
-     this.filteralarmLogs = this.alarmLogs;
-     this.totalCountAlarm = this.filteralarmLogs?.length;
-     this.alarmCurrentPage = 1;
-this.updateAlarmPagination();
-    }else if(res.code == 200){
-      // this.toaster.error(res.msg || "Data not found today...!")
-    }
-    
-    else if(res.code == 500){
-      this.toaster.error(res.msg || 'Internal server error... !')
-    }else{
-      this.toaster.error("Something went wrong...!")
-    }
-  })
 
+    if (res.code == 100) {
+
+      console.log("Alarm log", res);
+
+      // Safe handling
+      this.alarmLogs = res?.extend?.todaysAlarmLogs ?? [];
+
+      console.log("alarm", this.alarmLogs);
+
+      this.filteralarmLogs = [...this.alarmLogs];
+
+      this.totalCountAlarm = this.filteralarmLogs.length;
+
+      this.alarmCurrentPage = 1;
+
+      this.updateAlarmPagination();
+
+    } 
+    else if (res.code == 200) {
+
+      // No alarm records found
+      this.alarmLogs = [];
+
+      this.filteralarmLogs = [];
+
+      this.totalCountAlarm = 0;
+
+      this.alarmCurrentPage = 1;
+
+      this.updateAlarmPagination();
+
+      // this.toaster.error(res.msg || "Data not found today...!");
+
+    } 
+    else if (res.code == 500) {
+
+      this.toaster.error(
+        res.msg || 'Internal server error... !'
+      );
+
+    } 
+    else {
+
+      this.toaster.error("Something went wrong...!");
+
+    }
+  });
 }
 
 

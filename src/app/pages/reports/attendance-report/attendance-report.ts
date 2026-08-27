@@ -31,6 +31,8 @@ selectedEmployeeId: string | null = null;
   toDate: Date = new Date();
   now: Date = new Date();
 
+
+
   reportData :any[] = [];
  dataSource: any;
   SearchValueSubject = new Subject()
@@ -48,6 +50,7 @@ locationID:any;
 RoleName:any;
 locationName:any;
   ngOnInit(): void {
+    this.getallData();
   this.locationID = sessionStorage.getItem('locationId');
   this.RoleName =  sessionStorage.getItem('roleName');
   this.locationName =  sessionStorage.getItem('locationName');
@@ -70,6 +73,10 @@ onSearchEmp(event: any) {
   const trimmed = event.target.value.trim();
   this.searchTextemp = trimmed;
 
+  const branchId = this.RoleName === 'Branch Admin'
+    ? this.locationID
+    : this.selectlocationId;
+
   console.log(this.searchTextemp, "user type input")
 
   // clear previous timer
@@ -86,6 +93,15 @@ onSearchEmp(event: any) {
     return;
   }
 
+  if (branchId == null || branchId === '') {
+    this.employeeList = [];
+    this.searchDone = false;
+    this.showDropdown = false;
+    this.isEmpLoading = false;
+    this.toaster.error('Please select branch');
+    return;
+  }
+
   // debounce logic (400ms)
   this.searchEmpTimer = setTimeout(() => {
 
@@ -95,7 +111,7 @@ onSearchEmp(event: any) {
     this.employeeList = [];
     this.selectedEmployeeId = null;
     
-    this.dataService.getAllData(`searchByNameOrId/${trimmed}`).subscribe(
+    this.dataService.getAllData(`searchByNameOrId/${trimmed}?locationId=${branchId}`).subscribe(
       (res: any) => {
         this.isEmpLoading = false;
         this.searchDone = true;
@@ -144,6 +160,118 @@ formatDateToYMD(date: Date | null): string | null {
 
   return `${year}-${month}-${day}`;
 }
+
+formatExportDate(date: Date | null): string {
+  if (!date) return 'N/A';
+
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = date.toLocaleString('en-US', { month: 'short' });
+  const year = date.getFullYear();
+
+  return `${day} ${month}, ${year}`;
+}
+
+formatExportDateTime(date: Date): string {
+  const hour = date.getHours() % 12 || 12;
+  const minute = date.getMinutes().toString().padStart(2, '0');
+  const amPm = date.getHours() >= 12 ? 'PM' : 'AM';
+
+  return `${this.formatExportDate(date)} , ${hour}:${minute} ${amPm}`;
+}
+
+
+
+
+
+
+
+
+
+
+getAllList:any[] = []
+selectedCategoryIds: string[] = [];
+
+getallData() {
+  this.dataService.getAllData('getAllCategory').subscribe({
+    next: (res: any) => {
+
+      if (res.code === 100) {
+        this.getAllList = res.extend.allCategory || [];
+      }
+
+      else if (res.code === 500) {
+        this.toaster.error('Internal server error!');
+      }
+
+      else {
+        this.toaster.error('Something went wrong!');
+      }
+
+    },
+
+    error: (err) => {
+      this.toaster.error(err.error?.msg || 'Failed to load category list!');
+    }
+  });
+}
+selectedCategoryNames: string[] = [];
+updateSelectedCategoryNames() {
+  this.selectedCategoryNames = this.getAllList
+    .filter(item => this.selectedCategoryIds.includes(item.categoryId))
+    .map(item => item.categoryName);   // categoryName field
+}
+
+// Select All
+toggleSelectAllCategory() {
+
+  if (this.isAllCategorySelected()) {
+
+    this.selectedCategoryIds = [];
+
+  } else {
+
+    this.selectedCategoryIds = this.getAllList.map(
+      (x: any) => x.categoryId
+    );
+
+  }
+ this.updateSelectedCategoryNames();
+  console.log(this.selectedCategoryIds);
+
+}
+// Check All Selected
+isAllCategorySelected(): boolean {
+   this.updateSelectedCategoryNames();
+
+  return (
+    this.getAllList.length > 0 &&
+    this.selectedCategoryIds.length === this.getAllList.length
+  );
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Location List
 locationList: any[] = [ ]
@@ -349,6 +477,14 @@ if (this.RoleName !== 'Branch Admin' && this.selectlocationId == null) {
   this.toaster.error('Please select a Branch');
   return;
 }
+
+
+if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
+  this.toaster.error('Please select one category...!');
+  return;
+}
+
+
     const employeeText = this.searchTextemp || null;
     const employeeId = employeeText? Number(employeeText.match(/\((\d+)\)/)?.[1]) || null : null;
     const fromDate = this.formatDateToYMD(this.fromDate);
@@ -361,6 +497,7 @@ const locationId =
 
 const requestData = {
   employeeId: employeeId || null,
+   categoryIdList: this.selectedCategoryIds,
   fromDate: fromDate,
   toDate: toDate,
   locationId: locationId ? [locationId] : []
@@ -401,19 +538,9 @@ onExportPdf() {
   const pageWidth = doc.internal.pageSize.getWidth();
 
   const branchName = this.getSelectedLocationName() || 'All';
-  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
-  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
-  const reportTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
+  const fDate = this.formatExportDate(this.fromDate);
+  const tDate = this.formatExportDate(this.toDate);
+  const reportTime = this.formatExportDateTime(new Date());
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
@@ -437,6 +564,9 @@ onExportPdf() {
     { content: 'Sr No.', rowSpan: 2 },
     { content: 'Employee Id', rowSpan: 2 },
     { content: 'Employee Name', rowSpan: 2 },
+    { content: 'Category', rowSpan: 2 },
+    { content: 'Department', rowSpan: 2 },
+    { content: 'Designation', rowSpan: 2 },
     { content: 'Attendance Date', rowSpan: 2 },
     { content: 'Punch In', rowSpan: 2 },
     { content: 'Punch Out', rowSpan: 2 }
@@ -446,6 +576,9 @@ onExportPdf() {
     index + 1,
     item.employeeId ?? '-',
     item.employeeName ?? '-',
+    item.category ?? '-',
+    item.department ?? '-',
+    item.designation ?? '-',
     item.attendanceDate ? new Date(item.attendanceDate).toLocaleDateString('en-GB', {
       day: '2-digit',
       month: '2-digit',
@@ -461,6 +594,9 @@ autoTable(doc, {
     { content: 'Sr No.' },
     { content: 'Employee Id' },
     { content: 'Employee Name' },
+    { content: 'Category' },
+    { content: 'Department' },
+    { content: 'Designation' },
     { content: 'Attendance Date' },
     { content: 'Punch In' },
     { content: 'Punch Out' }
@@ -538,19 +674,9 @@ onExportExcel(): void {
   }
 
   const branchName = this.getSelectedLocationName() || 'All';
-  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
-  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
-  const reportTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
+  const fDate = this.formatExportDate(this.fromDate);
+  const tDate = this.formatExportDate(this.toDate);
+  const reportTime = this.formatExportDateTime(new Date());
 
   const excelData = this.reportData.map((item: any, index: number) => {
 
@@ -558,6 +684,9 @@ onExportExcel(): void {
       'Sr No.': index + 1,
       'Employee ID': item.employeeId ?? '',
       'Employee Name': item.employeeName ?? '',
+      'Category': item.category ?? '',
+      'Department': item.department ?? '',
+      'Designation': item.designation ?? '',
       'Attendance Date': item.attendanceDate ?? '',
       'Punch In': item.punchIn ?? '',
       'Punch Out': item.punchOut ?? '',

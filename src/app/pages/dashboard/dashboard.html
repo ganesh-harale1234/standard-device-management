@@ -5,7 +5,7 @@
   <!-- Total Employees -->
   <mat-card class="dashboard-card">
     <div class="card-body">
-      <p class="card-title">Total Employees</p>
+      <p class="card-title">Total Users</p>
 
       <p class="card-count">
         {{ dashbordCount?.totalEmployees || 00 }}
@@ -30,15 +30,7 @@
   </mat-card>
 
   <!-- Total Device -->
-  <mat-card class="dashboard-card">
-    <div class="card-body">
-      <p class="card-title">Total Device</p>
 
-      <p class="card-count">
-        {{ dashbordCount?.totalDevices || 00 }}
-      </p>
-    </div>
-  </mat-card>
 
   <!-- Present -->
   <mat-card class="dashboard-card">
@@ -47,6 +39,16 @@
 
       <p class="card-count">
         {{ dashbordCount?.presentToday || 00 }}
+      </p>
+    </div>
+  </mat-card>
+
+    <mat-card class="dashboard-card">
+    <div class="card-body">
+      <p class="card-title">Total Devices</p>
+
+      <p class="card-count">
+        {{ dashbordCount?.totalDevices || 00 }}
       </p>
     </div>
   </mat-card>

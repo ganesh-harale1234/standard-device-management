@@ -322,3 +322,97 @@ font-weight: 500;
      margin-right: 0px; 
     padding: 6px 10px 2px;
 }
+
+
+
+
+.pdf-table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  table-layout: fixed;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.pdf-table th {
+  background: rgb(0, 150, 225) !important;
+  color: #ffffff;
+  border: 1px solid #696969;
+  padding: 8px 5px;
+  text-align: center;
+  font-weight: 600;
+
+  /* Long header text handle */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.pdf-table td {
+  border: 1px solid #999898;
+  padding: 6px 5px;
+  text-align: center;
+
+  /* Long data handle */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* Employee Name, Category, Department, Designation */
+.pdf-table td:nth-child(3),
+.pdf-table td:nth-child(4),
+.pdf-table td:nth-child(5),
+.pdf-table td:nth-child(6) {
+  text-align: left !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+
+
+.pdf-table th:nth-child(1),
+.pdf-table td:nth-child(1) {
+  width: 6%;
+}
+
+.pdf-table th:nth-child(2),
+.pdf-table td:nth-child(2) {
+  width: 10%;
+}
+
+.pdf-table th:nth-child(3),
+.pdf-table td:nth-child(3) {
+  width: 16%;
+}
+
+.pdf-table th:nth-child(4),
+.pdf-table td:nth-child(4) {
+  width: 13%;
+}
+
+.pdf-table th:nth-child(5),
+.pdf-table td:nth-child(5) {
+  width: 13%;
+}
+
+.pdf-table th:nth-child(6),
+.pdf-table td:nth-child(6) {
+  width: 13%;
+}
+
+.pdf-table th:nth-child(7),
+.pdf-table td:nth-child(7) {
+  width: 11%;
+}
+
+.pdf-table th:nth-child(8),
+.pdf-table td:nth-child(8) {
+  width: 9%;
+}
+
+.pdf-table th:nth-child(9),
+.pdf-table td:nth-child(9) {
+  width: 9%;
+}

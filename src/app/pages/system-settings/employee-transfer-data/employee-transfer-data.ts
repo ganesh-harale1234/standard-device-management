@@ -31,7 +31,10 @@ devicesList: any[] = [];
 // Transfer Table Data
 transferList: any[] = [];
 filterallData: any[] = [];
+pageIndex = 0;
+pageSize = 100;
 
+totalItems = 0;
 // Access Group
 accessGroupList: any[] = [];
 selectedAccessGroupIds: number[] = [];
@@ -55,17 +58,26 @@ displayedColumns: string[] = [
 
 dataSource = new MatTableDataSource<any>();
 
+
+
 @ViewChild(MatPaginator) paginator!: MatPaginator;
 @ViewChild('TABLE') table!: ElementRef;
+  maxDate: string = new Date().toISOString().split('T')[0];
 
+fromDateValue: string = new Date().toISOString().split('T')[0];
+
+toDateValue: string = new Date().toISOString().split('T')[0];
 constructor(
   private fb: FormBuilder,
   private dataService: DataService, private toastr:ToastrService, private spinner:NgxSpinnerService,
 ) {
   this.form = this.fb.group({});
 }
-
-ngOnInit(): void {
+locationID:any;
+RoleName:any;
+  ngOnInit(): void {
+  this.locationID = sessionStorage.getItem('locationId');
+  this.RoleName =  sessionStorage.getItem('roleName');
 
   this.getDeviceallList();
 
@@ -76,8 +88,8 @@ ngOnInit(): void {
 }
 
 ngAfterViewInit(): void {
-  this.dataSource.paginator = this.paginator;
-  this.applyPagination();
+    this.applyPagination();
+
 }
 
 
@@ -93,112 +105,273 @@ formatDateToYMD(date: Date | null): string | null {
   return `${year}-${month}-${day}`;
 }
 
-AuditReport() {
+AuditReport(): void {
 
   this.spinner.show();
 
-  const fromDate = this.formatDateToYMD(this.fromDate);
-  const toDate = this.formatDateToYMD(this.toDate);
+  const fromDate =
+    this.formatDateToYMD(this.fromDate);
 
-  let requestData: any = { fromDate, toDate };
+  const toDate =
+    this.formatDateToYMD(this.toDate);
 
-  // All select Fields Send api
 
-  const apiUrl: any = "";
+  let apiUrl = '';
+
+
+  if (
+    this.RoleName === 'Branch Admin' &&
+    this.locationID
+  ) {
+
+    apiUrl =
+      `transferActivityTableDataByDateWise` +
+      `?fromDate=${fromDate}` +
+      `&toDate=${toDate}` +
+      `&locationId=${this.locationID}`;
+
+  } else {
+
+    apiUrl =
+      `transferActivityTableDataByDateWise` +
+      `?fromDate=${fromDate}` +
+      `&toDate=${toDate}`;
+  }
+
 
   this.dataService
-    .getAllData(`transferActivityTableDataByDateWise?fromDate=${fromDate}&toDate=${toDate}`)
-    .subscribe(
-      (res: any) => {
+    .getAllData(apiUrl)
+    .subscribe({
+
+      next: (res: any) => {
 
         this.spinner.hide();
 
-        this.transferList = res?.extend?.data || [];
+        // Full data
+        this.transferList =
+          res?.extend?.data || [];
 
-        this.filterallData = [...this.transferList];
+        this.filterallData =
+          [...this.transferList];
 
+        this.totalItems =
+          this.filterallData.length;
+
+        this.pageIndex = 0;
+
+        // Only first page render
         this.applyPagination();
+      },
+
+
+      error: () => {
+
+        this.spinner.hide();
+
+        this.toastr.error(
+          'Unable to fetch data. Please try again later.'
+        );
+
+      }
+
+    });
+}
+//================ Device ==================
+getDeviceallList(): void {
+
+  let apiUrl = '';
+
+  if (
+    this.RoleName === 'Branch Admin' &&
+    this.locationID
+  ) {
+
+    apiUrl =
+      `device?locationId=${this.locationID}`;
+
+  } else {
+
+    apiUrl = 'device';
+  }
+
+
+  this.dataService
+    .getAllData(apiUrl)
+    .subscribe({
+
+      next: (res: any) => {
+
+        this.devicesList = res || [];
 
       },
-      (error) => {
 
-        this.spinner.hide();
+      error: () => {
 
-           this.toastr.error(
-        'Unable to fetch data. Please try again later.'
-      );
+        this.devicesList = [];
 
-  
       }
-    );
-}
 
-//================ Device ==================
-
-getDeviceallList() {
-
-  this.dataService.getAllData('device').subscribe((res: any) => {
-
-    this.devicesList = res;
-
-  });
-
+    });
 }
 
 //================ Transfer Activity ==================
+
+// getAllempTransferlList() {
+
+//   this.spinner.show();
+
+//   // this.dataService
+//   //   .getAllData('transferActivityTableData')
+//   //   .subscribe(
+//   //     (res: any) => {
+
+//   let apiUrl = '';
+
+// if (this.RoleName === 'Branch Admin' && this.locationID) {
+//   apiUrl = `transferActivityTableData?locationId=${this.locationID}`;
+// } else {
+//   apiUrl = 'transferActivityTableData';
+// }
+
+// this.dataService
+//   .getAllData(apiUrl)
+//   .subscribe((res: any) => {
+
+//         this.spinner.hide();
+
+//         this.transferList = res?.extend?.data || [];
+
+//         this.filterallData = [...this.transferList];
+
+//         this.applyPagination();
+
+//       },
+//       (error) => {
+
+//         this.spinner.hide();
+
+      
+//         this.spinner.hide();
+
+//            this.toastr.error(
+//         'Unable to fetch data. Please try again later.'
+//       );
+
+      
+//       }
+//     );
+// }
+
+
+
+
 
 getAllempTransferlList() {
 
   this.spinner.show();
 
-  this.dataService
-    .getAllData('transferActivityTableData')
-    .subscribe(
-      (res: any) => {
+  let apiUrl = '';
 
-        this.spinner.hide();
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
 
-        this.transferList = res?.extend?.data || [];
+    apiUrl =
+      `transferActivityTableData?locationId=${this.locationID}`;
 
-        this.filterallData = [...this.transferList];
+  } else {
 
-        this.applyPagination();
+    apiUrl = 'transferActivityTableData';
+  }
 
-      },
-      (error) => {
+  this.dataService.getAllData(apiUrl).subscribe({
 
-        this.spinner.hide();
+    next: (res: any) => {
 
-      
-        this.spinner.hide();
+      this.spinner.hide();
 
-           this.toastr.error(
+      // FULL DATA
+      this.transferList = res?.extend?.data || [];
+
+      // Search/filter sathi complete data
+      this.filterallData = [...this.transferList];
+
+      // Total records
+      this.totalItems = this.filterallData.length;
+
+      // First page
+      this.pageIndex = 0;
+
+      // ONLY 100 records table madhe render hotil
+      this.applyPagination();
+
+    },
+
+    error: (error) => {
+
+      this.spinner.hide();
+
+      this.transferList = [];
+      this.filterallData = [];
+
+      this.totalItems = 0;
+
+      this.applyPagination();
+
+      this.toastr.error(
         'Unable to fetch data. Please try again later.'
       );
+    }
 
-      
-      }
-    );
+  });
 }
+
 
 //================ Access Group ==================
 
-getallData() {
+getallData(): void {
+
+  let apiUrl = '';
+
+  if (
+    this.RoleName === 'Branch Admin' &&
+    this.locationID
+  ) {
+
+    apiUrl =
+      `accessGroup/getAllAccessGroups?locationId=${this.locationID}`;
+
+  } else {
+
+    apiUrl =
+      'accessGroup/getAllAccessGroups';
+  }
+
 
   this.dataService
-    .getAllData('accessGroup/getAllAccessGroups')
-    .subscribe((res: any) => {
+    .getAllData(apiUrl)
+    .subscribe({
 
-      if (res.code == 100) {
+      next: (res: any) => {
 
-        this.accessGroupList = res.extend.data;
+        if (res?.code == 100) {
+
+          this.accessGroupList =
+            res?.extend?.data || [];
+
+        } else {
+
+          this.accessGroupList = [];
+        }
+
+      },
+
+      error: () => {
+
+        this.accessGroupList = [];
 
       }
 
     });
-
 }
-
 //================ Device Selection ==================
 
 get isAllSelected(): boolean {
@@ -213,6 +386,7 @@ isSelected(id: number): boolean {
   return this.selectedDeviceIds.includes(id);
 
 }
+
 
 toggleDevice(id: number, event: any) {
 
@@ -308,82 +482,140 @@ isAllAccessGroupSelected(): boolean {
 
 //================ Filter API ==================
 
-getFilterdatDevicewise() {
+getFilterdatDevicewise(): void {
 
   const accessGroupIds =
     this.selectedAccessGroupIds.join(',');
 
+  let apiUrl =
+    `transferActivityTableData?accessGroupIds=${accessGroupIds}`;
+
+
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+
+    apiUrl +=
+      `&locationId=${this.locationID}`;
+  }
+
+
+  this.spinner.show();
+
   this.dataService
-    .getAllData(
-      'transferActivityTableData?accessGroupIds=' +
-      accessGroupIds
-    )
-    .subscribe((res: any) => {
+    .getAllData(apiUrl)
+    .subscribe({
 
-      this.transferList = res?.extend?.data || [];
+      next: (res: any) => {
 
-      this.filterallData = [...this.transferList];
+        this.spinner.hide();
 
-      this.applyPagination();
+        // Full filtered API data
+        this.transferList =
+          res?.extend?.data || [];
+
+        this.filterallData =
+          [...this.transferList];
+
+        this.pageIndex = 0;
+
+        this.applyPagination();
+      },
+
+
+      error: () => {
+
+        this.spinner.hide();
+
+        this.transferList = [];
+
+        this.filterallData = [];
+
+        this.totalItems = 0;
+
+        this.applyPagination();
+
+        this.toastr.error(
+          'Unable to fetch data. Please try again later.'
+        );
+      }
 
     });
-
-}
-
-//================ Export ==================
-
-// ExportTOExcel() {
-
-//   const ws: XLSX.WorkSheet =
-//     XLSX.utils.table_to_sheet(
-//       this.table.nativeElement
-//     );
-
-//   const wb: XLSX.WorkBook =
-//     XLSX.utils.book_new();
-
-//   XLSX.utils.book_append_sheet(
-//     wb,
-//     ws,
-//     'Sheet1'
-//   );
-
-//   XLSX.writeFile(
-//     wb,
-//     'Employee-transfer.xlsx'
-//   );
-
-// }
-
-
-
-
-
-ExportTOExcel() {
-
-  const excelData = this.transferList.map((item: any) => ({
-    'Employee ID': item.empId,
-    'Employee Name': item.empName,
-    'Activity': item.activity,
-    'Device Name': item.deviceName,
-    'Serial No': item.serialNo,
-    'Access Group': item.accessGroup,
-    'Status': item.status === 1 ? 'Active' : 'Inactive',
-    'Updated Date': item.updatedDate
-      ? new Date(item.updatedDate).toLocaleString()
-      : ''
-  }));
-
-  const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
-
-  const wb: XLSX.WorkBook = XLSX.utils.book_new();
-
-  XLSX.utils.book_append_sheet(wb, ws, 'Employee Transfer');
-
-  XLSX.writeFile(wb, 'Employee-transfer.xlsx');
 }
 
 
+
+ExportTOExcel(): void {
+
+  const excelData =
+    this.transferList.map(
+      (item: any, index: number) => ({
+
+        'Sr No.':
+          index + 1,
+
+        'Biometric ID':
+          item.empId ?? '',
+
+        'Employee Name':
+          item.empName ?? '',
+
+        'Device Name':
+          item.deviceName ?? '',
+
+        'Transfer Date':
+          item.updatedDate
+            ? new Date(
+                item.updatedDate
+              ).toLocaleString(
+                'en-GB',
+                {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false
+                }
+              )
+            : '',
+
+        'Access Group Name':
+          item.accessGroup ?? '',
+
+        'Activity':
+          item.activity ?? '',
+
+        'Status':
+          item.status === 1 ||
+          item.status === '1'
+            ? 'Success'
+            : item.status ?? ''
+
+      })
+    );
+
+
+  const ws: XLSX.WorkSheet =
+    XLSX.utils.json_to_sheet(
+      excelData
+    );
+
+
+  const wb: XLSX.WorkBook =
+    XLSX.utils.book_new();
+
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    'Employee Transfer'
+  );
+
+
+  XLSX.writeFile(
+    wb,
+    'Employee-transfer.xlsx'
+  );
+}
 
 
 
@@ -404,15 +636,15 @@ dropdownList: string[] = [];
 // Pagination
 // =========================
 
-pageIndex = 0;
-pageSize = 500;
-totalItems = 0;
+// pageIndex = 0;
+// pageSize = 100;
+// totalItems = 0;
 
 // =========================
 // Search Type Change
 // =========================
 
-onSearchTypeChange() {
+onSearchTypeChange(): void {
 
   this.searchText = '';
   this.selectedValue = '';
@@ -420,6 +652,7 @@ onSearchTypeChange() {
   switch (this.searchType) {
 
     case 'activity':
+
       this.dropdownList = [
         ...new Set(
           this.transferList
@@ -427,19 +660,25 @@ onSearchTypeChange() {
             .filter(Boolean)
         )
       ];
+
       break;
 
+
     case 'deviceName':
+
       this.dropdownList = [
         ...new Set(
-          this.transferList
+          this.devicesList
             .map((x: any) => x.deviceName)
             .filter(Boolean)
         )
       ];
+
       break;
 
+
     case 'accessGroup':
+
       this.dropdownList = [
         ...new Set(
           this.accessGroupList
@@ -447,70 +686,168 @@ onSearchTypeChange() {
             .filter(Boolean)
         )
       ];
+
       break;
+
 
     case 'status':
-      this.dropdownList = ['Success', 'Pending'];
+
+      this.dropdownList = [
+        'Success',
+        'Pending'
+      ];
+
       break;
 
+
     default:
+
       this.dropdownList = [];
+
       break;
   }
 
+  // IMPORTANT:
+  // Full data reset
   this.filterallData = [...this.transferList];
-  this.totalItems = this.filterallData.length;
-  this.pageIndex = 0;
-  this.applyPagination();
 
+  // First page
+  this.pageIndex = 0;
+
+  // Recalculate
+  this.applyPagination();
 }
+
+
 
 // =========================
 // Dropdown Filter
 // =========================
 
-filterDropdown() {
+filterDropdown(): void {
 
+  // No selection
   if (!this.selectedValue) {
 
-    this.filterallData = [...this.transferList];
+    this.filterallData = [
+      ...this.transferList
+    ];
 
   } else {
 
-    this.filterallData = this.transferList.filter((item: any) => {
+    // FULL DATA madhun filter
+    this.filterallData =
+      this.transferList.filter((item: any) => {
 
-      switch (this.searchType) {
+        switch (this.searchType) {
 
-        case 'activity':
-          return item.activity === this.selectedValue;
+          // =====================
+          // Activity
+          // =====================
 
-        case 'deviceName':
-          return item.deviceName === this.selectedValue;
+          case 'activity':
 
-    
+            return item.activity ===
+              this.selectedValue;
 
-case 'accessGroup':
-  return item.accessGroup === this.selectedValue;
 
-        case 'status':
-          return (item.status == 1 ? 'Success' : 'Pending') === this.selectedValue;
+          // =====================
+          // Device
+          // =====================
 
-        default:
-          return true;
-      }
+          case 'deviceName':
 
-    });
+            return item.deviceName ===
+              this.selectedValue;
 
+
+          // =====================
+          // Access Group
+          // =====================
+
+          case 'accessGroup':
+
+            return item.accessGroup ===
+              this.selectedValue;
+
+
+          // =====================
+          // Status
+          // =====================
+
+          case 'status':
+
+            return (
+              item.status == 1
+                ? 'Success'
+                : 'Pending'
+            ) === this.selectedValue;
+
+
+          default:
+
+            return true;
+        }
+
+      });
   }
 
-  this.totalItems = this.filterallData.length;
-  this.pageIndex = 0;
-  this.applyPagination();
 
+  // Total filtered records
+  this.totalItems =
+    this.filterallData.length;
+
+
+  // First page
+  this.pageIndex = 0;
+
+
+  // Show current page only
+  this.applyPagination();
 }
 // =========================
 // Search Input
 // =========================
+
+
+onTransferDateChange(): void {
+
+  if (!this.searchText) {
+
+    this.filterallData = [
+      ...this.transferList
+    ];
+
+  } else {
+
+    const selectedDate = this.searchText;
+
+    this.filterallData = this.transferList.filter((item: any) => {
+
+      if (!item.updatedDate) {
+        return false;
+      }
+
+      const itemDate = new Date(item.updatedDate);
+
+      const year = itemDate.getFullYear();
+      const month = String(itemDate.getMonth() + 1).padStart(2, '0');
+      const day = String(itemDate.getDate()).padStart(2, '0');
+
+      const formattedDate = `${year}-${month}-${day}`;
+
+      return formattedDate === selectedDate;
+    });
+  }
+
+  // First page
+  this.pageIndex = 0;
+
+  // Apply pagination
+  this.applyPagination();
+}
+
+
 
 onSearchInput(event: any) {
 
@@ -521,6 +858,10 @@ onSearchInput(event: any) {
     value = value.replace(/[^0-9]/g, '');
 
   }
+
+  if (this.searchType == 'empName') {
+  value = value.replace(/[^a-zA-Z ]/g, '');
+}
 
   this.searchText = value;
 
@@ -534,98 +875,156 @@ onSearchInput(event: any) {
 // Text Search
 // =========================
 
-filterDatas() {
+filterDatas(): void {
 
-  const text = this.searchText.trim().toLowerCase();
+  const text =
+    this.searchText
+      .trim()
+      .toLowerCase();
+
+
+  // =========================
+  // Empty Search
+  // =========================
 
   if (!text) {
 
-    this.filterallData = [...this.transferList];
+    // Full 25k+ data
+    this.filterallData = [
+      ...this.transferList
+    ];
 
   } else {
 
-    this.filterallData = this.transferList.filter((item: any) => {
+    // IMPORTANT:
+    // Search FULL transferList madhun honar
+    this.filterallData =
+      this.transferList.filter((item: any) => {
 
-      switch (this.searchType) {
+        switch (this.searchType) {
 
-        case 'empId':
+          // =====================
+          // Employee ID
+          // =====================
 
-          return item.empId
-            ?.toString()
-            .includes(text);
+          case 'empId':
 
-        case 'empName':
+            return item.empId
+              ?.toString()
+              .toLowerCase()
+              .includes(text);
 
-          return (item.empName || '')
-            .toLowerCase()
-            .includes(text);
 
-        case 'serialNo':
+          // =====================
+          // Employee Name
+          // =====================
 
-          return (item.serialNo || '')
-            .toLowerCase()
-            .includes(text);
+          case 'empName':
 
-        case 'updatedDate':
+            return (
+              item.empName || ''
+            )
+              .toString()
+              .toLowerCase()
+              .includes(text);
 
-          return (item.updatedDate || '')
-            .toLowerCase()
-            .includes(text);
 
-        default:
+          // =====================
+          // Serial Number
+          // =====================
 
-          return true;
+          case 'serialNo':
 
-      }
+            return (
+              item.serialNo || ''
+            )
+              .toString()
+              .toLowerCase()
+              .includes(text);
 
-    });
 
+          // =====================
+          // Transfer Date
+          // =====================
+
+          case 'updatedDate':
+
+            return (
+              item.updatedDate || ''
+            )
+              .toString()
+              .toLowerCase()
+              .includes(text);
+
+
+          default:
+
+            return true;
+        }
+
+      });
   }
 
-  this.totalItems = this.filterallData.length;
 
+  // Total filtered records
+  this.totalItems =
+    this.filterallData.length;
+
+
+  // Search result always first page
   this.pageIndex = 0;
 
-  this.applyPagination();
 
+  // Show only current page
+  this.applyPagination();
 }
 
 // =========================
 // Pagination
 // =========================
 
-applyPagination() {
+applyPagination(): void {
 
+  // Total filtered records
   this.totalItems = this.filterallData.length;
 
-  this.pageIndex = Math.max(0, Math.min(this.pageIndex, Math.max(0, Math.ceil(this.totalItems / this.pageSize) - 1)));
+  // Current page start
+  const start = this.pageIndex * this.pageSize;
 
-  this.dataSource.data = this.filterallData;
+  // Current page end
+  const end = start + this.pageSize;
 
+  // Current page चे फक्त 100 records
+  const currentPageData =
+    this.filterallData.slice(start, end);
+
+  // ⭐⭐⭐ हेच line इथे use करा
+  this.dataSource.data = currentPageData;
+
+  // Paginator update
   if (this.paginator) {
-    this.dataSource.paginator = this.paginator;
+
     this.paginator.length = this.totalItems;
+
     this.paginator.pageIndex = this.pageIndex;
+
     this.paginator.pageSize = this.pageSize;
   }
-
 }
 
-pageChanged(event: any) {
+pageChanged(event: any): void {
 
   this.pageIndex = event.pageIndex;
 
   this.pageSize = event.pageSize;
 
   this.applyPagination();
-
 }
-
 // =========================
 // Search Placeholder
 // =========================
 
-getPlaceholder() {
+getPlaceholder(): string {
 
   switch (this.searchType) {
 
@@ -643,16 +1042,14 @@ getPlaceholder() {
 
     default:
       return 'Search';
-
   }
-
 }
 
 // =========================
 // Dropdown Label
 // =========================
 
-getSelectLabel() {
+getSelectLabel(): string {
 
   switch (this.searchType) {
 
@@ -662,28 +1059,27 @@ getSelectLabel() {
     case 'deviceName':
       return 'Device Name';
 
+    case 'accessGroup':
+      return 'Access Group';
+
     case 'status':
       return 'Status';
 
     default:
       return 'Select';
-
   }
-
 }
-
 // =========================
 // Search Box Filter
 // =========================
 
-applyFilter(event: any) {
+applyFilter(event: any): void {
 
-  this.searchText = event.target.value;
+  this.searchText =
+    event.target.value;
 
   this.filterDatas();
-
 }
-
 
 
 

@@ -77,6 +77,10 @@ login() {
         if (res.code === 100) {
 
           console.log('Login response:', res);
+            if (res.extend?.data?.roleName === 'User') {
+    this.toaster.error('Access Denied for User Role...');
+    return;
+  }
 
           this.toaster.success(res.msgs || 'Login successfully!');
 

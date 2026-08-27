@@ -47,7 +47,7 @@ displayedColumns: string[] = [
 ];
 
   pageIndex = 0;
-  pageSize = 10;
+  pageSize = 20;
   pageStart = 0;
   pageEnd = 0;
   totalItems = 0;
@@ -62,8 +62,8 @@ displayedColumns: string[] = [
       locationId:['', Validators.required],
       // authorizedDevice:['',Validators.required],
       accessGroupId: [null, Validators.required],
-      secound:['', Validators.required]
-
+      // secound:['', Validators.required]
+reverifyTime: [null, [Validators.required, Validators.max(999)]]
 
     }))
    }
@@ -92,6 +92,31 @@ RoleName:any;
     }, 
   )
   }
+
+  allowOnlyNumbers(event: KeyboardEvent): void {
+  const key = event.key;
+
+  // Only 0-9, Backspace, Delete, Arrow keys allowed
+  if (
+    !/^[0-9]$/.test(key) &&
+    key !== 'Backspace' &&
+    key !== 'Delete' &&
+    key !== 'ArrowLeft' &&
+    key !== 'ArrowRight' &&
+    key !== 'Tab'
+  ) {
+    event.preventDefault();
+  }
+}
+
+removeNonNumbers(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^0-9]/g, '');
+  this.form.get('reverifyTime')?.setValue(
+    input.value ? Number(input.value) : null,
+    { emitEvent: false }
+  );
+}
 
    locationListall(){
     this.dataService.getAllData('findAllLocation').subscribe((res:any)=>{
@@ -157,6 +182,7 @@ getDeviceallList() {
       ioStatus:deviceData.ioStatus,
       locationId:deviceData.locationId,
      accessGroupId: Number(deviceData.accessGroupId),
+     reverifyTime:deviceData.reverifyTime
       //  authorizedDevice:deviceData.authorizedDevice
  
        })
@@ -180,10 +206,18 @@ onUpdate() {
 
   this.form.markAllAsTouched();
 
-  if (this.form.invalid) {
+if (this.form.invalid) {
+  this.toaster.error('Please fill in all required fields!');
+  return;
+}
+
+    const accessGroupId = this.form.get('accessGroupId')?.value;
+
+  if (!accessGroupId) {
     this.toaster.error('Access Group is required!');
     return;
   }
+
 
   const formData = {
     id: this.deviceId,
@@ -225,7 +259,7 @@ onSearchTypeChange() {
       break;
 
     case 'ioStatus':
-      this.dropdownList = ['IN', 'OUT', 'IO'];
+      this.dropdownList = ['IN', 'OUT'];
       break;
 
     default:

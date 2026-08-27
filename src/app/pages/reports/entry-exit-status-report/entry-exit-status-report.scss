@@ -610,3 +610,192 @@ font-weight: 500;
      margin-right: 0px; 
     padding: 6px 10px 2px;
 }
+
+
+
+
+
+
+
+
+
+
+/* =========================================
+   RESPONSIVE PDF TABLE
+========================================= */
+
+.pdf-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table */
+.pdf-table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 13px;
+  background: #fff;
+}
+
+/* Header */
+.pdf-table th {
+  background: rgb(0, 150, 225) !important;
+  color: #fff;
+  border: 1px solid #696969;
+  padding: 7px 6px;
+  text-align: center;
+  font-weight: 600;
+
+  /* Long header text break */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* Body */
+.pdf-table td {
+  border: 1px solid #999898;
+  padding: 6px;
+  text-align: center;
+
+  /* Important for large data */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+
+  /* Long employee name etc. */
+  max-width: 180px;
+}
+
+/* Employee Name */
+.pdf-table td:nth-child(3),
+.pdf-table td:nth-child(4),
+.pdf-table td:nth-child(5) {
+  text-align: left;
+}
+
+/* Category title */
+.pdf-table .category-title {
+  text-align: center;
+  font-weight: 600;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* =========================================
+   SMALL SCREEN
+========================================= */
+
+@media screen and (max-width: 1200px) {
+
+  .pdf-table {
+    font-size: 12px;
+  }
+
+  .pdf-table th,
+  .pdf-table td {
+    padding: 6px 5px;
+  }
+
+  .pdf-table td {
+    max-width: 150px;
+  }
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media screen and (max-width: 768px) {
+
+  .pdf-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .pdf-table {
+    width: max-content;
+    min-width: 100%;
+    font-size: 11px;
+  }
+
+  .pdf-table th,
+  .pdf-table td {
+    padding: 5px 4px;
+  }
+
+  .pdf-table td {
+    max-width: 130px;
+  }
+}
+
+
+/* =========================================
+   VERY SMALL SCREEN
+========================================= */
+
+@media screen and (max-width: 480px) {
+
+  .pdf-table {
+    font-size: 10px;
+  }
+
+  .pdf-table th,
+  .pdf-table td {
+    padding: 4px 3px;
+  }
+
+  .pdf-table td {
+    max-width: 110px;
+  }
+}
+
+
+/* =========================================
+   PDF / PRINT
+========================================= */
+
+@media print {
+
+  .pdf-table-wrapper {
+    width: 100%;
+    overflow: visible !important;
+  }
+
+  .pdf-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed;
+    font-size: 9px;
+  }
+
+  .pdf-table th,
+  .pdf-table td {
+    padding: 4px 3px;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .pdf-table th {
+    background: rgb(0, 150, 225) !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .pdf-table tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .pdf-table thead {
+    display: table-header-group;
+  }
+}

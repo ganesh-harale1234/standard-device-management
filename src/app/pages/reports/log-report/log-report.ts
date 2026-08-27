@@ -366,19 +366,15 @@ onExportExcel(): void {
   }
 
   const branchName = this.getSelectedLocationName() || 'All';
-  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
-  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
-  const reportTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
+  const fDate = this.fromDate
+    ? `${this.fromDate.getDate().toString().padStart(2, '0')} ${this.fromDate.toLocaleString('en-US', { month: 'short' })}, ${this.fromDate.getFullYear()}`
+    : 'N/A';
+  const tDate = this.toDate
+    ? `${this.toDate.getDate().toString().padStart(2, '0')} ${this.toDate.toLocaleString('en-US', { month: 'short' })}, ${this.toDate.getFullYear()}`
+    : 'N/A';
+  const reportDate = new Date();
+  const amPm = reportDate.getHours() >= 12 ? 'PM' : 'AM';
+const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${reportDate.toLocaleString('en-US', { month: 'short' })}, ${reportDate.getFullYear()} , ${reportDate.getHours() % 12 || 12}:${reportDate.getMinutes().toString().padStart(2, '0')} ${amPm}`;
 
   // Prepare Excel data
   const excelData = this.reportData.map((item: any, index: number) => {
@@ -460,19 +456,15 @@ onExportPdf() {
   const pageWidth = doc.internal.pageSize.getWidth();
 
   const branchName = this.getSelectedLocationName() || 'All';
-  const fromDateValue = this.fromDate ? this.formatDateToYMD(this.fromDate) : null;
-  const toDateValue = this.toDate ? this.formatDateToYMD(this.toDate) : null;
-  const fDate = fromDateValue || 'N/A';
-  const tDate = toDateValue || 'N/A';
-  const reportTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
+  const fDate = this.fromDate
+    ? `${this.fromDate.getDate().toString().padStart(2, '0')} ${this.fromDate.toLocaleString('en-US', { month: 'short' })}, ${this.fromDate.getFullYear()}`
+    : 'N/A';
+  const tDate = this.toDate
+    ? `${this.toDate.getDate().toString().padStart(2, '0')} ${this.toDate.toLocaleString('en-US', { month: 'short' })}, ${this.toDate.getFullYear()}`
+    : 'N/A';
+  const reportDate = new Date();
+  const amPm = reportDate.getHours() >= 12 ? 'PM' : 'AM';
+  const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${reportDate.toLocaleString('en-US', { month: 'short' })}, ${reportDate.getFullYear()} , ${reportDate.getHours() % 12 || 12}:${reportDate.getMinutes().toString().padStart(2, '0')} ${amPm}`;
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);

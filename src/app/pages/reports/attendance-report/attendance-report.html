@@ -14,6 +14,57 @@
     </ng-select>
 
 </div>
+
+
+ <div class="w-52">
+
+ <ng-select style="border: 1px solid #2563eb !important;
+    border-radius: 6px !important;"
+    class="custom-ng-select"
+    [items]="getAllList"
+    bindLabel="categoryName"
+    bindValue="categoryId"
+    [multiple]="true"
+    [searchable]="true"
+    [closeOnSelect]="false"
+    placeholder="Select Category"
+    [clearable]="false"
+    [(ngModel)]="selectedCategoryIds">
+
+    <ng-template ng-header-tmp>
+        <div class="px-2 py-2 border-b">
+            <label class="flex items-center cursor-pointer">
+                <input
+                    type="checkbox"
+                    [checked]="isAllCategorySelected()"
+                    (click)="$event.stopPropagation()"
+                    (change)="toggleSelectAllCategory()">
+
+                <span class="ml-2">Select All</span>
+            </label>
+        </div>
+    </ng-template>
+
+    <ng-template
+        ng-option-tmp
+        let-item="item"
+        let-item$="item$">
+
+        <input
+            type="checkbox"
+            [checked]="item$.selected"
+            tabindex="-1"
+            class="mr-2">
+
+        {{ item.categoryName }}
+
+    </ng-template>
+
+</ng-select>
+
+</div> 
+
+
  <!-- ========================= -->
 <!-- Employee Search -->
 <!-- ========================= -->
@@ -65,7 +116,7 @@
 
 <!-- From Date -->
 <div class="date-field">
-  <label>From</label>
+  <label>From Date</label>
 
   <input
     type="date"
@@ -76,7 +127,7 @@
 
 <!-- To Date -->
 <div class="date-field">
-  <label>To</label>
+  <label>To Date</label>
 
   <input
     type="date"
@@ -128,12 +179,13 @@
       <span class="font-semibold text-lg">Attendance Report</span>
       
         <div class="text-center mt-2 text-[#004A71] leading-5">
+
     <div>
       <span>From Date:</span>
       <span class="font-semibold">
-        {{ fromDate | date:'MMM d, y' }}
+        {{ fromDate | date:'dd MMM, y' }}
         to
-        {{ toDate | date:'MMM d, y' }}
+        {{ toDate | date:'dd MMM, y' }}
       </span>
     </div>
 
@@ -159,7 +211,7 @@
     <div>
       <span>Report Time:</span>
       <span class="font-semibold">
-        {{ now | date:'MMM d, y, h:mm:ss a' }}
+       {{ now | date:'dd MMM, y, h:mm a' }}
       </span>
     </div>
   </div>
@@ -192,14 +244,16 @@
 
         <td>{{i+1}}</td>
         <td>{{row.employeeId}}</td>
-        <td>{{row.employeeName}}</td>
-            <td class="text-left">
+          <td style="text-align: left !important;">
+                    {{ row.employeeName }}
+                </td>
+                     <td style="text-align: left !important;">
                     {{ row.category }}
                 </td>
-                    <td class="text-left">
+                    <td style="text-align: left !important;">
                     {{ row.department }}
                 </td>
-                     <td class="text-left">
+                     <td style="text-align: left !important;">
                     {{ row.designation }}
                 </td>
         <td>{{row.attendanceDate | date:'dd-MM-yyyy'}}</td>
