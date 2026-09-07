@@ -105,9 +105,8 @@ formatDateToYMD(date: Date | null): string | null {
   return `${year}-${month}-${day}`;
 }
 
+apiurl:any
 AuditReport(): void {
-
-  this.spinner.show();
 
   const fromDate =
     this.formatDateToYMD(this.fromDate);
@@ -115,39 +114,55 @@ AuditReport(): void {
   const toDate =
     this.formatDateToYMD(this.toDate);
 
+ this.apiurl=`transferActivityTableData`+`?fromDate=${fromDate}`+`&toDate=${toDate}`;
 
-  let apiUrl = '';
+  // Dropdown based filters use selectedValue, text based filters use searchText
+  const dropdownTypes = ['activity', 'deviceName', 'accessGroup', 'status', 'serialNo'];
 
+  const filterValue = dropdownTypes.includes(this.searchType)
+    ? this.selectedValue
+    : this.searchText;
 
   if (
-    this.RoleName === 'Branch Admin' &&
-    this.locationID
+    filterValue &&
+    this.searchType !== 'updatedDate'
   ) {
+    // API stores status as 1 (Success) / 0 (Pending)
+    const paramValue =
+      this.searchType === 'status'
+        ? (filterValue === 'Success' ? 1 : 0)
+        : filterValue;
 
-    apiUrl =
-      `transferActivityTableDataByDateWise` +
-      `?fromDate=${fromDate}` +
-      `&toDate=${toDate}` +
-      `&locationId=${this.locationID}`;
-
-  } else {
-
-    apiUrl =
-      `transferActivityTableDataByDateWise` +
-      `?fromDate=${fromDate}` +
-      `&toDate=${toDate}`;
+    this.apiurl += `&${this.searchType}=${encodeURIComponent(paramValue)}`;
   }
 
+  // New search/filter -> back to first page
+  this.pageIndex = 0;
+
+  this.fetchTransferData();
+}
+
+//================ Paged Fetch (server-side pagination) ==================
+fetchTransferData(): void {
+
+  this.spinner.show();
+
+  const separator = this.apiurl.includes('?') ? '&' : '?';
+
+  const pagedUrl =
+    this.apiurl +
+    `${separator}page=${this.pageIndex}` +
+    `&size=${this.pageSize}`;
 
   this.dataService
-    .getAllData(apiUrl)
+    .getAllData(pagedUrl)
     .subscribe({
 
       next: (res: any) => {
 
         this.spinner.hide();
 
-        // Full data
+        // Current page data only (server-paginated)
         this.transferList =
           res?.extend?.data || [];
 
@@ -155,18 +170,32 @@ AuditReport(): void {
           [...this.transferList];
 
         this.totalItems =
-          this.filterallData.length;
+          res?.extend?.totalCount
+          ?? res?.extend?.totalItems
+          ?? res?.extend?.totalElements
+          ?? 0;
 
-        this.pageIndex = 0;
+        this.dataSource.data = this.transferList;
 
-        // Only first page render
-        this.applyPagination();
+        if (this.paginator) {
+
+          this.paginator.length = this.totalItems;
+
+          this.paginator.pageIndex = this.pageIndex;
+
+          this.paginator.pageSize = this.pageSize;
+        }
       },
 
 
       error: () => {
 
         this.spinner.hide();
+
+        this.transferList = [];
+        this.filterallData = [];
+        this.totalItems = 0;
+        this.dataSource.data = [];
 
         this.toastr.error(
           'Unable to fetch data. Please try again later.'
@@ -176,6 +205,8 @@ AuditReport(): void {
 
     });
 }
+
+
 //================ Device ==================
 getDeviceallList(): void {
 
@@ -268,8 +299,6 @@ getDeviceallList(): void {
 
 getAllempTransferlList() {
 
-  this.spinner.show();
-
   let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
@@ -282,46 +311,11 @@ getAllempTransferlList() {
     apiUrl = 'transferActivityTableData';
   }
 
-  this.dataService.getAllData(apiUrl).subscribe({
+  this.apiurl = apiUrl;
 
-    next: (res: any) => {
+  this.pageIndex = 0;
 
-      this.spinner.hide();
-
-      // FULL DATA
-      this.transferList = res?.extend?.data || [];
-
-      // Search/filter sathi complete data
-      this.filterallData = [...this.transferList];
-
-      // Total records
-      this.totalItems = this.filterallData.length;
-
-      // First page
-      this.pageIndex = 0;
-
-      // ONLY 100 records table madhe render hotil
-      this.applyPagination();
-
-    },
-
-    error: (error) => {
-
-      this.spinner.hide();
-
-      this.transferList = [];
-      this.filterallData = [];
-
-      this.totalItems = 0;
-
-      this.applyPagination();
-
-      this.toastr.error(
-        'Unable to fetch data. Please try again later.'
-      );
-    }
-
-  });
+  this.fetchTransferData();
 }
 
 
@@ -545,79 +539,194 @@ getFilterdatDevicewise(): void {
 
 ExportTOExcel(): void {
 
-  const excelData =
-    this.transferList.map(
-      (item: any, index: number) => ({
+  if (!this.apiurl) {
+    this.toastr.warning('No data available for export.');
+    return;
+  }
 
-        'Sr No.':
-          index + 1,
+  this.spinner.show();
 
-        'Biometric ID':
-          item.empId ?? '',
+  const separator = this.apiurl.includes('?') ? '&' : '?';
 
-        'Employee Name':
-          item.empName ?? '',
+  const exportUrl =
+    `${this.apiurl}${separator}page=0&size=${this.totalItems}`;
 
-        'Device Name':
-          item.deviceName ?? '',
+  this.dataService.getAllData(exportUrl).subscribe({
 
-        'Transfer Date':
-          item.updatedDate
-            ? new Date(
-                item.updatedDate
-              ).toLocaleString(
-                'en-GB',
-                {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false
-                }
-              )
-            : '',
+    next: (res: any) => {
 
-        'Access Group Name':
-          item.accessGroup ?? '',
+      const allData = res?.extend?.data || [];
 
-        'Activity':
-          item.activity ?? '',
+      if (!allData.length) {
+        this.spinner.hide();
+        this.toastr.warning('No data available for export.');
+        return;
+      }
 
-        'Status':
-          item.status === 1 ||
-          item.status === '1'
-            ? 'Success'
-            : item.status ?? ''
+      // Allow UI to update before heavy Excel generation
+      setTimeout(() => {
+        this.generateExcelFile(allData);
+      }, 100);
 
-      })
-    );
+    },
 
+    error: () => {
 
-  const ws: XLSX.WorkSheet =
-    XLSX.utils.json_to_sheet(
-      excelData
-    );
+      this.spinner.hide();
 
+      this.toastr.error(
+        'Unable to export data. Please try again later.'
+      );
 
-  const wb: XLSX.WorkBook =
-    XLSX.utils.book_new();
+    }
 
+  });
 
-  XLSX.utils.book_append_sheet(
-    wb,
-    ws,
-    'Employee Transfer'
-  );
-
-
-  XLSX.writeFile(
-    wb,
-    'Employee-transfer.xlsx'
-  );
 }
 
+// =========================
+// Excel Generation
+// =========================
 
+generateExcelFile(data: any[]): void {
+
+  try {
+
+    // Header
+    const excelData: any[][] = [
+      [
+        'Sr No.',
+        'Biometric ID',
+        'Employee Name',
+        'Device Name',
+        'Transfer Date',
+        'Access Group Name',
+        'Activity',
+        'Status'
+      ]
+    ];
+
+
+    // Prepare rows using for loop
+    for (let i = 0; i < data.length; i++) {
+
+      const item = data[i];
+
+      excelData.push([
+        i + 1,
+
+        item.empId ?? '',
+
+        item.empName ?? '',
+
+        item.deviceName ?? '',
+
+        item.updatedDate
+          ? this.formatExcelDate(item.updatedDate)
+          : '',
+
+        item.accessGroup ?? '',
+
+        item.activity ?? '',
+
+        item.status == 1
+          ? 'Success'
+          : item.status ?? ''
+      ]);
+
+    }
+
+
+    // Create worksheet from array
+    const ws: XLSX.WorkSheet =
+      XLSX.utils.aoa_to_sheet(excelData);
+
+
+    // Optional column width
+    ws['!cols'] = [
+      { wch: 10 },
+      { wch: 18 },
+      { wch: 25 },
+      { wch: 25 },
+      { wch: 22 },
+      { wch: 25 },
+      { wch: 20 },
+      { wch: 15 }
+    ];
+
+
+    // Create workbook
+    const wb: XLSX.WorkBook =
+      XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+      wb,
+      ws,
+      'Employee Transfer'
+    );
+
+
+    // Generate file
+    XLSX.writeFile(
+      wb,
+      `Employee-transfer-${new Date().getTime()}.xlsx`,
+      {
+        compression: true
+      }
+    );
+
+
+    this.spinner.hide();
+
+    this.toastr.success(
+      'Excel downloaded successfully.'
+    );
+
+  }
+  catch (error) {
+
+    console.error(
+      'Excel Export Error:',
+      error
+    );
+
+    this.spinner.hide();
+
+    this.toastr.error(
+      'Unable to generate Excel file.'
+    );
+
+  }
+
+}
+
+formatExcelDate(dateValue: any): string {
+
+  if (!dateValue) {
+    return '';
+  }
+
+  const date = new Date(dateValue);
+
+  const day =
+    String(date.getDate()).padStart(2, '0');
+
+  const month =
+    String(date.getMonth() + 1).padStart(2, '0');
+
+  const year =
+    date.getFullYear();
+
+  const hour =
+    String(date.getHours()).padStart(2, '0');
+
+  const minute =
+    String(date.getMinutes()).padStart(2, '0');
+
+  return `${day}/${month}/${year} ${hour}:${minute}`;
+
+}
 
 
 // =========================
@@ -650,6 +759,19 @@ onSearchTypeChange(): void {
   this.selectedValue = '';
 
   switch (this.searchType) {
+
+    case 'serialNo':
+
+      this.dropdownList = [
+        ...new Set(
+          this.transferList
+            .map((x: any) => x.serialNo)
+            .filter(Boolean)
+        )
+      ];
+
+      break;
+
 
     case 'activity':
 
@@ -740,6 +862,16 @@ filterDropdown(): void {
       this.transferList.filter((item: any) => {
 
         switch (this.searchType) {
+
+          // =====================
+          // Serial Number
+          // =====================
+
+          case 'serialNo':
+
+            return item.serialNo ===
+              this.selectedValue;
+
 
           // =====================
           // Activity
@@ -867,7 +999,7 @@ onSearchInput(event: any) {
 
   event.target.value = value;
 
-  this.filterDatas();
+  // this.filterDatas();
 
 }
 
@@ -1018,7 +1150,7 @@ pageChanged(event: any): void {
 
   this.pageSize = event.pageSize;
 
-  this.applyPagination();
+  this.fetchTransferData();
 }
 // =========================
 // Search Placeholder
@@ -1052,6 +1184,9 @@ getPlaceholder(): string {
 getSelectLabel(): string {
 
   switch (this.searchType) {
+
+    case 'serialNo':
+      return 'Serial No';
 
     case 'activity':
       return 'Activity';

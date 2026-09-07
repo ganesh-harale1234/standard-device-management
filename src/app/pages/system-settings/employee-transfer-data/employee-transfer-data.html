@@ -59,6 +59,10 @@
             Employee Name
           </option>
 
+          <option value="serialNo">
+            Serial No
+          </option>
+
           <option value="updatedDate">
             Transfer Date
           </option>
@@ -129,16 +133,18 @@
     searchType !== 'activity' &&
     searchType !== 'deviceName' &&
     searchType !== 'status' &&
-    searchType !== 'accessGroup'
+    searchType !== 'accessGroup' &&
+    searchType !== 'serialNo' &&
+    searchType !== 'updatedDate'
   "
 >
 
-  <label class="block text-sm font-medium text-gray-700 mb-1">
+  <!-- <label class="block text-sm font-medium text-gray-700 mb-1">
     &nbsp;
-  </label>
+  </label> -->
 
   <!-- Transfer Date -->
-  <input
+  <!-- <input
     *ngIf="searchType === 'updatedDate'"
     type="date"
     class="
@@ -156,7 +162,7 @@
     "
     [(ngModel)]="searchText"
     (change)="onTransferDateChange()"
-  />
+  /> -->
 
   <!-- Other Search -->
   <input
@@ -188,7 +194,8 @@
           searchType === 'activity' ||
           searchType === 'deviceName' ||
           searchType === 'status' ||
-          searchType === 'accessGroup'
+          searchType === 'accessGroup' ||
+          searchType === 'serialNo'
         "
       >
 
@@ -211,8 +218,9 @@
             focus:border-sky-500
           "
           [(ngModel)]="selectedValue"
-          (change)="filterDropdown()"
+          
         >
+        <!-- (change)="filterDropdown()" -->
 
           <option value="">
             Select {{ getSelectLabel() }}
@@ -234,11 +242,11 @@
       <!-- EXTRA SPACE BETWEEN FILTER AND DATE              -->
       <!-- ================================================= -->
 
-      <div class="hidden lg:block lg:col-span-1"></div>
+      <div class="hidden lg:block lg:col-span-1" *ngIf="searchType !== 'updatedDate'"></div>
 
 
       <!-- ================= FROM DATE ================= -->
-      <div class="w-full lg:col-span-2">
+      <div class="w-full lg:col-span-2" *ngIf="searchType === 'updatedDate'">
 
     
 
@@ -262,7 +270,7 @@
 
 
       <!-- ================= TO DATE ================= -->
-      <div class="w-full lg:col-span-2">
+      <div class="w-full lg:col-span-2" *ngIf="searchType === 'updatedDate'">
 
 
  <!-- To Date -->
@@ -290,7 +298,6 @@
           sm:col-span-2
           lg:col-span-12
           flex
-          justify-end
           items-center
           gap-2
           mt-0

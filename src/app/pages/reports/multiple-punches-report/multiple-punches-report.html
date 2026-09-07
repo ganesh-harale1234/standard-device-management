@@ -4,10 +4,10 @@
   class="flex flex-wrap items-center gap-3 py-3 "
 >
 
-<div class="w-52" *ngIf="RoleName !== 'Branch Admin'">
+<div class="w-52" *ngIf="RoleName !== 'Branch Admin'" style="width:315px;">
 
 
-    <ng-select style="border: 1px solid #2563eb !important;" [items]="locationList" bindLabel="locationName" bindValue="locationId" [clearable]="true"
+    <ng-select style="border: 1px solid #2563eb !important;border-radius: 8px !important;" [items]="locationList" bindLabel="locationName" bindValue="locationId" [clearable]="true"
       [(ngModel)]="selectlocationId" (change)="getLocationId()" placeholder="Select Branch">
     </ng-select>
 </div>
@@ -156,7 +156,7 @@
         <button
   type="button" 
   class="bg-[#005177] hover:bg-[#003e5c] text-white  text-sm font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"  
- (click)="onExportExcel()" >
+ (click)="onExportExcel()">
 
   Export to Excel
 </button>
@@ -190,6 +190,12 @@
 
   <!-- Branch Name -->
   <div>
+      <p class="text-[#004A71]">
+      Branch Name:
+      <span class="font-semibold">
+        {{ getSelectedLocationName()}}
+      </span>
+    </p>
 <span class="text-[#004A71] mb-3">
   Start Working Time :
   <span class="font-semibold">
@@ -202,12 +208,7 @@
   </span>
 </span>
 
-    <p class="text-[#004A71]">
-      Branch Name:
-      <span class="font-semibold">
-        {{ getSelectedLocationName()}}
-      </span>
-    </p>
+  
   </div>
 
   <!-- Report Details -->
@@ -242,7 +243,6 @@
     </thead>
 
     <tbody>
-
       <tr *ngFor="let row of reportData; let i = index">
 
         <td>{{ i + 1 }}</td>
@@ -284,7 +284,8 @@
   <ng-container *ngFor="let punch of getPunches(row?.ioStatus); let last = last">
 
     <span
-      [class.late-early-punch]="isLateEarlyPunch(punch, row?.lateEarly)">
+      [class.late-early-punch]="isLateEarlyPunch(punch, row?.lateEarly)"
+      [class.continuous-punch]="isContinuousDuplicatePunch(punch, row?.ioStatus)">
       {{ punch }}
     </span>
 

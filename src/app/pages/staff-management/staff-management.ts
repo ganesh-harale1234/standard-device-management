@@ -508,8 +508,9 @@ searchEmployees(): void {
   params.set('size', String(this.pageSize));
 
   this.spinner.show();
-  this.dataService.getAllData(`employee/searchEmployees?${params.toString()}`).subscribe(
-    (res: any) => {
+
+  this.dataService.getAllData(  `employee/searchEmployees?${params.toString().replace(/\+/g, '%20')}`).subscribe(
+      (res: any) => {
       this.spinner.hide();
 
       if (res.code === 100) {
@@ -2801,6 +2802,8 @@ onSearchTypeChange(): void {
   this.searchText = '';
   this.dropdownList = [];
 
+  // this.refreshSearch()
+
   switch (this.searchType) {
 
     case 'deptName':
@@ -2937,7 +2940,7 @@ onSearchInput(event: any): void {
     this.searchType === 'empStatus'
   ) {
 
-    value = value.replace(/[^a-zA-Z\s]/g, '');
+value = value.replace(/[^a-zA-Z.\s]/g, '');
 
   } else if (this.searchType === 'userId') {
 
@@ -2948,11 +2951,14 @@ onSearchInput(event: any): void {
   this.searchText = value;
 
   event.target.value = value;
+}
+
+refreshSearch(): void {
+  this.searchText = '';
+  this.selectedValue = '';
   this.pageIndex = 0;
 
-  if (this.searchText.trim()) {
-    this.searchEmployees();
-  } else if (this.selectedStatus === 'All') {
+  if (this.selectedStatus === 'All') {
     this.getallData();
   } else {
     this.getStatuswiseEmp(this.selectedStatus);

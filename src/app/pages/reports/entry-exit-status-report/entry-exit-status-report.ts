@@ -141,8 +141,8 @@ onSelectEmployee(emp: any) {
 }
 
 
-formatDateToYMD(date: Date | null): string | null {
-  if (!date) return null;
+formatDateToYMD(date: Date | null): string | undefined {
+  if (!date) return undefined;
 
   const year = date.getFullYear();
 
@@ -151,6 +151,18 @@ formatDateToYMD(date: Date | null): string | null {
   const day = date.getDate().toString().padStart(2, '0');
 
   return `${year}-${month}-${day}`;
+}
+
+exportPdfFromSelectedRange(): void {
+  const fromDate = this.formatDateToYMD(this.fromDate) ?? undefined;
+  const toDate = this.formatDateToYMD(this.toDate) ?? undefined;
+
+  this.onExportPdfFromJson(
+    this.reportData,
+    fromDate,
+    toDate,
+    this.selectedCategoryNames.join(',')
+  );
 }
 
 // Location List
@@ -363,9 +375,14 @@ const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${report
       item.designation ?? '',
       item.locationName ?? '',
       item.attendanceDate ?? '',
+      item.firstIn ?? '',
+      item.lastOut ?? '',
       item.entryCount ?? 0,
       item.exitCount ?? 0,
       item.totalCount ?? 0,
+      item.duplicateInCount ?? 0,
+      item.duplicateOutCount ?? 0,
+      item.duplicateTotalCount ?? 0,
       item.inCampusDuration ?? '',
       item.outCampusDuration ?? ''
     ];
@@ -381,7 +398,12 @@ const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${report
       'Designation',
       'Branch Name',
       'Date',
+      'First In',
+      'Last Out',
       'Count',
+      '',
+      '',
+      'Duplicates',
       '',
       '',
       'Working Duration (Hours)',
@@ -394,11 +416,16 @@ const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${report
       '',
       '',
       '',
-      'ENTRY',
-      'EXITS',
-      'TOTAL',
-      'IN CAMPUS',
-      'OUT CAMPUS'
+      '',
+      '',
+      'Entry',
+      'Exits',
+      'Total',
+      'In',
+      'Out',
+      'Total',
+      'In Campus',
+      'Out Campus'
     ]
   ];
 
@@ -436,7 +463,12 @@ const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${report
         '',
         '',
         '',
+        '',
+        '',
+        '',
+        '',
         `Report Time: ${reportTime}`,
+        '',
         ''
       ]
     ],
@@ -450,16 +482,22 @@ const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${report
   // =========================================================
   worksheet['!merges'] = [
 
-    // COUNT = G5:I5
+    // COUNT = I5:K5
     {
-      s: { r: 4, c: 6 },
-      e: { r: 4, c: 8 }
+      s: { r: 4, c: 8 },
+      e: { r: 4, c: 10 }
     },
 
-    // WORKING DURATION = J5:K5
+    // DUPLICATES = L5:N5
     {
-      s: { r: 4, c: 9 },
-      e: { r: 4, c: 10 }
+      s: { r: 4, c: 11 },
+      e: { r: 4, c: 13 }
+    },
+
+    // WORKING DURATION = O5:P5
+    {
+      s: { r: 4, c: 14 },
+      e: { r: 4, c: 15 }
     },
 
     // Sr. No. = A5:A6
@@ -498,44 +536,61 @@ const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${report
       e: { r: 5, c: 5 }
     },
 
-    // Report Title = A1:K1
+    // FIRST IN = G5:G6
+    {
+      s: { r: 4, c: 6 },
+      e: { r: 5, c: 6 }
+    },
+
+    // LAST OUT = H5:H6
+    {
+      s: { r: 4, c: 7 },
+      e: { r: 5, c: 7 }
+    },
+
+    // Report Title = A1:P1
     {
       s: { r: 0, c: 0 },
-      e: { r: 0, c: 10 }
+      e: { r: 0, c: 15 }
     },
 
-    // From Date = A2:K2
+    // From Date = A2:P2
     {
       s: { r: 1, c: 0 },
-      e: { r: 1, c: 10 }
+      e: { r: 1, c: 15 }
     },
 
-    // Branch Name = A3:I3
+    // Branch Name = A3:M3
     {
       s: { r: 2, c: 0 },
-      e: { r: 2, c: 8 }
+      e: { r: 2, c: 12 }
     },
 
-    // Report Time = J3:K3
+    // Report Time = N3:P3
     {
-      s: { r: 2, c: 9 },
-      e: { r: 2, c: 10 }
+      s: { r: 2, c: 13 },
+      e: { r: 2, c: 15 }
     }
   ];
 
   // Column Widths
   worksheet['!cols'] = [
-    { wch: 10 }, // Sr. No.
-    { wch: 18 }, // Employee Id
-    { wch: 25 }, // Employee Name
-    { wch: 20 }, // Designation
-    { wch: 18 }, // Branch Name
-    { wch: 15 }, // Date
-    { wch: 12 }, // Entry
-    { wch: 12 }, // Exits
-    { wch: 12 }, // Total
-    { wch: 20 }, // In Campus
-    { wch: 20 }  // Out Campus
+    { wch: 8 },  // Sr. No.
+    { wch: 16 }, // Employee Id
+    { wch: 24 }, // Employee Name
+    { wch: 18 }, // Designation
+    { wch: 16 }, // Branch Name
+    { wch: 13 }, // Date
+    { wch: 12 }, // First In
+    { wch: 12 }, // Last Out
+    { wch: 10 }, // Entry
+    { wch: 10 }, // Exits
+    { wch: 10 }, // Total
+    { wch: 10 }, // Duplicates IN
+    { wch: 10 }, // Duplicates OUT
+    { wch: 10 }, // Duplicates Total
+    { wch: 16 }, // In Campus
+    { wch: 16 }  // Out Campus
   ];
 
   // Create Workbook
@@ -661,13 +716,13 @@ if (!this.selectedCategoryIds || this.selectedCategoryIds.length === 0) {
 
     const categoryIds = this.selectedCategoryIds.join(',');
 
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}&locationIds=${locationId}`;
+    apiUrl = `campusAttendanceDetailed?fromDate=${fromDate}&toDate=${toDate}&categoryIds=${categoryIds}&locationIds=${locationId}`;
   }
 
   // Location Only
   else {
 
-    apiUrl = `campusAttendance?fromDate=${fromDate}&toDate=${toDate}&locationIds=${locationId}`;
+    apiUrl = `campusAttendanceDetailed?fromDate=${fromDate}&toDate=${toDate}&locationIds=${locationId}`;
   }
 
   this.dataService.getAllData(apiUrl).subscribe({
@@ -776,160 +831,429 @@ getSelectedLocationName() {
 }
 
 
-onExportPdfFromJson(apiData: any[], fromDate?: string, toDate?: string, categoryName?: string) {
+onExportPdfFromJson(
+  apiData: any[],
+  fromDate?: string,
+  toDate?: string,
+  categoryName?: string
+): void {
 
+  
   if (!apiData || apiData.length === 0) {
     this.toaster.error('No data available to export');
     return;
   }
 
-  // Landscape Mode A4
-  const doc = new jsPDF('l', 'mm', 'a4');
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4'
+  });
+
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
-  // Dynamic Metadata Values
-  const branchName = apiData[0]?.locationName || 'All';
+  const marginLeft = 5;
+  const marginRight = 5;
+  const marginBottom = 12;
+
+  
+  const firstPageTableStartY = 27;
+
+
+  const otherPageTopMargin = 5;
+
+  const availableWidth =
+    pageWidth - marginLeft - marginRight;
+
+
   const formatHeaderDate = (value?: string): string => {
-    if (!value) return 'N/A';
 
-    const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value);
+    if (!value) {
+      return 'N/A';
+    }
 
-    if (Number.isNaN(date.getTime())) return value;
+    const date = new Date(
+      /^\d{4}-\d{2}-\d{2}$/.test(value)
+        ? `${value}T00:00:00`
+        : value
+    );
 
-    return `${date.getDate().toString().padStart(2, '0')} ${date.toLocaleString('en-US', { month: 'short' })}, ${date.getFullYear()}`;
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return `${date
+      .getDate()
+      .toString()
+      .padStart(2, '0')} ${date.toLocaleString(
+      'en-US',
+      { month: 'short' }
+    )}, ${date.getFullYear()}`;
   };
 
-  const fDate = formatHeaderDate(fromDate || apiData[0]?.attendanceDate);
-  const tDate = formatHeaderDate(toDate || apiData[0]?.attendanceDate);
-  const category = categoryName || 'Student,Contractor,A,General';
+  const branchName =
+    apiData[0]?.locationName || 'All';
+
+  const fDate =
+    formatHeaderDate(
+      fromDate || apiData[0]?.attendanceDate
+    );
+
+  const tDate =
+    formatHeaderDate(
+      toDate || apiData[0]?.attendanceDate
+    );
+
+  const category =
+    categoryName ||
+    'Student, Contractor, A, General';
+
+
   const reportDate = new Date();
-  const amPm = reportDate.getHours() >= 12 ? 'PM' : 'AM';
-const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${reportDate.toLocaleString('en-US', { month: 'short' })}, ${reportDate.getFullYear()} , ${reportDate.getHours() % 12 || 12}:${reportDate.getMinutes().toString().padStart(2, '0')} ${amPm}`;
 
-  // ==============================
-  // 1. TOP HEADER (Title & Subtitles)
-  // ==============================
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('Entry Exit Status Report', pageWidth / 2, 10, { align: 'center' });
+  const hours = reportDate.getHours();
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.text(`From Date: ${fDate} to ${tDate}`, pageWidth / 2, 15, { align: 'center' });
+  const minutes = reportDate
+    .getMinutes()
+    .toString()
+    .padStart(2, '0');
 
-  // Branch Name (Left)
-  doc.setFont('helvetica', 'bold');
-  doc.text('Branch Name: ', 10, 20);
-  doc.setFont('helvetica', 'bold');
-  doc.text(branchName, 32, 20);
+  const amPm =
+    hours >= 12 ? 'PM' : 'AM';
 
-  // Report Time (Right)
-  doc.setFont('helvetica', 'bold');
-  doc.text(`Report Time: `, pageWidth - 70, 20);
-  doc.setFont('helvetica', 'bold');
-  doc.text(reportTime, pageWidth - 49, 20);
+  const reportTime =
+    `${reportDate.getDate()
+      .toString()
+      .padStart(2, '0')} ` +
+    `${reportDate.toLocaleString(
+      'en-US',
+      { month: 'short' }
+    )}, ` +
+    `${reportDate.getFullYear()}, ` +
+    `${hours % 12 || 12}:${minutes} ${amPm}`;
 
-  // ==============================
-  // 2. NESTED TABLE HEADERS ( Exact Match with Screenshot )
-  // ==============================
+  const drawReportHeader = () => {
+
+    // Title
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+
+    doc.text(
+      'Entry Exit Status Report',
+      pageWidth / 2,
+      8,
+      {
+        align: 'center'
+      }
+    );
+
+
+    // Date
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+
+    doc.text(
+      `From Date: ${fDate} to ${tDate}`,
+      pageWidth / 2,
+      13,
+      {
+        align: 'center'
+      }
+    );
+
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+
+    doc.text(
+      `Branch Name: ${branchName}`,
+      marginLeft,
+      19
+    );
+
+
+    doc.text(
+      `Report Time: ${reportTime}`,
+      pageWidth - marginRight,
+      19,
+      {
+        align: 'right'
+      }
+    );
+
+
+    doc.setDrawColor(180, 180, 180);
+
+    doc.line(
+      marginLeft,
+      22,
+      pageWidth - marginRight,
+      22
+    );
+  };
+
+
   const head = [
+
     [
-      { 
-        content: `Category Name : ${category}`, 
-        colSpan: 11, 
-        styles: { halign: 'center', fillColor: [0, 150, 220], fontStyle: 'bold' } 
+      {
+        content: `Category Name : ${category}`,
+        colSpan: 16,
+        styles: {
+          halign: 'center',
+          fontStyle: 'bold'
+        }
       }
     ],
+
     [
       { content: 'SR. NO', rowSpan: 2 },
       { content: 'Employee Id', rowSpan: 2 },
       { content: 'Employee Name', rowSpan: 2 },
-      { content: 'Disignation', rowSpan: 2 },
+      { content: 'Designation', rowSpan: 2 },
       { content: 'Branch Name', rowSpan: 2 },
       { content: 'Date', rowSpan: 2 },
-      { content: 'Count', colSpan: 3 },
-      { content: 'Working Duration (Hours)', colSpan: 2 }
+      { content: 'First In', rowSpan: 2 },
+      { content: 'Last Out', rowSpan: 2 },
+
+      {
+        content: 'Count',
+        colSpan: 3
+      },
+
+      {
+        content: 'Duplicates',
+        colSpan: 3
+      },
+
+      {
+        content: 'Working Duration (Hours)',
+        colSpan: 2
+      }
     ],
+
+
     [
       { content: 'Entry' },
       { content: 'Exits' },
       { content: 'Total' },
+
+      { content: 'In' },
+      { content: 'Out' },
+      { content: 'Total' },
+
       { content: 'In Campus' },
       { content: 'Out Campus' }
     ]
   ];
 
-  // ==============================
-  // 3. API DATA MAPPING (Correct API Keys)
-  // ==============================
-  const body = apiData.map((item: any, index: number) => [
-    index + 1,
-    item.empId ?? '-',
-    item.employeeName ?? '-',
-    item.designation ?? '-',
-    item.locationName ?? '-',
-    item.attendanceDate ?? '-',
-    item.entryCount ?? 0,
-    item.exitCount ?? 0,
-    item.totalCount ?? 0,
-    item.inCampusDuration ?? '00:00',
-    item.outCampusDuration ?? '00:00'
-  ]);
 
-  // ==============================
-  // 4. AUTO TABLE SETUP
-  // ==============================
-autoTable(doc, {
-  head: head as any,
-  body: body,
-  startY: 23,
-  theme: 'grid',
-  tableWidth: 'auto',
+  const body = apiData.map(
+    (item: any, index: number) => [
 
-  styles: {
-    fontSize: 8,
-    cellPadding: 2,
-    overflow: 'linebreak',
-    valign: 'middle',
-    halign: 'center',
-    lineWidth: 0.1,             // Body cells साठी border width
-    lineColor: [200, 200, 200]  // Body cells साठी border color
-  },
+      index + 1,
 
-  headStyles: {
-    fillColor: [0, 150, 220],
-    textColor: [255, 255, 255],
-    fontStyle: 'bold',
-    halign: 'center',
-    valign: 'middle',
-    lineWidth: 0.2,             // Header borders दिसण्यासाठी width वाढवली आहे
-    lineColor: [0, 100, 160]    // Header grid lines साठी border color (किंवा पांढऱ्या border साठी [255, 255, 255] वापरा)
-  },
+      item.empId ?? '-',
 
-  margin: {
-    top: 23,
-    right: 10,
-    bottom: 15,
-    left: 10
-  },
+      item.employeeName ?? '-',
 
-  showHead: 'firstPage',
+      item.designation ?? '-',
 
-  didDrawPage: () => {
-    const pageNumber = doc.getNumberOfPages();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+      item.locationName ?? '-',
 
-    doc.setFontSize(8);
-    doc.text(
-      `Page ${pageNumber}`,
-      pageWidth - 10,
-      pageHeight - 5,
-      { align: 'right' }
-    );
-  }
-});
-  // Download PDF
+      formatHeaderDate(item.attendanceDate),
+
+      item.firstIn ?? '-',
+
+      item.lastOut ?? '-',
+
+      item.entryCount ?? 0,
+
+      item.exitCount ?? 0,
+
+      item.totalCount ?? 0,
+
+      item.duplicateInCount ?? 0,
+
+      item.duplicateOutCount ?? 0,
+
+      item.duplicateTotalCount ?? 0,
+
+      item.inCampusDuration ?? '00:00',
+
+      item.outCampusDuration ?? '00:00'
+    ]
+  );
+
+
+  drawReportHeader();
+
+
+  autoTable(doc, {
+
+    head: head as any,
+
+    body: body,
+
+   
+    startY: firstPageTableStartY,
+
+    theme: 'grid',
+
+    tableWidth: availableWidth,
+
+
+    styles: {
+
+      fontSize: 7,
+
+      cellPadding: {
+        top: 1.8,
+        right: 1.2,
+        bottom: 1.8,
+        left: 1.2
+      },
+
+      overflow: 'linebreak',
+
+      valign: 'middle',
+
+      halign: 'center',
+
+      lineWidth: 0.15,
+
+      lineColor: [190, 190, 190]
+    },
+
+
+
+    headStyles: {
+
+      fillColor: [31, 134, 180],
+
+      textColor: [255, 255, 255],
+
+      fontStyle: 'bold',
+
+      fontSize: 7.5,
+
+      halign: 'center',
+
+      valign: 'middle',
+
+      lineWidth: 0.2,
+
+      lineColor: [0, 100, 150]
+    },
+
+
+    columnStyles: {
+
+      0: { cellWidth: 9 },
+
+      1: { cellWidth: 17 },
+
+      2: {
+        cellWidth: 37,
+        halign: 'left'
+      },
+
+      3: {
+        cellWidth: 20,
+        halign: 'left'
+      },
+
+      4: {
+        cellWidth: 52,
+        halign: 'left'
+      },
+
+      5: { cellWidth: 18 },
+
+      6: { cellWidth: 14 },
+
+      7: { cellWidth: 14 },
+
+      8: { cellWidth: 11 },
+
+      9: { cellWidth: 11 },
+
+      10: { cellWidth: 11 },
+
+      11: { cellWidth: 11 },
+
+      12: { cellWidth: 11 },
+
+      13: { cellWidth: 11 },
+
+      14: { cellWidth: 20 },
+
+      15: { cellWidth: 20 }
+    },
+
+    margin: {
+
+      // Used for page 2 onwards
+      top: otherPageTopMargin,
+
+      left: marginLeft,
+
+      right: marginRight,
+
+      bottom: marginBottom
+    },
+
+
+    pageBreak: 'auto',
+
+    rowPageBreak: 'avoid',
+
+
+   
+    showHead: 'firstPage',
+
+
+    didParseCell: (data: any) => {
+
+      if (data.section === 'body') {
+
+        if (data.column.index === 2) {
+          data.cell.styles.halign = 'left';
+        }
+
+        if (data.column.index === 3) {
+          data.cell.styles.halign = 'left';
+        }
+
+        if (data.column.index === 4) {
+          data.cell.styles.halign = 'left';
+        }
+      }
+    },
+
+
+    didDrawPage: () => {
+
+      const currentPage =
+        doc.getCurrentPageInfo().pageNumber;
+
+      doc.setFont('helvetica', 'normal');
+
+      doc.setFontSize(7);
+
+      doc.text(
+        `Page ${currentPage}`,
+        pageWidth - marginRight,
+        pageHeight - 5,
+        {
+          align: 'right'
+        }
+      );
+    }
+  });
+
+
   doc.save('Entry_Exit_Status_Report.pdf');
 }
 

@@ -1,7 +1,8 @@
 <div class="p-0 ">
-<div class="flex flex-wrap items-center gap-3 py-3">
 
-  <div *ngIf="RoleName !== 'Branch Admin'" class="w-52 search-field">
+<!-- <div class="flex flex-wrap items-center gap-3 py-3">
+
+  <div *ngIf="RoleName !== 'Branch Admin'" class="w-52 search-field" style="width: 400px;">
     <ng-select
       style="border: 1px solid #2563eb !important; border-radius: 6px !important;"
       [items]="locationList"
@@ -13,10 +14,7 @@
       placeholder="Select Branch">
     </ng-select>
   </div>
-<!-- ========================= -->
-<!-- From Date -->
-<!-- ========================= -->
-<!-- From Date -->
+
 <div class="date-field">
   <label>From Date</label>
 
@@ -27,7 +25,6 @@
     [max]="maxDate" />
 </div>
 
-<!-- To Date -->
 <div class="date-field">
   <label>To Date</label>
 
@@ -39,7 +36,6 @@
 </div>
 
 
-  <!-- Buttons -->
   <div class="flex items-center gap-2 ml-auto">
 
     <button
@@ -62,6 +58,111 @@
       class="bg-[#005177] hover:bg-[#003e5c] text-white text-sm font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
       (click)="onExportExcel()">
       Export to Excel
+    </button>
+
+  </div>
+
+</div> -->
+
+
+
+<div class="w-full py-3">
+
+  <!-- ========================= -->
+  <!-- Filter Row -->
+  <!-- ========================= -->
+
+  <div class="flex flex-wrap items-center gap-3">
+
+    <!-- Branch -->
+    <div
+      *ngIf="RoleName !== 'Branch Admin'"
+      class="w-full sm:w-[calc(50%-0.375rem)] lg:w-[315px] search-field">
+
+      <ng-select
+        style="border: 1px solid #2563eb !important; border-radius: 6px !important;"
+        [items]="locationList"
+        (change)="onLocationChange($event)"
+        bindLabel="locationName"
+        bindValue="locationId"
+        [clearable]="true"
+        [(ngModel)]="selectlocationId"
+        placeholder="Select Branch">
+      </ng-select>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- From Date -->
+    <!-- ========================= -->
+
+    <div class="date-field w-full sm:w-[calc(50%-0.375rem)] lg:w-[180px]">
+
+      <label>From Date</label>
+
+      <input
+        type="date"
+        [value]="fromDate | date:'yyyy-MM-dd'"
+        (change)="fromDate = $any($event.target).valueAsDate"
+        [max]="maxDate" />
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- To Date -->
+    <!-- ========================= -->
+
+    <div class="date-field w-full sm:w-[calc(50%-0.375rem)] lg:w-[180px]">
+
+      <label>To Date</label>
+
+      <input
+        type="date"
+        [value]="toDate | date:'yyyy-MM-dd'"
+        (change)="toDate = $any($event.target).valueAsDate"
+        [max]="maxDate" />
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- Buttons Row -->
+  <!-- ========================= -->
+
+  <div class="flex flex-wrap items-center justify-end gap-2 mt-3">
+
+    <button
+      style="cursor: pointer;"
+      type="button"
+      class="bg-[#005177] hover:bg-[#003e5c] text-white text-sm font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+      (click)="AuditReport()">
+
+      View Report
+
+    </button>
+
+
+    <button
+      type="button"
+      class="bg-[#005177] hover:bg-[#003e5c] text-white text-sm font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+      (click)="onExportPdf()">
+
+      Export to pdf
+
+    </button>
+
+
+    <button
+      type="button"
+      class="bg-[#005177] hover:bg-[#003e5c] text-white text-sm font-medium py-2 px-2 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
+      (click)="onExportExcel()">
+
+      Export to Excel
+
     </button>
 
   </div>
