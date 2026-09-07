@@ -141,8 +141,8 @@ onSelectEmployee(emp: any) {
 }
 
 
-formatDateToYMD(date: Date | null): string | null {
-  if (!date) return null;
+formatDateToYMD(date: Date | null): string | undefined {
+  if (!date) return undefined;
 
   const year = date.getFullYear();
 
@@ -151,6 +151,18 @@ formatDateToYMD(date: Date | null): string | null {
   const day = date.getDate().toString().padStart(2, '0');
 
   return `${year}-${month}-${day}`;
+}
+
+exportPdfFromSelectedRange(): void {
+  const fromDate = this.formatDateToYMD(this.fromDate) ?? undefined;
+  const toDate = this.formatDateToYMD(this.toDate) ?? undefined;
+
+  this.onExportPdfFromJson(
+    this.reportData,
+    fromDate,
+    toDate,
+    this.selectedCategoryNames.join(',')
+  );
 }
 
 // Location List
@@ -844,7 +856,7 @@ const reportTime = `${reportDate.getDate().toString().padStart(2, '0')} ${report
       { content: 'SR. NO', rowSpan: 2 },
       { content: 'Employee Id', rowSpan: 2 },
       { content: 'Employee Name', rowSpan: 2 },
-      { content: 'Disignation', rowSpan: 2 },
+      { content: 'Designation', rowSpan: 2 },
       { content: 'Branch Name', rowSpan: 2 },
       { content: 'Date', rowSpan: 2 },
       { content: 'Count', colSpan: 3 },

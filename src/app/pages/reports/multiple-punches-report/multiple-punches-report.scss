@@ -32,6 +32,7 @@
 ::ng-deep .ng-select.ng-select-single .ng-select-container {
   height: 44px !important;
   min-height: 44px !important;
+  border-radius: 8px !important;
 }
 
 ::ng-deep .ng-select .ng-input input {
@@ -750,6 +751,14 @@
 .late-early-punch {
   background-color: rgb(221, 43, 43) !important;
   color: white !important;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.continuous-punch {
+  background-color: #facc15 !important;
+  color: #111827 !important;
   font-weight: 700;
   padding: 2px 4px;
   border-radius: 2px;

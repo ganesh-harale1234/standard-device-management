@@ -105,6 +105,7 @@ formatDateToYMD(date: Date | null): string | null {
   return `${year}-${month}-${day}`;
 }
 
+
 AuditReport(): void {
 
   this.spinner.show();
@@ -176,6 +177,8 @@ AuditReport(): void {
 
     });
 }
+
+
 //================ Device ==================
 getDeviceallList(): void {
 
