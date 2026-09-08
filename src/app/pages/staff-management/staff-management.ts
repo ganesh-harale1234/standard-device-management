@@ -1297,11 +1297,97 @@ get photoRequiredError(): any {
 // }
 
 
+// editData(id: any) {
+//   this.updateContractorValidator()
+//   this.empId = id;
+//   this.showFormData = true;
+//   this.showTableData = false;
+//   this.isEditMode = true;
+
+//   if (id) {
+//     this.dataService
+//       .getById('employee/findEmployeeByUserId?enrollId=' + id)
+//       .subscribe(
+//         (res: any) => {
+//           if (res.code === 100) {
+
+//             const empData = res.extend.data[0];
+//            this.setRoleValidation(empData.roleName);
+//                       this.updateLocationValidator(empData.roleName);
+
+
+//             // Employee type
+//             // this.empType = empData.empType ;
+//             this.empType =
+//   empData.empType?.toLowerCase() === 'contractor'
+//     ? 'contractor'
+//     : 'staff';
+// // "empType": "staff",
+
+// const ids = empData.accessGroupId
+//   ? empData.accessGroupId
+//       .split(',')
+//       .map((x: string) => Number(x.trim()))
+//   : [];
+
+// console.log(ids); // [1,2,1011]
+//             this.form.patchValue({
+//               userId: empData.userId,
+//               deptId: empData.deptId,
+//               name: empData.name,
+//               companyName: empData.companyName,
+//               rollId: empData.rollId,
+//               categoryId: empData.categoryId,
+//               locationId: empData.locationId,
+//               empId: empData.empId,
+//               conId: empData.conId,
+//               loginName:empData.loginName,
+//                             loginPassword:empData.loginPassword,
+
+             
+//               // accessGroupId: empData.accessGroupId,
+//                 // accessGroupId: Number(empData.accessGroupId),
+//               cardNum: empData.cardNum,
+//               //joining_date: empData.groupId,
+//               empStatus: empData.empStatus,
+//               roleName:empData.roleName,
+//               // "roleName": "Admin",
+//                             desigId:empData.desigId,
+
+//               // password: empData.password || '',
+//              accessGroupId: ids
+//            });
+//           // this.form.get('accessGroupId')?.disable();
+//             if (empData.imageAvailable === 'Yes' && empData.signature) {
+//               this.photoPreview =
+//                 this.sanitizer.bypassSecurityTrustResourceUrl(
+//                   'data:image/jpeg;base64,' + empData.signature
+//                 );
+//             } else {
+//               this.photoPreview = null;
+//             }
+
+//           } else {
+//             this.toaster.error('No Data found!');
+//           }
+//         },
+//         (err: any) => {
+//           const errMsg = err?.error?.msg || 'Something went wrong!';
+//           this.toaster.error(errMsg);
+//         }
+//       );
+//   }
+// }
+
+
 editData(id: any) {
-  this.updateContractorValidator()
+  this.updateContractorValidator();
+
   this.empId = id;
   this.showFormData = true;
   this.showTableData = false;
+
+  // View mode
   this.isEditMode = true;
 
   if (id) {
@@ -1309,28 +1395,26 @@ editData(id: any) {
       .getById('employee/findEmployeeByUserId?enrollId=' + id)
       .subscribe(
         (res: any) => {
+
           if (res.code === 100) {
 
             const empData = res.extend.data[0];
-           this.setRoleValidation(empData.roleName);
-                      this.updateLocationValidator(empData.roleName);
 
+            this.setRoleValidation(empData.roleName);
 
-            // Employee type
-            // this.empType = empData.empType ;
             this.empType =
-  empData.empType?.toLowerCase() === 'contractor'
-    ? 'contractor'
-    : 'staff';
-// "empType": "staff",
+              empData.empType?.toLowerCase() === 'contractor'
+                ? 'contractor'
+                : 'staff';
 
-const ids = empData.accessGroupId
-  ? empData.accessGroupId
-      .split(',')
-      .map((x: string) => Number(x.trim()))
-  : [];
+            // Access Group IDs
+            const ids = empData.accessGroupId
+              ? empData.accessGroupId
+                  .split(',')
+                  .map((x: string) => Number(x.trim()))
+              : [];
 
-console.log(ids); // [1,2,1011]
+            // Patch employee data
             this.form.patchValue({
               userId: empData.userId,
               deptId: empData.deptId,
@@ -1341,43 +1425,127 @@ console.log(ids); // [1,2,1011]
               locationId: empData.locationId,
               empId: empData.empId,
               conId: empData.conId,
-              loginName:empData.loginName,
-                            loginPassword:empData.loginPassword,
-
-             
-              // accessGroupId: empData.accessGroupId,
-                // accessGroupId: Number(empData.accessGroupId),
+              loginName: empData.loginName,
+              loginPassword: empData.loginPassword,
               cardNum: empData.cardNum,
-              //joining_date: empData.groupId,
               empStatus: empData.empStatus,
-              roleName:empData.roleName,
-              // "roleName": "Admin",
-                            desigId:empData.desigId,
+              roleName: empData.roleName,
+              desigId: empData.desigId,
 
-              // password: empData.password || '',
-             accessGroupId: ids
-           });
-          // this.form.get('accessGroupId')?.disable();
-            if (empData.imageAvailable === 'Yes' && empData.signature) {
+              // Access Group will be visible with selected values
+              accessGroupId: ids
+            });
+
+            // Photo Preview
+            if (empData.photo === 'Y' && empData.image) {
+
               this.photoPreview =
                 this.sanitizer.bypassSecurityTrustResourceUrl(
-                  'data:image/jpeg;base64,' + empData.signature
+                  'data:image/jpeg;base64,' + empData.image
                 );
+
             } else {
               this.photoPreview = null;
             }
 
+            // 🔒 Disable COMPLETE FORM
+            // Access Group is also disabled
+            this.form.disable();
+
           } else {
+
             this.toaster.error('No Data found!');
+
           }
         },
+
         (err: any) => {
-          const errMsg = err?.error?.msg || 'Something went wrong!';
+
+          const errMsg =
+            err?.error?.msg || 'Something went wrong!';
+
           this.toaster.error(errMsg);
+
         }
       );
   }
 }
+
+// editData(id: any) {
+//   this.updateContractorValidator();
+//   this.empId = id;
+//   this.showFormData = true;
+//   this.showTableData = false;
+//   this.isEditMode = true;
+
+//   if (id) {
+//     this.dataService
+//       .getById('employee/findEmployeeByUserId?enrollId=' + id)
+//       .subscribe(
+//         (res: any) => {
+//           if (res.code === 100) {
+
+//             const empData = res.extend.data[0];
+
+//             this.setRoleValidation(empData.roleName);
+
+//             this.empType =
+//               empData.empType?.toLowerCase() === 'contractor'
+//                 ? 'contractor'
+//                 : 'staff';
+
+//             const ids = empData.accessGroupId
+//               ? empData.accessGroupId
+//                   .split(',')
+//                   .map((x: string) => Number(x.trim()))
+//               : [];
+
+//             this.form.patchValue({
+//               userId: empData.userId,
+//               deptId: empData.deptId,
+//               name: empData.name,
+//               companyName: empData.companyName,
+//               rollId: empData.rollId,
+//               categoryId: empData.categoryId,
+//               locationId: empData.locationId,
+//               empId: empData.empId,
+//               conId: empData.conId,
+//               loginName: empData.loginName,
+//               loginPassword: empData.loginPassword,
+//               cardNum: empData.cardNum,
+//               empStatus: empData.empStatus,
+//               roleName: empData.roleName,
+//               desigId: empData.desigId,
+//               accessGroupId: ids
+//             });
+
+//             // Photo Preview
+//             if (empData.photo === 'Y' && empData.image) {
+//               this.photoPreview =
+//                 this.sanitizer.bypassSecurityTrustResourceUrl(
+//                   'data:image/jpeg;base64,' + empData.image
+//                 );
+//             } else {
+//               this.photoPreview = null;
+//             }
+
+//             // Disable all fields
+//             this.form.disable();
+
+//             // Enable only Access Group
+//             this.form.get('accessGroupId')?.enable();
+
+//           } else {
+//             this.toaster.error('No Data found!');
+//           }
+//         },
+//         (err: any) => {
+//           const errMsg = err?.error?.msg || 'Something went wrong!';
+//           this.toaster.error(errMsg);
+//         }
+//       );
+//   }
+// }
 
 isAccessGroupError = false;
 
@@ -1565,120 +1733,168 @@ onAccessGroupChangeS(event: any) {
 //     });
 // }
 
-onUpdate(): void {
+// onUpdate(): void {
 
-const conIdControl = this.form.get('conId');
+// const conIdControl = this.form.get('conId');
 
-if (this.empType === 'staff') {
-  conIdControl?.clearValidators();
-  conIdControl?.updateValueAndValidity();
-} else {
-  conIdControl?.setValidators([Validators.required]);
-  conIdControl?.updateValueAndValidity();
-}
-  const accessGroupControl = this.form.get('accessGroupId');
-  const accessGroup = accessGroupControl?.value;
+// if (this.empType === 'staff') {
+//   conIdControl?.clearValidators();
+//   conIdControl?.updateValueAndValidity();
+// } else {
+//   conIdControl?.setValidators([Validators.required]);
+//   conIdControl?.updateValueAndValidity();
+// }
+//   const accessGroupControl = this.form.get('accessGroupId');
+//   const accessGroup = accessGroupControl?.value;
 
-  let accessGroupIds: string[] = [];
+//   let accessGroupIds: string[] = [];
 
-  if (Array.isArray(accessGroup)) {
-    accessGroupIds = accessGroup
-      .filter((id: any) => id !== null && id !== undefined && id !== '')
-      .map((id: any) => String(id));
-  } else if (
-    accessGroup !== null &&
-    accessGroup !== undefined &&
-    accessGroup !== ''
-  ) {
-    accessGroupIds = String(accessGroup)
-      .split(',')
-      .map(id => id.trim())
-      .filter(id => id !== '');
-  }
+//   if (Array.isArray(accessGroup)) {
+//     accessGroupIds = accessGroup
+//       .filter((id: any) => id !== null && id !== undefined && id !== '')
+//       .map((id: any) => String(id));
+//   } else if (
+//     accessGroup !== null &&
+//     accessGroup !== undefined &&
+//     accessGroup !== ''
+//   ) {
+//     accessGroupIds = String(accessGroup)
+//       .split(',')
+//       .map(id => id.trim())
+//       .filter(id => id !== '');
+//   }
 
-  if (accessGroupIds.length === 0) {
-    this.isAccessGroupError = true;
-    accessGroupControl?.markAsTouched();
-    accessGroupControl?.markAsDirty();
-    return;
-  }
+//   if (accessGroupIds.length === 0) {
+//     this.isAccessGroupError = true;
+//     accessGroupControl?.markAsTouched();
+//     accessGroupControl?.markAsDirty();
+//     return;
+//   }
 
-  this.isAccessGroupError = false;
+//   this.isAccessGroupError = false;
 
-  this.form.updateValueAndValidity();
+//   this.form.updateValueAndValidity();
 
-  if (this.form.invalid) {
+//   if (this.form.invalid) {
 
+//     this.form.markAllAsTouched();
+
+//     const invalidFields: string[] = [];
+
+//     Object.keys(this.form.controls).forEach((key: string) => {
+//       const control = this.form.get(key);
+
+//       if (control && control.invalid) {
+//         invalidFields.push(key);
+//       }
+//     });
+
+//     console.log('Invalid Fields:', invalidFields);
+
+//     this.toaster.error('Please fill all required fields!');
+//     return;
+//   }
+
+//   const formValues = this.form.getRawValue();
+
+//   const fromData = {
+//     ...formValues,
+//     enrollId: this.empId,
+//     empType: this.empType,
+//     accessGroupId: accessGroupIds.join(','),
+//     imagePath: this.imagePath
+//   };
+
+//   console.log('Update Request:', fromData);
+
+//   this.dataService
+//     .updateDataC('employee/updateEmployee', fromData)
+//     .subscribe({
+//       next: (res: any) => {
+
+//         if (res?.code === 100) {
+
+//           this.toaster.success(
+//             res?.msg || 'Employee Data Updated Successfully!'
+//           );
+
+//           this.photoFile = null;
+//           this.photoPreview = null;
+//           this.isEditMode = false;
+
+//           this.getallData();
+
+//           this.form.reset();
+//           this.backtoList();
+
+//         } else {
+//           this.toaster.error(
+//             res?.msg || 'Something went wrong!'
+//           );
+//         }
+//       },
+
+//       error: (err: any) => {
+
+//         console.error('Update API Error:', err);
+
+//         if (err?.error?.msg) {
+//           this.toaster.error(err.error.msg, 'Error!');
+//         } else {
+//           this.toaster.error('Server side error!');
+//         }
+//       }
+//     });
+// }
+
+
+
+
+onUpdate() {
+  if (this.form.valid) {
+
+    const formValues = this.form.getRawValue();
+
+    const formData = {
+      enrollId: this.empId,
+      ...formValues,
+      empType: this.empType,
+      accessGroupId: formValues.accessGroupId?.join(',') || '',
+      imagePath: this.imagePath
+    };
+
+    console.log(formData);
+
+    this.dataService.updateDataC('employee/updateEmployee', formData)
+      .subscribe(
+        (res: any) => {
+          if (res.code == 100) {
+            this.toaster.success(res.msg || 'Employee Updated Successfully!');
+
+            this.photoFile = null;
+            this.photoPreview = null;
+            this.getallData();
+            this.form.reset();
+            this.backtoList();
+            this.isEditMode = false;
+          } else {
+            this.toaster.error('Something went wrong!');
+          }
+        },
+        (err: any) => {
+          if (err?.error?.msg) {
+            this.toaster.error(err.error.msg, 'Error!');
+          } else {
+            this.toaster.error('Server side error!');
+          }
+        }
+      );
+
+  } else {
     this.form.markAllAsTouched();
-
-    const invalidFields: string[] = [];
-
-    Object.keys(this.form.controls).forEach((key: string) => {
-      const control = this.form.get(key);
-
-      if (control && control.invalid) {
-        invalidFields.push(key);
-      }
-    });
-
-    console.log('Invalid Fields:', invalidFields);
-
     this.toaster.error('Please fill all required fields!');
-    return;
   }
-
-  const formValues = this.form.getRawValue();
-
-  const fromData = {
-    ...formValues,
-    enrollId: this.empId,
-    empType: this.empType,
-    accessGroupId: accessGroupIds.join(','),
-    imagePath: this.imagePath
-  };
-
-  console.log('Update Request:', fromData);
-
-  this.dataService
-    .updateDataC('employee/updateEmployee', fromData)
-    .subscribe({
-      next: (res: any) => {
-
-        if (res?.code === 100) {
-
-          this.toaster.success(
-            res?.msg || 'Employee Data Updated Successfully!'
-          );
-
-          this.photoFile = null;
-          this.photoPreview = null;
-          this.isEditMode = false;
-
-          this.getallData();
-
-          this.form.reset();
-          this.backtoList();
-
-        } else {
-          this.toaster.error(
-            res?.msg || 'Something went wrong!'
-          );
-        }
-      },
-
-      error: (err: any) => {
-
-        console.error('Update API Error:', err);
-
-        if (err?.error?.msg) {
-          this.toaster.error(err.error.msg, 'Error!');
-        } else {
-          this.toaster.error('Server side error!');
-        }
-      }
-    });
 }
-
 
 
 
@@ -1950,6 +2166,7 @@ this.dialog.open(this.uploadExcelDialog, {
       // level: '',
       photoUrl: ''
     });
+    
   }
 
 

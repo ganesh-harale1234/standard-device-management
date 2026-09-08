@@ -23,7 +23,7 @@ export class AddCompany {
   displayedColumns: string[] = [
     'Srno',
     'campanyName',
-    'action'
+    // 'action'
   ];
 
   // dummy data

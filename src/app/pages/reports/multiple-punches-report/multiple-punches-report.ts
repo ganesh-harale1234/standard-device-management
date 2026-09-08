@@ -1676,17 +1676,6 @@ onExportPdf() {
   const reportTime =
     this.formatExportDateTime(new Date());
 
-  const startWorkingTime =
-    this.formatTime(
-      this.workingHoursSetTime?.inTime
-    ) || 'N/A';
-
-  const endWorkingTime =
-    this.formatTime(
-      this.workingHoursSetTime?.outTime
-    ) || 'N/A';
-
-
   // =====================================================
   // TITLE
   // =====================================================
@@ -1761,48 +1750,6 @@ onExportPdf() {
     reportTime,
     pageWidth - 49,
     20
-  );
-
-
-  // =====================================================
-  // START WORKING TIME
-  // =====================================================
-
-  doc.setFont('helvetica', 'bold');
-
-  doc.text(
-    'Start Working Time :',
-    10,
-    25
-  );
-
-  doc.setFont('helvetica', 'normal');
-
-  doc.text(
-    startWorkingTime,
-    42,
-    25
-  );
-
-
-  // =====================================================
-  // END WORKING TIME
-  // =====================================================
-
-  doc.setFont('helvetica', 'bold');
-
-  doc.text(
-    'End Working Time :',
-    60,
-    25
-  );
-
-  doc.setFont('helvetica', 'normal');
-
-  doc.text(
-    endWorkingTime,
-    91,
-    25
   );
 
 
@@ -2382,58 +2329,7 @@ onExportPdf() {
               }
 
 
-              // =================================================
-              // COLOR CONDITIONS
-              // =================================================
-
-              const isContinuousDuplicate =
-                this.isContinuousDuplicatePunch(
-                  punch,
-                  row?.ioStatus
-                );
-
-
-              const isLateEarly =
-                this.isLateEarlyPunch(
-                  punch,
-                  row?.lateEarly
-                );
-
-
-              // =================================================
-              // SET COLOR
-              // =================================================
-
-              if (
-                isContinuousDuplicate
-              ) {
-
-                doc.setTextColor(
-                  234,
-                  179,
-                  8
-                );
-
-              } else if (
-                isLateEarly
-              ) {
-
-                doc.setTextColor(
-                  220,
-                  38,
-                  38
-                );
-
-              } else {
-
-                doc.setTextColor(
-                  0,
-                  0,
-                  0
-                );
-
-              }
-
+              doc.setTextColor(0, 0, 0);
 
               // =================================================
               // DRAW PUNCH
@@ -2929,13 +2825,6 @@ async onExportExcel(): Promise<void> {
   const tDate = this.formatExportDate(this.toDate);
   const reportTime = this.formatExportDateTime(new Date());
 
-  const startWorkingTime =
-    this.formatTime(this.workingHoursSetTime?.inTime) || 'N/A';
-
-  const endWorkingTime =
-    this.formatTime(this.workingHoursSetTime?.outTime) || 'N/A';
-
-
   // =====================================================
   // CREATE WORKBOOK
   // =====================================================
@@ -2986,24 +2875,6 @@ async onExportExcel(): Promise<void> {
 
   worksheet.getCell('E3').alignment = {
     horizontal: 'center'
-  };
-
-
-  worksheet.getCell('A4').value =
-    `Start Working Time : ${startWorkingTime}`;
-
-  worksheet.getCell('A4').alignment = {
-    horizontal: 'left',
-    vertical: 'middle'
-  };
-
-
-  worksheet.getCell('C4').value =
-    `End Working Time : ${endWorkingTime}`;
-
-  worksheet.getCell('C4').alignment = {
-    horizontal: 'left',
-    vertical: 'middle'
   };
 
 
@@ -3101,45 +2972,16 @@ async onExportExcel(): Promise<void> {
     };
 
 
-    // Rich text - each punch can have different color
+    // Keep the response punch values unchanged in the export.
     punchCell.value = {
-      richText: punches.map(
-        (punch: string, punchIndex: number) => {
-
-          const isContinuousDuplicate =
-            this.isContinuousDuplicatePunch(
-              punch,
-              item?.ioStatus
-            );
-
-          const isLateEarly =
-            this.isLateEarlyPunch(
-              punch,
-              item?.lateEarly
-            );
-
-
-          return {
-            text:
-              punch +
-              (punchIndex < punches.length - 1
-                ? ', '
-                : ''),
-
-            font: {
-              color: {
-                // DUPLICATE SAME-STATUS PUNCHES TAKE YELLOW PRIORITY
-                argb: isContinuousDuplicate
-                  ? 'FFFACC15'   // YELLOW
-                  : isLateEarly
-                    ? 'FFDC2626' // RED
-                    : 'FF000000' // BLACK
-              }
-            }
-          };
-
+      richText: [{
+        text: punches.join(', '),
+        font: {
+          color: {
+            argb: 'FF000000'
+          }
         }
-      )
+      }]
     };
 
 

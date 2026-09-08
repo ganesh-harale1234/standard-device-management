@@ -25,7 +25,7 @@ export class AddLocation {
   displayedColumns: string[] = [
     'Srno',
     'Location-name',
-    'action'
+    // 'action'
   ];
 
   // dummy data

@@ -9,16 +9,22 @@
         </div>
 
         <span class="imglogo hidden lg:block">
-  <img
+  <!-- <img
     src="assets/images/image - 2026-07-07T155118.840.png"
     alt="Logo"
     class="logoimg mx-auto"
-  >
+  > -->
+
+     <img
+      src="assets/images/image (68).png"
+      alt="Logo"
+      class="logoimg mx-auto"
+    />
 </span>
              <!-- <span class="imglogo"><img src="assets/images/image - 2026-07-07T155118.840.png" alt="Logo" class=" text-center logoimg"></span>        -->
      <!-- <img src="assets/images/dev-main-logo.png" alt="" height="20" width="280" class="mt-8 mb-8"> -->
 
-        <!-- <span class="text-xs md:text-2xl hidden md:block ms-29 name" >Device Management System</span> -->
+        <span class="text-xs md:text-2xl hidden md:block ms-36 name" >Access Control Management System</span>
 
         <span class="example-spacer"> 
   <span *ngIf="roleName === 'Branch Admin'" class="ml-15" style="font-size: 15px;"> <span style="color:black" >Branch Name</span> : <span style="font-size: 18px;">{{locationName}}</span> </span> </span>
@@ -163,9 +169,9 @@
                     <span> Category</span>
                 </a>
 
-                 <a mat-button class="menu-button nav-link" routerLink="/add-contractor" routerLinkActive="active">
+                 <!-- <a mat-button class="menu-button nav-link" routerLink="/add-contractor" routerLinkActive="active">
                     <span>  Contractor</span>
-                </a>
+                </a> -->
 
                      <!-- <a mat-button class="menu-button nav-link" routerLink="/add-college" routerLinkActive="active">
                     <span> Add College</span>
@@ -175,9 +181,9 @@
                     <span>Designation</span>
                     </a>
 
-                      <a mat-button class="menu-button nav-link" routerLink="/add-working-hours" routerLinkActive="active">
+                      <!-- <a mat-button class="menu-button nav-link" routerLink="/add-working-hours" routerLinkActive="active">
                     <span> Working Hours</span>
-                    </a>
+                    </a> -->
 
                 <a mat-button class="menu-button nav-link" routerLink="/add-group" routerLinkActive="active">
                     <span>Access Groups</span>
@@ -320,66 +326,54 @@
 </button>
 
     </div>
-       <div href="">
+
+
+
+   <div>
   <mat-accordion>
-            <mat-expansion-panel class="mat-elevation-z-0">
-                <mat-expansion-panel-header>
+    <mat-expansion-panel class="mat-elevation-z0">
 
-                    <button mat-button class="menu-button nav-link">
-                                               <mat-icon>description</mat-icon>
-
-                        <span class="text-sm font-medium">Reports</span>
-                    </button>
-                </mat-expansion-panel-header>
-
-                <a mat-button class="menu-button nav-link" routerLink="/attendance-report" routerLinkActive="active">
-                    <span> Attendance Report</span>
-                </a>
-  <a mat-button class="menu-button nav-link" routerLink="/multiple-punches-report" routerLinkActive="active">
-                    <span> Multiple Punches Report </span>
-                </a>
+      <mat-expansion-panel-header>
+        <button mat-button class="menu-button nav-link">
+          <mat-icon>description</mat-icon>
+          <span class="text-sm font-medium">Reports</span>
+        </button>
+      </mat-expansion-panel-header>
 
 
-                   <a mat-button class="menu-button nav-link" routerLink="/master-report" routerLinkActive="active">
-                    <span> Employee Master Report </span>
-                </a>
+  <a mat-button
+     class="menu-button nav-link"
+     routerLink="/attendance-report"
+     routerLinkActive="active">
+    <span>Attendance Report</span>
+  </a>
 
+  <a mat-button
+     class="menu-button nav-link"
+     routerLink="/multiple-punches-report"
+     routerLinkActive="active">
+    <span>Multiple Punches Report</span>
+  </a>
 
-                     <a mat-button class="menu-button nav-link" routerLink="/contractor-wise-report" routerLinkActive="active">
-                    <span>  Contractor wise Report </span>
-                </a>
+  <a mat-button
+     class="menu-button nav-link"
+     routerLink="/master-report"
+     routerLinkActive="active">
+    <span>Employee Master Report</span>
+  </a>
 
-                
+  <a mat-button style="margin-bottom: 80px;"
+     class="menu-button nav-link"
+     routerLink="/log-report"
+     routerLinkActive="active">
+    <span>Log Report</span>
+  </a>
 
-                   <!-- <a mat-button class="menu-button nav-link" routerLink="/access-control-report" routerLinkActive="active">
-                    <span> Access Control Report </span>
-                </a> -->
+  <!-- more reports -->
 
-                   <!-- <a mat-button class="menu-button nav-link" routerLink="/access-granted-report" routerLinkActive="active">
-                    <span> Access Granted Report</span>
-                </a> -->
-
-                 
-                   <!-- <a mat-button class="menu-button nav-link" routerLink="/audit-report" routerLinkActive="active">
-                    <span> Audit Report </span>
-                </a> -->
-
-                      <a mat-button class="menu-button nav-link" routerLink="/entry-exit-status-report" routerLinkActive="active">
-                    <span> Entry Exit Status Report </span>
-                </a>
-
-
-               <a style="margin-bottom: 20px;" mat-button class="menu-button nav-link" routerLink="/log-report" routerLinkActive="active">
-                    <span> Log Report </span>
-                </a>
-
-                   <!-- <a mat-button class="menu-button nav-link" routerLink="/person-tracking-report" routerLinkActive="active">
-                    <span> Person Tracking Report </span>
-                </a> -->
-                
-            </mat-expansion-panel>
-        </mat-accordion>
-    </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
 
             <!-- <a mat-button class="menu-button nav-link" routerLink="/help" routerLinkActive="active">
 

@@ -196,7 +196,7 @@
         {{ getSelectedLocationName()}}
       </span>
     </p>
-<span class="text-[#004A71] mb-3">
+<!-- <span class="text-[#004A71] mb-3">
   Start Working Time :
   <span class="font-semibold">
     {{ formatTime(workingHoursSetTime?.inTime) || 'N/A' }}
@@ -206,7 +206,7 @@
   <span class="font-semibold">
     {{ formatTime(workingHoursSetTime?.outTime) || 'N/A' }}
   </span>
-</span>
+</span> -->
 
   
   </div>
@@ -283,9 +283,7 @@
 
   <ng-container *ngFor="let punch of getPunches(row?.ioStatus); let last = last">
 
-    <span
-      [class.late-early-punch]="isLateEarlyPunch(punch, row?.lateEarly)"
-      [class.continuous-punch]="isContinuousDuplicatePunch(punch, row?.ioStatus)">
+    <span>
       {{ punch }}
     </span>
 

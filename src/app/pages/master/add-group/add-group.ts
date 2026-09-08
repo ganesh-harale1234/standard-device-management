@@ -24,7 +24,7 @@ groupId:any;
     'Srno',
     'Group-name',
      'branch-name',
-    'action'
+    // 'action'
   ];
 
   // dummy data

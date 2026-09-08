@@ -169,7 +169,7 @@ mat-sidenav {
 
 .imglogo{
      height: 47px !important;
-    width: 155px !important;
+    width: 145px !important;
     // margin-bottom: 30px !important;
     // margin-top: -10px !important;
     position: relative;
@@ -335,11 +335,12 @@ mat-drawer,
 }
 
 .imglogo {
-    height: 38px !important;
-    width: 182px !important;
+   height: 21px !important;
+    width: 110px !important;
     position: relative;
     z-index: 995 !important;
-    left: 14px !important;
+    left: 46px !important;
+    margin-top: 10px;
 }
 
 
@@ -442,3 +443,79 @@ mat-drawer,
 //     transform: rotate(360deg);
 //   }
 // }
+
+
+
+.reports-list {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+.reports-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.reports-list::-webkit-scrollbar-thumb {
+  background: #bdbdbd;
+  border-radius: 10px;
+}
+
+.reports-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.reports-list {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+.sidebar {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.reports-list {
+  max-height: 180px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reports-list {
+  max-height: 180px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reports-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.reports-list::-webkit-scrollbar-thumb {
+  background: #d7e3ff;
+  border-radius: 10px;
+}
+
+.reports-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::ng-deep .mat-drawer-inner-container {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+mat-sidenav-container {
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+mat-sidenav-content {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.content {
+  min-height: 100%;
+  overflow: visible;
+}

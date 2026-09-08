@@ -24,7 +24,7 @@ export class AddContractor {
   displayedColumns: string[] = [
     'Srno',
     'contractor-name',
-    'action'
+    // 'action'
   ];
 
   // dummy data

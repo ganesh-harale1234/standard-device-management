@@ -22,7 +22,7 @@ deptId:any;
   displayedColumns: string[] = [
     'Srno',
     'department-name',
-    'action'
+    // 'action'
   ];
 
   // dummy data

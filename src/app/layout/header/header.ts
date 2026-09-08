@@ -56,6 +56,13 @@ this.locationName =  sessionStorage.getItem('locationName');
 
   }
 
+  //   @HostListener('window:popstate', ['$event'])
+  // onBrowserBack(event: PopStateEvent) {
+  //   this.router.navigate(['/dashboard'], {
+  //     replaceUrl: true
+  //   });
+  // }
+
   ngAfterViewInit() {
     console.log('in after view init');
     this.observer
