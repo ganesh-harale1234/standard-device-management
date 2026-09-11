@@ -15,13 +15,16 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { NgSelectModule } from '@ng-select/ng-select';
 import {FaceDetector,FilesetResolver} from '@mediapipe/tasks-vision';
 import { Subject } from 'rxjs';
+
 @Component({
-  selector: 'app-staff-management',
+  selector: 'app-face-transfer-list',
   imports: [SharedModule, CommonModule,  FormsModule,NgSelectModule, ReactiveFormsModule, NgxSpinnerModule],
-  templateUrl: './staff-management.html',
-  styleUrl: './staff-management.scss',
+  templateUrl: './face-transfer-list.html',
+  styleUrl: './face-transfer-list.scss',
 })
-export class StaffManagement {
+export class FaceTransferList {
+
+
 
   showFormData:boolean = false;
   showTableData:boolean = true
@@ -56,6 +59,7 @@ RoleName:any;
     'Srno',
     'biometricId',
     'name',
+    'category',
     'accessGroup',
     'imageAvailable',
     // 'employeeId',
@@ -384,9 +388,9 @@ getStatuswiseEmp(empStatus: string) {
   let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
-    apiUrl = `employeeStatus?empStatus=${empStatus}&locationId=${this.locationID}&page=${page}&size=${size}`;
+    apiUrl = `employeeStatusWithFace?empStatus=${empStatus}&locationId=${this.locationID}&page=${page}&size=${size}`;
   } else {
-    apiUrl = `employeeStatus?empStatus=${empStatus}&page=${page}&size=${size}`;
+    apiUrl = `employeeStatusWithFace?empStatus=${empStatus}&page=${page}&size=${size}`;
   }
 
   this.dataService.getAllData(apiUrl).subscribe(
@@ -401,6 +405,7 @@ getStatuswiseEmp(empStatus: string) {
         this.filterallData = [...this.getAllList];
 
         this.dataSource.data = this.getAllList;
+        this.applySelectionToCurrentPage();
         this.totalItems = res?.extend?.totalItems
           ?? res?.extend?.totalCount
           ?? res?.extend?.totalElements
@@ -508,8 +513,7 @@ searchEmployees(): void {
   params.set('size', String(this.pageSize));
 
   this.spinner.show();
-
-  this.dataService.getAllData(  `employee/searchEmployees?${params.toString().replace(/\+/g, '%20')}`).subscribe(
+  this.dataService.getAllData(  `employee/searchEmployeesWithFace?${params.toString().replace(/\+/g, '%20')}`).subscribe(
       (res: any) => {
       this.spinner.hide();
 
@@ -519,6 +523,7 @@ searchEmployees(): void {
         this.dataSource.data = this.selectedValue && this.getAllList.length > this.pageSize
           ? this.getAllList.slice(this.pageIndex * this.pageSize, (this.pageIndex + 1) * this.pageSize)
           : this.getAllList;
+        this.applySelectionToCurrentPage();
         this.totalItems = res?.extend?.totalItems
           ?? res?.extend?.totalCount
           ?? res?.extend?.totalElements
@@ -824,9 +829,9 @@ getallData() {
   let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
-    apiUrl = `employee/findAllEmployees?locationId=${this.locationID}&page=${page}&size=${size}`;
+    apiUrl = `employee/findAllEmployeesWithFace?locationId=${this.locationID}&page=${page}&size=${size}`;
   } else {
-    apiUrl = `employee/findAllEmployees?page=${page}&size=${size}`;
+    apiUrl = `employee/findAllEmployeesWithFace?page=${page}&size=${size}`;
   }
 
   this.dataService.getAllData(apiUrl).subscribe(
@@ -837,6 +842,7 @@ getallData() {
         this.getAllList = res?.extend?.data || [];
         this.filterallData = [...this.getAllList];
         this.dataSource.data = this.getAllList;
+        this.applySelectionToCurrentPage();
         this.totalItems = res?.extend?.totalItems
           ?? res?.extend?.totalCount
           ?? res?.extend?.totalElements
@@ -1359,6 +1365,7 @@ console.log(ids); // [1,2,1011]
               // password: empData.password || '',
              accessGroupId: ids
            });
+          this.form.disable();
           // this.form.get('accessGroupId')?.disable();
             if (empData.imageAvailable === 'Yes' && empData.signature) {
               this.photoPreview =
@@ -1785,6 +1792,7 @@ onColumnChange(event: Event) {
     if (this.showSrNo) cols.push('Srno');
     if (this.showBiometricId) cols.push('biometricId');
     if (this.showName) cols.push('name');
+    if (this.showName) cols.push('category');
     // if (this.showEmployeeId) cols.push('employeeId');
 
     // cols.push('backupNum');
@@ -1943,7 +1951,8 @@ this.dialog.open(this.uploadExcelDialog, {
 }
 
   onCancel(): void {
-        this.isEditMode = false;
+    this.form.enable();
+    this.isEditMode = false;
     this.form.reset({
       biometricId: null,
       name: '',
@@ -1993,6 +2002,7 @@ removeImage() {
 
 
 isAllSelectedemp = false;
+selectAllAcrossPages = false;
 selectedEnrollIds: number[] = [];
 selectedRolesText: string = '';  
 
@@ -2040,30 +2050,28 @@ bacUpNumbersList:any
 
 toggleSelectAllemp(event: any): void {
   this.isAllSelectedemp = event.checked;
+  this.selectAllAcrossPages = event.checked;
 
-  // dataSource contains only the currently visible page records.
   const currentPageRows = this.dataSource.data;
 
-  this.selectedEnrollIds = [];
-  const roles: string[] = [];
+  if (!this.isAllSelectedemp) {
+    this.selectedEnrollIds = [];
+    this.enrollIdList = [];
+    this.selectedRolesText = '';
+    currentPageRows.forEach((row: any) => row.select = false);
+    return;
+  }
 
   currentPageRows.forEach((row: any) => {
     row.select = this.isAllSelectedemp;
 
-    if (this.isAllSelectedemp) {
-
+    if (row.enrollId != null && !this.selectedEnrollIds.includes(row.enrollId)) {
       this.selectedEnrollIds.push(row.enrollId);
-
-      if (row.rollId === 1) {
-        roles.push('Admin');
-      } else {
-        roles.push('User');
-      }
     }
   });
 
   this.enrollIdList = [...this.selectedEnrollIds];
-  this.selectedRolesText = roles.join(',');
+  this.updateSelectedRolesText();
 
   console.log(this.enrollIdList);
 }
@@ -2074,18 +2082,6 @@ onPageChange(event: PageEvent) {
   this.pageIndex = event.pageIndex;
   this.pageSize = event.pageSize;
 
-  // Reset selection
-  this.isAllSelectedemp = false;
-
-  this.selectedEnrollIds = [];
-  this.enrollIdList = [];
-  this.selectedRolesText = '';
-
-  // Current page selection reset
-  this.dataSource.data.forEach((row: any) => {
-    row.select = false;
-  });
-
   if (this.selectedStatus === 'All') {
     this.hasEmployeeSearchFilter()
       ? this.searchEmployees()
@@ -2095,6 +2091,32 @@ onPageChange(event: PageEvent) {
       ? this.searchEmployees()
       : this.getStatuswiseEmp(this.selectedStatus);
   }
+}
+
+private applySelectionToCurrentPage(): void {
+  this.dataSource.data.forEach((row: any) => {
+    row.select = this.selectAllAcrossPages || this.selectedEnrollIds.includes(row.enrollId);
+
+    if (this.selectAllAcrossPages && row.enrollId != null &&
+        !this.selectedEnrollIds.includes(row.enrollId)) {
+      this.selectedEnrollIds.push(row.enrollId);
+    }
+  });
+
+  this.isAllSelectedemp = this.selectAllAcrossPages || (this.dataSource.data.length > 0 &&
+    this.dataSource.data.every((row: any) => row.select));
+  this.enrollIdList = [...this.selectedEnrollIds];
+  this.updateSelectedRolesText();
+}
+
+private updateSelectedRolesText(): void {
+  const selectedRoles = this.getAllList
+    .filter((row: any) => this.selectedEnrollIds.includes(row.enrollId))
+    .map((row: any) => row.rollId === 1 ? 'Admin' : 'User');
+
+  this.selectedRolesText = selectedRoles.length > 0
+    ? [...new Set(selectedRoles)].join(',')
+    : this.selectedEnrollIds.length > 0 ? 'User' : '';
 }
 
 // SERVER SIDE PAGINATION USE THIS METHOD....
@@ -2138,6 +2160,7 @@ onRowSelectionChange(row: any): void {
     : this.dataSource.data;
 
   if (row.select) {
+    this.selectAllAcrossPages = false;
     if (
       row.enrollId != null &&
       !this.selectedEnrollIds.includes(row.enrollId)
@@ -2145,6 +2168,7 @@ onRowSelectionChange(row: any): void {
       this.selectedEnrollIds.push(row.enrollId);
     }
   } else {
+    this.selectAllAcrossPages = false;
     this.selectedEnrollIds = this.selectedEnrollIds.filter(
       (id) => id !== row.enrollId
     );
@@ -2161,7 +2185,7 @@ onRowSelectionChange(row: any): void {
     }
   });
 
-  this.selectedRolesText = roles.join(',');
+  this.updateSelectedRolesText();
 
   this.isAllSelectedemp = rows.length > 0 && rows.every((r: any) => r.select);
 
@@ -3103,3 +3127,7 @@ onlyNum(event:any){
 
 
 }
+
+
+
+

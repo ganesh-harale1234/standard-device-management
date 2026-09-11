@@ -635,9 +635,9 @@ font-weight: 500;
 /* Table */
 .pdf-table {
   width: 100%;
-  max-width: 100%;
+  min-width: 1470px;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
   font-size: 13px;
   background: #fff;
 }
@@ -720,18 +720,12 @@ font-weight: 500;
   }
 
   .pdf-table {
-    width: max-content;
-    min-width: 100%;
     font-size: 11px;
   }
 
   .pdf-table th,
   .pdf-table td {
     padding: 5px 4px;
-  }
-
-  .pdf-table td {
-    max-width: 130px;
   }
 }
 

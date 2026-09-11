@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { SharedModule } from '../../../shared/shared-module';
 import { Device } from '../../dashboard/dashboard';
@@ -38,8 +38,9 @@ displayedColumns: string[] = [
   'sr-No',
   'id',
   'serialNum',
-    'ipAddress',
+  'ipAddress',
   'deviceName',
+  'deviceType',
   'location',
   'IoStatus',
   'status',
@@ -47,7 +48,7 @@ displayedColumns: string[] = [
 ];
 
   pageIndex = 0;
-  pageSize = 20;
+  pageSize = 50;
   pageStart = 0;
   pageEnd = 0;
   totalItems = 0;
@@ -60,6 +61,7 @@ displayedColumns: string[] = [
       deviceName:['', Validators.required],
       ioStatus:['', Validators.required],
       locationId:['', Validators.required],
+      deviceType:['',Validators.required],
       // authorizedDevice:['',Validators.required],
       accessGroupId: [null, Validators.required],
       // secound:['', Validators.required]
@@ -168,6 +170,11 @@ getDeviceallList() {
     }
   });
 }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+  }
   
     editData(id:any): void {
  this.deviceId = id;
@@ -182,7 +189,8 @@ getDeviceallList() {
       ioStatus:deviceData.ioStatus,
       locationId:deviceData.locationId,
      accessGroupId: Number(deviceData.accessGroupId),
-     reverifyTime:deviceData.reverifyTime
+     reverifyTime:deviceData.reverifyTime,
+     deviceType:deviceData.deviceType
       //  authorizedDevice:deviceData.authorizedDevice
  
        })

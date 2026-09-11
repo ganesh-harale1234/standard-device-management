@@ -41,12 +41,14 @@ const DEVICE_DATA: any = [
 export class Dashboard {
   
 
-  displayedColumns: string[] = [ 'srNo', 'id', 'serialNum', 'deviceName', 'ipAddress', 'IoStatus', 'status', 'lastActivity', 'userCount', 'fingerPrintCount', 'faceCount', 'transectionCount'];
+  displayedColumns: string[] = [ 'srNo', 'id', 'serialNum',  'ipAddress', 'IoStatus', 'status', 'faceCount', 'transectionCount'];
 
   dataSource: any = new MatTableDataSource(DEVICE_DATA);
   dashbordCount:any;
   RoleName:any;
 locationID:any;
+getAllListlocation:any;
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(private dataService: DataService, private toaster: ToastrService, private router :Router) { }
 
@@ -56,24 +58,106 @@ locationID:any;
     this.RoleName =  sessionStorage.getItem('roleName');
 
     this.getAllDeviceList();
-    this.getDashbordcount()
+    this.getDashbordcount();
+    this.getPersonCountByLocation();
+    this.getalllocation()
   }
 
-  getAllDeviceList() {
-    let apiUrl = '';
+
+
+
+   getalllocation(){
+
+  let apiUrl = '';
 
   if (this.RoleName === 'Branch Admin' && this.locationID) {
-    apiUrl = `getAllDeviceInfo?locationId=${this.locationID}`;
+    apiUrl = `findAllLocation?locationId=${this.locationID}`;
   } else {
+    apiUrl = 'findAllLocation';
+  }
+
+  this.dataService.getAllData(apiUrl).subscribe((res: any) => {
+      if(res.code === 100){
+      this.getAllListlocation = res.extend.data;
+       
+      }else if(res.code===500){
+                this.toaster.error('Internal server error !')
+      }
+      else{
+        this.toaster.error('Something went wrong !')
+      }
+    }, )
+  
+  }
+  
+totalEmployee = 0;
+presentEmployee = 0;
+
+  getPersonCountByLocation(locationId?: any) {
+    let apiUrl = 'getPersonCountByLocation';
+
+    if (this.RoleName === 'Branch Admin' && this.locationID) {
+      apiUrl += `?locationId=${this.locationID}`;
+    } else if (this.RoleName === 'Admin' && locationId) {
+      apiUrl += `?locationId=${locationId}`;
+    }
+
+    this.dataService.getAllData(apiUrl).subscribe((res: any) => {
+    const count = res?.[0];
+
+  this.totalEmployee = count?.userCount ?? 0;
+  this.presentEmployee = count?.backup50Count ?? 0;
+    });
+  }
+
+getBranchId(event: any) {
+  const branchId = event.target.value;
+
+  // Admin + Branch selected
+  if (this.RoleName === 'Admin' && branchId) {
+    this.getAllDeviceList(branchId);
+    this.getPersonCountByLocation(branchId);
+  }
+
+  // Admin + Select Branch
+  if (this.RoleName === 'Admin' && !branchId) {
+    this.getAllDeviceList();
+    this.getPersonCountByLocation();
+  }
+}
+
+
+getAllDeviceList(locationId?: any) {
+  let apiUrl = '';
+
+  // Branch Admin
+  if (this.RoleName === 'Branch Admin' && this.locationID) {
+    apiUrl = `getAllDeviceInfo?locationId=${this.locationID}`;
+  }
+
+  // Admin + selected branch
+  else if (this.RoleName === 'Admin' && locationId) {
+    apiUrl = `getAllDeviceInfo?locationId=${locationId}`;
+  }
+
+  // Admin + default All Devices
+  else {
     apiUrl = 'getAllDeviceInfo';
   }
 
   this.dataService.getAllData(apiUrl).subscribe((res: any) => {
-         const list = res;
-     this.dataSource.data = list;          
-      this.dataSource.paginator = this.paginator; 
-    })
-  }
+
+    const list = res || [];
+
+    // Device list
+    // Table data
+    this.dataSource.data = list;
+
+    // Paginator
+    this.dataSource.paginator = this.paginator;
+
+  });
+}
 
 
  getDashbordcount(){

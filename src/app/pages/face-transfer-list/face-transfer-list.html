@@ -6,7 +6,7 @@
     <!-- <div class="p-4" *ngIf="showTableData">
   <div class="flex flex-wrap items-center justify-between rounded-sm gap-4 mb-4 px-3 "> -->
     
-    <h2 class="text-xl font-semibold mr-10">Employee List</h2>
+    <h2 class="text-xl font-semibold mr-10"> Face Transfer</h2>
 <div class="status-section">
 
   <!-- <button
@@ -123,7 +123,9 @@
 </mat-form-field> -->
 
 </div>
-<button
+
+
+<!-- <button
   type="button"
   class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-5 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
   (click)="addnew()"  
@@ -132,8 +134,8 @@
     <img src="/assets/images/add-btnn.png" class="w-4 h-4 object-contain" alt="">
     Add New
   </span>
-</button>
-
+</button> -->
+<!-- 
 <button
   type="button"
   class="bg-[#005177] hover:bg-[#003e5c] text-white font-medium py-2 px-5 rounded-lg normal-case shadow-md transition-all duration-200 flex items-center justify-center export-btn"
@@ -143,7 +145,9 @@
     <img src="/assets/images/add-btnn.png" class="w-4 h-4 object-contain" alt="">
     Upload Excel
   </span>
-</button>
+</button> -->
+
+
     </div>
   </div>
   <div class="">
@@ -823,10 +827,21 @@
     </td>
   </ng-container>
 
+
+    <ng-container matColumnDef="category" *ngIf="showName">
+    <th mat-header-cell *matHeaderCellDef
+        class="font-semibold sticky top-0 bg-white z-10">
+     Category Name
+    </th>
+    <td mat-cell *matCellDef="let row" class="">
+      {{ row.categoryName }}
+    </td>
+  </ng-container>
+
     <!-- <ng-container matColumnDef="accessGroup" *ngIf="showName">
     <th mat-header-cell *matHeaderCellDef
         class="font-semibold sticky top-0 bg-white z-10">
-      Access Group
+      Category Name
     </th>
     <td mat-cell *matCellDef="let row" class="">
       {{ row.name }}
@@ -910,7 +925,7 @@
   <ng-container matColumnDef="edit" *ngIf="showEdit">
     <th mat-header-cell *matHeaderCellDef
         class="font-semibold sticky top-0 bg-white z-10">
-      Edit
+      View
     </th>
     <td mat-cell *matCellDef="let row">
       <button
@@ -918,7 +933,7 @@
         class="edit-btn"
         (click)="editData(row.enrollId)"
       >
-        <mat-icon>edit</mat-icon>
+        <mat-icon>visibility</mat-icon>
       </button>
     </td>
   </ng-container>
@@ -1109,6 +1124,7 @@
               type="radio" 
               name="empType" 
               value="staff" 
+              [disabled]="isEditMode"
               [(ngModel)]="empType" 
               [ngModelOptions]="{ standalone: true }"
               class="w-4 h-4 text-sky-600 border-sky-500 focus:ring-sky-500"
@@ -1121,6 +1137,7 @@
               type="radio" 
               name="empType" 
               value="contractor" 
+              [disabled]="isEditMode"
               [(ngModel)]="empType" 
               [ngModelOptions]="{ standalone: true }"
               class="w-4 h-4 text-sky-600 border-sky-500 focus:ring-sky-500"
@@ -1527,13 +1544,13 @@
     </div>
 
     <div class="flex items-center justify-start gap-3 pt-4 border-t border-gray-100">
-      <button
+      <!-- <button
         type="button"
         (click)="onCancel()"
         class="bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium px-6 py-2 rounded-md text-sm transition duration-150"
       >
         Cancel
-      </button>
+      </button> -->
 
       <button
         *ngIf="!isEditMode"
@@ -1544,14 +1561,14 @@
         Submit
       </button>
 
-      <button
+      <!-- <button
         *ngIf="isEditMode"
         type="submit"
         (click)="onUpdate()"
         class="bg-sky-500 text-white hover:bg-sky-600 font-semibold px-6 py-2 rounded-md text-sm shadow-sm transition duration-150"
       >
         Update
-      </button>
+      </button> -->
     </div>
 
   </form>

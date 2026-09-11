@@ -57,6 +57,13 @@ export const routes: Routes = [
         // ,canActivate:[authGuard]
       },
 
+          {
+        path: 'transfer-face-details',
+        loadComponent: () =>
+          import('../pages/face-transfer-list/face-transfer-list').then(m => m.FaceTransferList)
+        // ,canActivate:[authGuard]
+      },
+
         {
         path: 'emp-transfer-data',
         loadComponent: () =>
