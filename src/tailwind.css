@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+.test-tailwind {
+  @apply bg-red-500 text-white p-5;
+}
